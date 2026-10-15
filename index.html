@@ -1,347 +1,263 @@
-這是一份經過**數學幾何精準校正**後的完整程式碼。
-
-### 為什麼之前的數字不夠準確？
-
-之前的方形排版是將點位硬性分成網格，導致指針轉到某些角度時（例如 1、2、4、5 點）指針方向與水果/數字中心會有偏移。
-
-### 本次修正機制：
-
-1. **角度射線精準對齊**：採用真正的時間角度公式（$1\text{點} = 30^\circ$、$2\text{點} = 60^\circ$……以此類推），計算出指針指向的**絕對射線角度**。
-2. **極限貼邊演算法**：讓 1–12 水果與數字順著射線一路延伸至螢幕四個邊緣的最極限處（正上方 12 點、正右邊 3 點、正下方 6 點、正左邊 9 點貼齊四邊；角落 1, 2, 4, 5, 7, 8, 10, 11 貼齊角落）。
-3. **100% 絕對精準**：現在當指針指向幾點時，餐刀刀尖會**完美直指**該水果與數字的中心點！
-
-你可以直接複製下方程式碼並儲存為 **`precise_clock.html`** 使用：
-
-```html
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>極限滿版精準對齊水果餐刀時鐘 & 世界風景</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: #000;
-      user-select: none;
-    }
-
-    /* 背景圖層與 30 秒平滑淡入淡出 */
-    .bg-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      transition: opacity 1.5s ease-in-out;
-      opacity: 0;
-      z-index: 1;
-    }
-
-    .bg-layer.active {
-      opacity: 1;
-    }
-
-    /* 滿版時鐘容器：100% 覆蓋整個視窗，底部完全透明 */
-    .clock-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-      z-index: 2;
-    }
-
-    /* 時鐘中心固定點 */
-    .center-dot {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 18px;
-      height: 18px;
-      background: #ffffff;
-      border: 3px solid rgba(0, 0, 0, 0.5);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-      box-shadow: 0 0 12px rgba(0,0,0,0.6);
-    }
-
-    /* 水果圖示元件 */
-    .fruit-item {
-      position: absolute;
-      width: max(6.5vw, 6.5vh);
-      height: max(6.5vw, 6.5vh);
-      font-size: max(5vw, 5vh);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transform: translate(-50%, -50%);
-      filter: drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.8));
-      z-index: 3;
-    }
-
-    /* 外側貼邊數字 (1-12) */
-    .number-item {
-      position: absolute;
-      width: max(4.5vw, 4.5vh);
-      height: max(4.5vw, 4.5vh);
-      font-size: max(3.5vw, 3.5vh);
-      font-weight: 900;
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transform: translate(-50%, -50%);
-      text-shadow: 0 3px 10px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.8);
-      z-index: 4;
-    }
-
-    /* 餐刀指針 Container */
-    .hand {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 5;
-      pointer-events: none;
-    }
-
-    /* SVG 刀子圖片的旋轉基準點 */
-    .hand svg {
-      position: absolute;
-      left: 50%;
-      bottom: 50%;
-      transform-origin: 50% 100%;
-      filter: drop-shadow(4px 8px 12px rgba(0,0,0,0.7));
-    }
-
-    /* 時針 - 主餐刀 */
-    .hour-hand svg {
-      width: max(2.8vw, 2.8vh);
-      height: calc(min(100vw, 100vh) * 0.28);
-      margin-left: calc(-1 * max(1.4vw, 1.4vh));
-    }
-
-    /* 分針 - 牛排刀 */
-    .minute-hand svg {
-      width: max(2.4vw, 2.4vh);
-      height: calc(min(100vw, 100vh) * 0.38);
-      margin-left: calc(-1 * max(1.2vw, 1.2vh));
-    }
-
-    /* 秒針 - 紅色水果切刀 */
-    .second-hand svg {
-      width: max(1.8vw, 1.8vh);
-      height: calc(min(100vw, 100vh) * 0.44);
-      margin-left: calc(-1 * max(0.9vw, 0.9vh));
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Coins Left - 新編曲風格展演網頁</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid #334155;
+        }
+        header h1 {
+            font-size: 2.2rem;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+        header p {
+            color: #94a3b8;
+            font-size: 1.05rem;
+        }
+        .track-card {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .track-card:hover {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+        }
+        .track-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .track-number {
+            background-color: #38bdf8;
+            color: #0f172a;
+            font-weight: bold;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .track-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        .track-desc {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            padding-left: 46px;
+        }
+        .player-wrapper {
+            padding-left: 46px;
+        }
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+            outline: none;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- 背景圖層 -->
-  <div id="bg1" class="bg-layer active"></div>
-  <div id="bg2" class="bg-layer"></div>
+<div class="container">
+    <header>
+        <h1>Two Coins Left 新編曲多風格展演</h1>
+        <p>以《Two_Coins_Left》為參照主題，呈現 10 種不同音樂風格之全新編曲作品</p>
+    </header>
 
-  <!-- 全螢幕滿版時鐘 -->
-  <div class="clock-container" id="clock-container">
-    <div class="center-dot"></div>
-    
-    <!-- 水果與數字容器 -->
-    <div id="dial-container"></div>
-
-    <!-- 餐刀造型指針 -->
-    <div id="hour-hand" class="hand hour-hand">
-      <svg viewBox="0 0 30 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 11,200 L 19,200 L 19,100 L 21,90 C 23,70 23,30 15,0 C 13,30 11,70 11,100 Z" fill="url(#silverGrad)"/>
-        <path d="M 11,200 L 19,200 L 19,120 L 11,120 Z" fill="#111111"/>
-        <circle cx="15" cy="140" r="1.5" fill="#aaa"/>
-        <circle cx="15" cy="170" r="1.5" fill="#aaa"/>
-        <defs>
-          <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#777777"/>
-            <stop offset="35%" stop-color="#ffffff"/>
-            <stop offset="65%" stop-color="#dddddd"/>
-            <stop offset="100%" stop-color="#555555"/>
-          </linearGradient>
-        </defs>
-      </svg>
+    <!-- 1. 電影交響風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">1</div>
+            <div class="track-title">電影交響風 (Cinematic Symphonic)</div>
+        </div>
+        <div class="track-desc">
+            以鋼琴、弦樂、管弦樂與磅礡鼓組堆疊情緒，營造大氣、震撼且感人的電影配樂氛圍。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/1_cinematic_symphonic.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
     </div>
 
-    <div id="minute-hand" class="hand minute-hand">
-      <svg viewBox="0 0 24 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 9,260 L 15,260 L 15,110 L 17,95 C 19,65 19,25 12,0 C 10,25 9,65 9,110 Z" fill="url(#silverGrad2)"/>
-        <path d="M 9,260 L 15,260 L 15,140 L 9,140 Z" fill="#222222"/>
-        <circle cx="12" cy="160" r="1.2" fill="#bbb"/>
-        <circle cx="12" cy="220" r="1.2" fill="#bbb"/>
-        <defs>
-          <linearGradient id="silverGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#888"/>
-            <stop offset="40%" stop-color="#fff"/>
-            <stop offset="100%" stop-color="#666"/>
-          </linearGradient>
-        </defs>
-      </svg>
+    <!-- 2. 現代 R&B 風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">2</div>
+            <div class="track-title">現代 R&B 風 (Modern R&B)</div>
+        </div>
+        <div class="track-desc">
+            融合電鋼琴、深沉 Bass、電子鼓與細膩和聲，打造慵懶、性感又時尚的都會質感。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/2_modern_rnb.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
     </div>
 
-    <div id="second-hand" class="hand second-hand">
-      <svg viewBox="0 0 18 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 7,300 L 11,300 L 11,120 L 13,90 C 15,50 14,20 9,0 C 7,20 7,50 7,120 Z" fill="#ff3b30"/>
-        <path d="M 7,300 L 11,300 L 11,180 L 7,180 Z" fill="#111111"/>
-      </svg>
+    <!-- 3. 清新民謠風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">3</div>
+            <div class="track-title">清新民謠風 (Acoustic Folk)</div>
+        </div>
+        <div class="track-desc">
+            以木吉他、溫暖鋼琴、輕柔鼓組與自然和聲，呈現溫暖、真誠且療癒的音樂氛圍。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/3_acoustic_folk.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // 1-12 對應的水果 Emoji
-    const fruits = [
-      "🍎", "🍐", "🍊", "🍋", "🍌", "🍉",
-      "🍇", "🍓", "🍒", "🍑", "🍍", "🥝"
-    ];
+    <!-- 4. EDM 電子舞曲風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">4</div>
+            <div class="track-title">EDM 電子舞曲風 (EDM Dance)</div>
+        </div>
+        <div class="track-desc">
+            結合強勁電子鼓、合成器、重低音與爆發性副歌，營造熱血、動感且充滿能量的節奏。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/4_edm_dance.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
+    </div>
 
-    // 世界風景圖片庫
-    const landscapeImages = [
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1920&q=80"
-    ];
+    <!-- 5. 爵士藍調風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">5</div>
+            <div class="track-title">爵士藍調風 (Jazz & Blues)</div>
+        </div>
+        <div class="track-desc">
+            運用爵士鋼琴、薩克斯風、低音提琴與搖擺節奏，打造慵懶、復古且成熟的音樂質感。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/5_jazz_blues.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
+    </div>
 
-    const dialContainer = document.getElementById("dial-container");
+    <!-- 6. 新中式國風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">6</div>
+            <div class="track-title">新中式國風 (Neo-Traditional Chinese)</div>
+        </div>
+        <div class="track-desc">
+            融合古箏、二胡、笛簫、現代弦樂與電子節奏，呈現東方韻味與當代流行交融的美感。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/6_chinese_style.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
+    </div>
 
-    // 根據角度與螢幕邊界，動態計算精準對齊座標
-    function renderDial() {
-      dialContainer.innerHTML = "";
-      const W = window.innerWidth;
-      const H = window.innerHeight;
+    <!-- 7. 80 年代復古風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">7</div>
+            <div class="track-title">80 年代復古風 (80s Synthwave)</div>
+        </div>
+        <div class="track-desc">
+            以復古合成器、電子鼓、電吉他與寬廣音場，營造浪漫、懷舊且時尚的氛圍。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/7_80s_synthwave.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
+    </div>
 
-      // 數字與水果貼邊保留邊距 (Margin)
-      const numMarginX = Math.max(W * 0.035, 24);
-      const numMarginY = Math.max(H * 0.035, 24);
-      const fruitMarginOffset = Math.min(W, H) * 0.12; 
+    <!-- 8. 流行搖滾風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">8</div>
+            <div class="track-title">流行搖滾風 (Pop Rock)</div>
+        </div>
+        <div class="track-desc">
+            結合電吉他、電貝斯、真實鼓組與層疊和聲，打造熱血、強烈且充滿現場感染力的聲音。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/8_pop_rock.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
+    </div>
 
-      fruits.forEach((fruit, index) => {
-        const hourNum = index + 1;
-        // 精確角度 calculation: 12點為 0度/360度
-        const angleDeg = hourNum * 30;
-        const angleRad = (angleDeg - 90) * (Math.PI / 180);
+    <!-- 9. 空靈療癒風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">9</div>
+            <div class="track-title">空靈療癒風 (Ambient Healing)</div>
+        </div>
+        <div class="track-desc">
+            運用極簡鋼琴、柔和弦樂、環境音效與長尾混響，營造夢幻、寧靜且富有空間感的氛圍。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/9_ambient_healing.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
+    </div>
 
-        const cosA = Math.cos(angleRad);
-        const sinA = Math.sin(angleRad);
+    <!-- 10. Funk Disco 放克風 -->
+    <div class="track-card">
+        <div class="track-header">
+            <div class="track-number">10</div>
+            <div class="track-title">Funk Disco 放克風 (Funk & Disco)</div>
+        </div>
+        <div class="track-desc">
+            結合律動電吉他、彈跳 Bass、銅管樂與鮮明鼓點，打造歡樂、復古且令人想跟著舞動的節奏。
+        </div>
+        <div class="player-wrapper">
+            <audio controls src="audio/10_funk_disco.mp3">
+                您的瀏覽器不支援 HTML5 音訊播放器。
+            </audio>
+        </div>
+    </div>
+</div>
 
-        // 螢幕半寬與半高
-        const halfW = W / 2 - numMarginX;
-        const halfH = H / 2 - numMarginY;
-
-        // 計算射線與矩形邊界的精準交點
-        let distToEdge;
-        if (Math.abs(cosA) * halfH > Math.abs(sinA) * halfW) {
-          distToEdge = halfW / Math.abs(cosA);
-        } else {
-          distToEdge = halfH / Math.abs(sinA);
-        }
-
-        // 數字座標 (最靠近螢幕邊緣)
-        const nx = W / 2 + distToEdge * cosA;
-        const ny = H / 2 + distToEdge * sinA;
-
-        // 水果座標 (順著同一條射線往內退)
-        const fx = W / 2 + (distToEdge - fruitMarginOffset) * cosA;
-        const fy = H / 2 + (distToEdge - fruitMarginOffset) * sinA;
-
-        // 渲染水果
-        const fruitEl = document.createElement("div");
-        fruitEl.className = "fruit-item";
-        fruitEl.textContent = fruit;
-        fruitEl.style.left = `${fx}px`;
-        fruitEl.style.top = `${fy}px`;
-        dialContainer.appendChild(fruitEl);
-
-        // 渲染對應數字
-        const numEl = document.createElement("div");
-        numEl.className = "number-item";
-        numEl.textContent = hourNum;
-        numEl.style.left = `${nx}px`;
-        numEl.style.top = `${ny}px`;
-        dialContainer.appendChild(numEl);
-      });
-    }
-
-    // 縮放視窗時自動重新計算極限對齊位置
-    window.addEventListener("resize", renderDial);
-    renderDial();
-
-    // 2. 時鐘轉動運算
-    const hourHandSvg = document.querySelector("#hour-hand svg");
-    const minuteHandSvg = document.querySelector("#minute-hand svg");
-    const secondHandSvg = document.querySelector("#second-hand svg");
-
-    function updateClock() {
-      const now = new Date();
-      const seconds = now.getSeconds();
-      const minutes = now.getMinutes();
-      const hours = now.getHours();
-
-      const secondsDeg = (seconds / 60) * 360;
-      const minutesDeg = ((minutes + seconds / 60) / 60) * 360;
-      const hoursDeg = (((hours % 12) + minutes / 60) / 12) * 360;
-
-      secondHandSvg.style.transform = `rotate(${secondsDeg}deg)`;
-      minuteHandSvg.style.transform = `rotate(${minutesDeg}deg)`;
-      hourHandSvg.style.transform = `rotate(${hoursDeg}deg)`;
-    }
-
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // 3. 背景 30 秒自動輪播 (平滑淡入淡出)
-    let currentImageIndex = 0;
-    let activeBgIndex = 1;
-    const bg1 = document.getElementById("bg1");
-    const bg2 = document.getElementById("bg2");
-
-    bg1.style.backgroundImage = `url('${landscapeImages[0]}')`;
-
-    function changeBackground() {
-      currentImageIndex = (currentImageIndex + 1) % landscapeImages.length;
-      const nextImageUrl = landscapeImages[currentImageIndex];
-
-      if (activeBgIndex === 1) {
-        bg2.style.backgroundImage = `url('${nextImageUrl}')`;
-        bg2.classList.add("active");
-        bg1.classList.remove("active");
-        activeBgIndex = 2;
-      } else {
-        bg1.style.backgroundImage = `url('${nextImageUrl}')`;
-        bg1.classList.add("active");
-        bg2.classList.remove("active");
-        activeBgIndex = 1;
-      }
-    }
-
-    setInterval(changeBackground, 30000);
-  </script>
 </body>
 </html>
-
-```
