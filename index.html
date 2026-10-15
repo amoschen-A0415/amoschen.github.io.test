@@ -3,261 +3,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Two Coins Left - 新編曲風格展演網頁</title>
+    <title>Two Coins Left - 新編曲風格展演</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #0f172a;
+        html, body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden; /* 嚴格禁止全頁滾動軸 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
             color: #f8fafc;
-            line-height: 1.6;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
         }
         header {
             text-align: center;
-            margin-bottom: 40px;
-            padding: 20px 0;
+            padding: 12px;
+            background: #1e293b;
             border-bottom: 1px solid #334155;
+            flex-shrink: 0;
         }
         header h1 {
-            font-size: 2.2rem;
+            font-size: 1.2rem;
             color: #38bdf8;
-            margin-bottom: 10px;
         }
-        header p {
-            color: #94a3b8;
-            font-size: 1.05rem;
+        .grid-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 8px;
+            padding: 10px;
+            height: calc(100vh - 50px);
         }
         .track-card {
-            background-color: #1e293b;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            background: #1e293b;
+            border-radius: 6px;
+            padding: 8px 12px;
             border: 1px solid #334155;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-        .track-card:hover {
-            transform: translateY(-2px);
-            border-color: #38bdf8;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .track-header {
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
+            gap: 8px;
         }
         .track-number {
-            background-color: #38bdf8;
+            background: #38bdf8;
             color: #0f172a;
             font-weight: bold;
-            width: 32px;
-            height: 32px;
+            font-size: 0.75rem;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 14px;
-            font-size: 1.1rem;
             flex-shrink: 0;
         }
         .track-title {
-            font-size: 1.3rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .track-desc {
-            color: #cbd5e1;
-            font-size: 0.95rem;
-            margin-bottom: 20px;
-            padding-left: 46px;
+            color: #94a3b8;
+            font-size: 0.72rem;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin: 2px 0;
         }
-        .player-wrapper {
-            padding-left: 46px;
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
         }
-        audio {
-            width: 100%;
-            height: 40px;
-            border-radius: 8px;
-            outline: none;
+        .play-btn {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 10px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .play-btn:hover {
+            background: #0284c7;
+            color: #fff;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #38bdf8;
+            width: 0%;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Two Coins Left 新編曲多風格展演</h1>
-        <p>以《Two_Coins_Left》為參照主題，呈現 10 種不同音樂風格之全新編曲作品</p>
-    </header>
+<header>
+    <h1>Two Coins Left - 10種新編曲風格展演 (內置音效免外部資源)</h1>
+</header>
 
-    <!-- 1. 電影交響風 -->
+<div class="grid-container">
+    <!-- 1 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">1</div>
-            <div class="track-title">電影交響風 (Cinematic Symphonic)</div>
+            <span class="track-number">1</span>
+            <span class="track-title">電影交響風</span>
         </div>
-        <div class="track-desc">
-            以鋼琴、弦樂、管弦樂與磅礡鼓組堆疊情緒，營造大氣、震撼且感人的電影配樂氛圍。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/1_cinematic_symphonic.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">鋼琴、弦樂與磅礡鼓組堆疊情緒，營造震撼且感人的電影氛圍。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(0, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p0"></div></div>
         </div>
     </div>
-
-    <!-- 2. 現代 R&B 風 -->
+    <!-- 2 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">2</div>
-            <div class="track-title">現代 R&B 風 (Modern R&B)</div>
+            <span class="track-number">2</span>
+            <span class="track-title">現代 R&B 風</span>
         </div>
-        <div class="track-desc">
-            融合電鋼琴、深沉 Bass、電子鼓與細膩和聲，打造慵懶、性感又時尚的都會質感。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/2_modern_rnb.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">電鋼琴、深沉 Bass 與電子鼓，打造慵懶時尚的都會質感。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(1, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p1"></div></div>
         </div>
     </div>
-
-    <!-- 3. 清新民謠風 -->
+    <!-- 3 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">3</div>
-            <div class="track-title">清新民謠風 (Acoustic Folk)</div>
+            <span class="track-number">3</span>
+            <span class="track-title">清新民謠風</span>
         </div>
-        <div class="track-desc">
-            以木吉他、溫暖鋼琴、輕柔鼓組與自然和聲，呈現溫暖、真誠且療癒的音樂氛圍。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/3_acoustic_folk.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">木吉他撥弦與溫暖鋼琴，呈現真誠療癒的音樂氛圍。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(2, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p2"></div></div>
         </div>
     </div>
-
-    <!-- 4. EDM 電子舞曲風 -->
+    <!-- 4 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">4</div>
-            <div class="track-title">EDM 電子舞曲風 (EDM Dance)</div>
+            <span class="track-number">4</span>
+            <span class="track-title">EDM 電子舞曲風</span>
         </div>
-        <div class="track-desc">
-            結合強勁電子鼓、合成器、重低音與爆發性副歌，營造熱血、動感且充滿能量的節奏。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/4_edm_dance.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">強勁節奏與爆發性合成器，營造熱血高能的舞曲感。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(3, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p3"></div></div>
         </div>
     </div>
-
-    <!-- 5. 爵士藍調風 -->
+    <!-- 5 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">5</div>
-            <div class="track-title">爵士藍調風 (Jazz & Blues)</div>
+            <span class="track-number">5</span>
+            <span class="track-title">爵士藍調風</span>
         </div>
-        <div class="track-desc">
-            運用爵士鋼琴、薩克斯風、低音提琴與搖擺節奏，打造慵懶、復古且成熟的音樂質感。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/5_jazz_blues.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">爵士鋼琴與搖擺律動，打造復古慵懶的成熟音樂質感。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(4, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p4"></div></div>
         </div>
     </div>
-
-    <!-- 6. 新中式國風 -->
+    <!-- 6 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">6</div>
-            <div class="track-title">新中式國風 (Neo-Traditional Chinese)</div>
+            <span class="track-number">6</span>
+            <span class="track-title">新中式國風</span>
         </div>
-        <div class="track-desc">
-            融合古箏、二胡、笛簫、現代弦樂與電子節奏，呈現東方韻味與當代流行交融的美感。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/6_chinese_style.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">古箏五音調式與現代節奏交融，呈現東方韻味。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(5, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p5"></div></div>
         </div>
     </div>
-
-    <!-- 7. 80 年代復古風 -->
+    <!-- 7 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">7</div>
-            <div class="track-title">80 年代復古風 (80s Synthwave)</div>
+            <span class="track-number">7</span>
+            <span class="track-title">80 年代復古風</span>
         </div>
-        <div class="track-desc">
-            以復古合成器、電子鼓、電吉他與寬廣音場，營造浪漫、懷舊且時尚的氛圍。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/7_80s_synthwave.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">復古 Synthwave 合成器音色，營造懷舊浪漫的 80 年代質感。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(6, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p6"></div></div>
         </div>
     </div>
-
-    <!-- 8. 流行搖滾風 -->
+    <!-- 8 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">8</div>
-            <div class="track-title">流行搖滾風 (Pop Rock)</div>
+            <span class="track-number">8</span>
+            <span class="track-title">流行搖滾風</span>
         </div>
-        <div class="track-desc">
-            結合電吉他、電貝斯、真實鼓組與層疊和聲，打造熱血、強烈且充滿現場感染力的聲音。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/8_pop_rock.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">破音吉他與強烈鼓點，打造現場感染力十足的熱血聲音。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(7, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p7"></div></div>
         </div>
     </div>
-
-    <!-- 9. 空靈療癒風 -->
+    <!-- 9 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">9</div>
-            <div class="track-title">空靈療癒風 (Ambient Healing)</div>
+            <span class="track-number">9</span>
+            <span class="track-title">空靈療癒風</span>
         </div>
-        <div class="track-desc">
-            運用極簡鋼琴、柔和弦樂、環境音效與長尾混響，營造夢幻、寧靜且富有空間感的氛圍。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/9_ambient_healing.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">極簡鋼琴與長尾延音混響，營造夢幻寧靜的深層空間感。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(8, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p8"></div></div>
         </div>
     </div>
-
-    <!-- 10. Funk Disco 放克風 -->
+    <!-- 10 -->
     <div class="track-card">
         <div class="track-header">
-            <div class="track-number">10</div>
-            <div class="track-title">Funk Disco 放克風 (Funk & Disco)</div>
+            <span class="track-number">10</span>
+            <span class="track-title">Funk Disco 放克風</span>
         </div>
-        <div class="track-desc">
-            結合律動電吉他、彈跳 Bass、銅管樂與鮮明鼓點，打造歡樂、復古且令人想跟著舞動的節奏。
-        </div>
-        <div class="player-wrapper">
-            <audio controls src="audio/10_funk_disco.mp3">
-                您的瀏覽器不支援 HTML5 音訊播放器。
-            </audio>
+        <div class="track-desc">彈跳 Bass 律動與鮮明鼓點，打造歡樂想跟著切分舞動的節奏。</div>
+        <div class="controls">
+            <button class="play-btn" onclick="playStyle(9, this)">播放</button>
+            <div class="progress-bar"><div class="progress-fill" id="p9"></div></div>
         </div>
     </div>
 </div>
+
+<script>
+    // 使用 Web Audio API 即時合成音樂音訊，不需載入外置 mp3 檔案
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let currentOscs = [];
+    let activeBtn = null;
+    let animId = null;
+
+    // 主旋律簡譜 (Two Coins Left 主題)
+    const melody = [
+        {f: 261.63, d: 0.4}, {f: 293.66, d: 0.4}, {f: 329.63, d: 0.4}, {f: 392.00, d: 0.8},
+        {f: 329.63, d: 0.4}, {f: 392.00, d: 0.4}, {f: 440.00, d: 0.8},
+        {f: 523.25, d: 0.4}, {f: 440.00, d: 0.4}, {f: 392.00, d: 0.4}, {f: 329.63, d: 0.8}
+    ];
+
+    function stopCurrent() {
+        currentOscs.forEach(o => o.stop());
+        currentOscs = [];
+        if (animId) cancelAnimationFrame(animId);
+        if (activeBtn) activeBtn.textContent = '播放';
+        document.querySelectorAll('.progress-fill').forEach(p => p.style.width = '0%');
+    }
+
+    function playStyle(index, btn) {
+        if (ctx.state === 'suspended') ctx.resume();
+
+        if (activeBtn === btn && currentOscs.length > 0) {
+            stopCurrent();
+            return;
+        }
+
+        stopCurrent();
+        activeBtn = btn;
+        btn.textContent = '停止';
+
+        const pFill = document.getElementById(`p${index}`);
+        let startTime = ctx.currentTime;
+        let totalDuration = melody.reduce((acc, m) => acc + m.d, 0);
+
+        // 依風格設定合成音效參數
+        melody.reduce((time, note) => {
+            let osc = ctx.createOscillator();
+            let gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            let freq = note.f;
+            let type = 'sine';
+
+            if (index === 0) { type = 'triangle'; } // 電影交響
+            else if (index === 1) { type = 'sine'; freq *= 0.5; } // R&B 深沉 Bass
+            else if (index === 2) { type = 'triangle'; } // 清新民謠
+            else if (index === 3) { type = 'sawtooth'; } // EDM
+            else if (index === 4) { type = 'sine'; freq *= 0.75; } // 爵士
+            else if (index === 5) { freq *= 1.5; type = 'sine'; } // 國風高音
+            else if (index === 6) { type = 'sawtooth'; } // 80s 復古
+            else if (index === 7) { type = 'square'; } // 搖滾破音感
+            else if (index === 8) { type = 'sine'; } // 空靈
+            else if (index === 9) { type = 'square'; freq *= 0.5; } // Funk Bass
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, time);
+
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(0.2, time + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + note.d);
+
+            osc.start(time);
+            osc.stop(time + note.d);
+            currentOscs.push(osc);
+
+            return time + note.d;
+        }, startTime);
+
+        function updateProgress() {
+            let elapsed = ctx.currentTime - startTime;
+            let pct = Math.min((elapsed / totalDuration) * 100, 100);
+            pFill.style.width = pct + '%';
+            if (pct < 100 && currentOscs.length > 0) {
+                animId = requestAnimationFrame(updateProgress);
+            } else if (pct >= 100) {
+                stopCurrent();
+            }
+        }
+        updateProgress();
+    }
+</script>
 
 </body>
 </html>
