@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>古典文學記事本 - 電子便簽</title>
+<title>古典文學記事本 - 可編輯與存檔電子便簽</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap');
 
@@ -15,6 +15,7 @@
     --text-secondary: #5c4b43;
     --accent-red: #9e2a2b;
     --accent-gold: #c68b59;
+    --btn-hover: #722314;
     --shadow: 0 4px 15px rgba(0,0,0,0.08);
   }
 
@@ -25,118 +26,240 @@
     color: var(--text-primary);
     font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
     margin: 0;
-    padding: 40px 20px;
+    padding: 30px 15px 60px 15px;
     line-height: 1.8;
   }
 
   .container {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
   }
 
   header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 25px;
     position: relative;
-    padding-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed var(--accent-gold);
   }
 
   header h1 {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     color: var(--accent-red);
     letter-spacing: 4px;
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     font-weight: 700;
   }
 
   header p {
     color: var(--text-secondary);
-    font-size: 1.05rem;
-    letter-spacing: 2px;
+    font-size: 1rem;
+    margin: 0;
+    letter-spacing: 1.5px;
   }
 
-  header::after {
-    content: "◆ ✦ ◆";
-    display: block;
-    color: var(--accent-gold);
-    font-size: 0.9rem;
-    margin-top: 15px;
+  /* Control Panel */
+  .control-panel {
+    background: #eae2d3;
+    border: 1px solid var(--accent-gold);
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    background: var(--paper-color);
+    border: 1px solid var(--border-color);
+    color: var(--border-color);
+    padding: 8px 18px;
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .tab-btn:hover, .tab-btn.active {
+    background: var(--border-color);
+    color: #fff;
+  }
+
+  .action-btns {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn {
+    background: var(--accent-red);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+  }
+
+  .btn:hover {
+    background: var(--btn-hover);
+  }
+
+  .btn-gold {
+    background: var(--accent-gold);
+  }
+  .btn-gold:hover {
+    background: #a87143;
+  }
+
+  .status-msg {
+    font-size: 0.88rem;
+    color: var(--accent-red);
+    margin-left: 8px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .status-msg.show {
+    opacity: 1;
+  }
+
+  /* Section Title */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-top: 20px;
+    margin-bottom: 25px;
   }
 
   .section-title {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     color: var(--border-color);
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 8px;
-    margin-top: 40px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
     letter-spacing: 2px;
-  }
-
-  .section-title::before {
-    content: "【";
-    color: var(--accent-gold);
-  }
-  .section-title::after {
-    content: "】";
-    color: var(--accent-gold);
+    margin: 0;
   }
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 22px;
   }
 
+  /* Note Card */
   .note-card {
     background: var(--paper-color);
     border: 1px solid #e0d5c1;
     border-top: 4px solid var(--border-color);
     border-radius: 4px;
-    padding: 22px;
+    padding: 20px;
     box-shadow: var(--shadow);
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    white-space: pre-wrap;
-    word-break: break-word;
   }
 
   .note-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   }
 
-  .note-card::before {
-    content: "印";
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 24px;
-    height: 24px;
-    border: 1px solid var(--accent-red);
-    color: var(--accent-red);
-    font-size: 0.75rem;
+  .card-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    border-radius: 2px;
-    opacity: 0.4;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed #dcd1be;
+    padding-bottom: 6px;
+  }
+
+  .card-index {
+    font-size: 0.82rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .mini-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .mini-btn:hover {
+    background: #e8ded0;
+    color: var(--accent-red);
   }
 
   .note-content {
     font-size: 0.98rem;
     color: var(--text-primary);
+    white-space: pre-wrap;
+    word-break: break-word;
+    outline: none;
+    min-height: 80px;
+    padding: 6px;
+    border: 1px transparent dashed;
+    border-radius: 3px;
+    transition: border-color 0.2s;
+  }
+
+  .note-content:focus {
+    border-color: var(--accent-gold);
+    background: #fffdfa;
+  }
+
+  .seal-mark {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--accent-red);
+    color: var(--accent-red);
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    opacity: 0.35;
+    pointer-events: none;
   }
 
   footer {
     text-align: center;
-    margin-top: 60px;
+    margin-top: 50px;
     color: var(--text-secondary);
     font-size: 0.85rem;
-    border-top: 1px solid #dcd1be;
-    padding-top: 20px;
   }
 </style>
 </head>
@@ -144,68 +267,177 @@
 
 <div class="container">
   <header>
-    <h1>古典雅集．文字記事本</h1>
-    <p>整理自 00記事本.xls 隨筆與詩詞手稿</p>
+    <h1>古典雅集．可編輯電子便簽</h1>
+    <p>收錄《00記事本.xls》全數創作 ｜ 支援即時編輯、新增卡片與本地存檔</p>
   </header>
 
-  <!-- 第一分類：創作(小品) -->
-  <div class="section-title">創作（小品）</div>
-  <div class="grid">
-    <div class="note-card"><div class="note-content">獨自一個人.並不是愛上孤獨~而是.未能找著..一縷與自己相契合的靈魂......</div></div>
-    <div class="note-card"><div class="note-content">回憶.伴隨著過去的妳和我..妳還在.我卻己殘缺......妳.一直是妳的...而我.只是妳不經意擦肩而過的曾經......</div></div>
-    <div class="note-card"><div class="note-content">慵懶的優雅.在思念妳的感覺中盤旋..是妳.讓浪漫信手可捻.讓美麗無處不在....風吹拂了妳的臉龐.舞動了妳的髮稍..我的愛在雀躍著.極致的亙古..在歲月中被沈寂.等待我們呼喊的瞬間....羽化</div></div>
-    <div class="note-card"><div class="note-content">雨.帶回了思念.也攜來了對過去的懷念..我.走出了妳的生命.卻依然陷在過去的宿命....夜雨的滂沱.朝雨的霏霏.見證時間的延續.我..一直在這.想著.念著.望著..那曾經~眷戀的微笑....</div></div>
-    <div class="note-card"><div class="note-content">十餘年的文哲創作..十餘年的旅遊回憶....十餘年的歷歷往事......十餘年的莞爾伊人........十餘年的老友通訊..........十餘年的~都在那一瞬間消失了..僅存~在我腦海裡的片段~與隻字片語..像是存在與虛無的瞬時轉換~我的隨身碟伴隨著我所有的資料..以及過不去的過去~都一併走遠了......風淡風輕的虛無~我懷疑著存在的可能....懷疑著</div></div>
-    <div class="note-card"><div class="note-content">紅色的季節..醉人的丰姿~演示著桃李般的美貌..妳的桃花世界</div></div>
-    <div class="note-card"><div class="note-content">尾冬的藍白~如妳清麗婉約的嶄新..俏麗的迎接~即將的初春</div></div>
-    <div class="note-card"><div class="note-content">笑靨似花~妳像暖春中迎接的喜悅..純真的自然 ~在大地的懷抱</div></div>
-    <div class="note-card"><div class="note-content">懷念的舊昔時光~是逝去的永恆美麗..猶如妳的韻味那般雋永無二~</div></div>
-    <div class="note-card"><div class="note-content">邂逅的夢醒時分~與妳擦肩而過的許久..多年後~是否會再想起..這多愁善感的五月</div></div>
+  <div class="control-panel">
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('ALL')">全部創作</button>
+      <button class="tab-btn" onclick="switchTab('創作(小品)')">創作(小品)</button>
+      <button class="tab-btn" onclick="switchTab('創作(詩詞)')">創作(詩詞)</button>
+      <button class="tab-btn" onclick="switchTab('創作(雜作)')">創作(雜作)</button>
+    </div>
+    <div class="action-btns">
+      <button class="btn btn-gold" onclick="addNewCard()">➕ 新建便簽</button>
+      <button class="btn" onclick="saveToLocalStorage()">💾 儲存變更</button>
+      <button class="btn btn-gold" onclick="resetData()">🔄 還原初始</button>
+      <span id="statusMsg" class="status-msg">已存檔！</span>
+    </div>
   </div>
 
-  <!-- 第二分類：創作(詩詞) -->
-  <div class="section-title">創作（詩詞）</div>
-  <div class="grid">
-    <div class="note-card"><div class="note-content">煙飄昔日逝，曲盡燭淚催；今朝一別去，親故人離散。
-─白．正肅<<祭二叔>>2013.6.29</div></div>
-    <div class="note-card"><div class="note-content"><<萬物到頭終有歸.歸時難留無命客
-客從彼方還遠方.方外終歸化萬物>>
------------------------------正肅2013.6.19</div></div>
-    <div class="note-card"><div class="note-content">臉紅紅.心驚驚.五月十一樂欣欣;
-丈阿哥.丈阿姐.無緣不忘舊小婿;
-有點驚.有點怕.但求伊人不簇踏;
-如果行.许個願.我倆有緣再相見。
-憶辣媽節心有戚戚─打油詩作</div></div>
-    <div class="note-card"><div class="note-content">毳雨花落誰家院，冷弦夜半應覺寒。
-蓬門倚望淚秋水，幽幽空曲催腸斷......</div></div>
-    <div class="note-card"><div class="note-content">回去不回去?不回哪裡去?回了何處去.不如不回去~唉</div></div>
-    <div class="note-card"><div class="note-content">清明時節雨紛紛.為伊七夕淚縱橫.借問酒家何處有.牧童欲語淚還流..</div></div>
-  </div>
-
-  <!-- 第三分類：創作(雜作) -->
-  <div class="section-title">創作（雜作）</div>
-  <div class="grid">
-    <div class="note-card"><div class="note-content">6月19日23點53分
-一封突如其來的簡訊..
-告訴了我..原來二十年了
-我一直以為不會那麼快......一直以為
-小白......
-二十年前..外公帶牠進了我們這大家族
-初來乍到的牠.顯得生澀害羞
-但很快的..牠成了這大家族的一員
-活潑.熱情..有個性....
-媽媽對小妹說:琳琳.妳忘了妳小時候硬要拖小白跟妳走了嗎?
-大家笑了笑......揶揄了一下
-沒想到那麼快..我一直以為還有時間去看牠
-~在牠將去見外公時......
-不知道能否為我捎個信..
-二十年了......</div></div>
-  </div>
+  <main id="notesContainer">
+    <!-- 便簽內容由 JS 自動動態渲染 -->
+  </main>
 
   <footer>
-    <p>電子便簽典藏 ｜ 簡約古典風裝飾</p>
+    <p>古典便簽電子系統 ｜ 編輯後請記得點擊「儲存變更」儲存至瀏覽器本地紀錄</p>
   </footer>
 </div>
+
+<script>
+// 由 Python 完整提取自 Excel 的全部數據
+const initialDataset = {
+  "創作(小品)": [
+    "獨自一個人.並不是愛上孤獨~而是.未能找著..一縷與自己相契合的靈魂......",
+    "回憶.伴隨著過去的妳和我..妳還在.我卻己殘缺......妳.一直是妳的...而我.只是妳不經意擦肩而過的曾經......",
+    "慵懶的優雅.在思念妳的感覺中盤旋..是妳.讓浪漫信手可捻.讓美麗無處不在....風吹拂了妳的臉龐.舞動了妳的髮稍..我的愛在雀躍著.極致的亙古..在歲月中被沈寂.等待我們呼喊的瞬間....羽化",
+    "雨.帶回了思念.也攜來了對過去的懷念..我.走出了妳的生命.卻依然陷在過去的宿命....夜雨的滂沱.朝雨的霏霏.見證時間的延續.我..一直在這.想著.念著.望著..那曾經~眷戀的微笑....",
+    "十餘年的文哲創作..十餘年的旅遊回憶....十餘年的歷歷往事......十餘年的莞爾伊人........十餘年的老友通訊..........十餘年的~都在那一瞬間消失了..僅存~在我腦海裡的片段~與隻字片語..像是存在與虛無的瞬時轉換~我的隨身碟伴隨著我所有的資料..以及過不去的過去~都一併走遠了......風淡風輕的虛無~我懷疑著存在的可能....懷疑著",
+    "紅色的季節..醉人的丰姿~演示著桃李般的美貌..妳的桃花世界",
+    "尾冬的藍白~如妳清麗婉約的嶄新..俏麗的迎接~即將的初春",
+    "笑靨似花~妳像暖春中迎接的喜悅..純真的自然 ~在大地的懷抱",
+    "懷念的舊昔時光~是逝去的永恆美麗..猶如妳的韻味那般雋永無二~",
+    "邂逅的夢醒時分~與妳擦肩而過的許久..多年後~是否會再想起..這多愁善感的五月",
+    "脫俗的氣質~出落大方的高雅.曳灑在枝葉的陽光~也因妳..黯然失色",
+    "ST年代~是妳潛藏在記憶深處的..青澀模樣~淺淺的微笑..帶來寄情湖畔的思念",
+    "艷陽高照的沙灘~是妳嫵媚氣息的呼吸..閃耀星沙呼喊 陽光~沙灘~朵兒",
+    "秋風颯颯~幽思懷古之情油然而生..還記得~那些年......我為妳留下的美麗詩篇嗎",
+    "蘊念真實的流露..是妳若干年後的瑰寶~那發酵的成熟韻味..極緻牙買加的響宴~在妳回眸不經意的瞬間.我記錄下了~史詩般的美麗",
+    "秋末~轉入初冬的前奏..聆聽屬於妳的浪漫樂曲~是這時刻.最舒服的享受",
+    "慵懶的美感~在妳舉手投足間..悄悄的散發出~飄絮般的輕柔..是妳髮稍動人的音符.又是一個年頭了~妳像歲月之外的存在般. 依然~美麗動人的......讓人~微醺",
+    "凡事到最後一定會是好事，如果不是好事，代表還沒到最後。",
+    "你們積極的逃避，而我消極的面對；面對負面，與之共處，直到我能決定它的去留。",
+    "我沒有失敗，我只是又發現一種無法成功的方法。",
+    "享樂是與生俱來的能力，但人生考驗的，卻是人們苦中作樂的本領。",
+    "除了愛情，我的人生幾近完美，也因如此，我更不能放棄愛情，因為只差這一步",
+    "我永遠記得，在斷水的第七天，那久違的第一口啤酒，是多麼香甜可口。",
+    "好運鮮少驅策人們思索生命的意義，而面對不知名力量時的埋怨，卻也承認了上帝的存在，我開始懂得愛自己，或許也是愛上帝的第一步",
+    "對於不可避免的事，不要想去逆轉，風刮起來，穿上你的外套就是了。",
+    "給不了就放手，得不到就轉頭。"
+  ],
+  "創作(詩詞)": [
+    "煙飄昔日逝，曲盡燭淚催；今朝一別去，親故人離散。\n─白．正肅<<祭二叔>>2013.6.29",
+    "<<萬物到頭終有歸.歸時難留無命客\n客從彼方還遠方.方外終歸化萬物>>\n-----------------------------正肅2013.6.19",
+    "臉紅紅.心驚驚.五月十一樂欣欣;\n丈阿哥.丈阿姐.無緣不忘舊小婿;\n有點驚.有點怕.但求伊人不簇踏;\n如果行.許個願.我倆有緣再相見。\n憶辣媽節心有戚戚─打油詩作",
+    "毳雨花落誰家院，冷弦夜半應覺寒。\n蓬門倚望淚秋水，幽幽空曲催腸斷......",
+    "回去不回去?不回哪裡去?回了何處去.不如不回去~唉",
+    "清明時節雨紛紛.為伊七夕淚縱橫.借問酒家何處有.牧童欲語淚還流.."
+  ],
+  "創作(雜作)": [
+    "6月19日23點53分\n一封突如其來的簡訊..\n告訴了我..原來二十年了\n我一直以為不會那麼快......一直以為\n小白......\n二十年前..外公帶牠進了我們這大家族\n初來乍到的牠.顯得生澀害羞\n但很快的..牠成了這大家族的一員\n活潑.熱情..有個性....\n媽媽對小妹說:琳琳.妳忘了妳小時候硬要拖小白跟妳走了嗎?\n大家笑了笑......揶揄了一下\n沒想到那麼快..我一直以為還有時間去看牠\n~在牠將去見外公時......\n不知道能否為我捎個信..\n二十年了......\n經歷了九二一..我們一起撐過了\n承受了外公仙逝的哀傷..我們也熬了過來\n時間沒停過..\n陪伴著牠的小阿姨一家..因為搬了家\n漸漸的少了與牠相處的時間......\n小白依然守著我們的山上..\n~依然望著外公熟悉的野狼125..\n小白開始老了..也生病了\n不再活潑..不再熱情....不再有個性了\n曾幾何時......或許夢見了外公"
+  ]
+};
+
+let currentTab = 'ALL';
+let notesData = JSON.parse(localStorage.getItem('user_notes_data')) || initialDataset;
+
+function renderNotes() {
+  const container = document.getElementById('notesContainer');
+  container.innerHTML = '';
+
+  const categories = currentTab === 'ALL' ? Object.keys(notesData) : [currentTab];
+
+  categories.forEach(cat => {
+    if (!notesData[cat]) return;
+    const section = document.createElement('section');
+    section.style.marginBottom = '40px';
+
+    const header = document.createElement('div');
+    header.className = 'section-header';
+    header.innerHTML = `<h2 class="section-title">【${cat}】</h2><span style="font-size:0.9rem; color:var(--text-secondary);">共 ${notesData[cat].length} 則便簽</span>`;
+    section.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+
+    notesData[cat].forEach((text, index) => {
+      const card = document.createElement('div');
+      card.className = 'note-card';
+
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="card-index">便簽 #${index + 1}</span>
+          <div class="card-actions">
+            <button class="mini-btn" title="刪除便簽" onclick="deleteCard('${cat}', ${index})">🗑️ 刪除</button>
+          </div>
+        </div>
+        <div class="note-content" contenteditable="true" onblur="updateText('${cat}', ${index}, this.innerText)">${escapeHtml(text)}</div>
+        <div class="seal-mark">藏</div>
+      `;
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function updateText(cat, index, newText) {
+  notesData[cat][index] = newText;
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.innerText.includes(tab) || (tab === 'ALL' && btn.innerText.includes('全部')));
+  });
+  renderNotes();
+}
+
+function addNewCard() {
+  const targetCat = currentTab === 'ALL' ? '創作(小品)' : currentTab;
+  notesData[targetCat].unshift("點擊此處開始編寫新文字...");
+  renderNotes();
+  showStatus("已在【" + targetCat + "】新增便簽");
+}
+
+function deleteCard(cat, index) {
+  if (confirm("確定要刪除這張便簽嗎？")) {
+    notesData[cat].splice(index, 1);
+    renderNotes();
+    showStatus("便簽已刪除");
+  }
+}
+
+function saveToLocalStorage() {
+  localStorage.setItem('user_notes_data', JSON.stringify(notesData));
+  showStatus("儲存成功！資料已儲存至瀏覽器");
+}
+
+function resetData() {
+  if (confirm("確定要還原為原始 Excel 內的資料嗎？目前的修改將會覆蓋。")) {
+    notesData = JSON.parse(JSON.stringify(initialDataset));
+    localStorage.removeItem('user_notes_data');
+    renderNotes();
+    showStatus("已還原初始資料");
+  }
+}
+
+function showStatus(msg) {
+  const el = document.getElementById('statusMsg');
+  el.innerText = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// 初始化渲染
+renderNotes();
+</script>
 
 </body>
 </html>
