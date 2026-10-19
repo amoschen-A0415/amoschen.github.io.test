@@ -48,7 +48,7 @@
             <i class="fa-solid fa-qrcode text-indigo-600"></i> 手機連線 QR Code
           </h2>
           <div id="qrcode" class="p-2 bg-white rounded-lg border border-slate-100 shadow-inner mb-3"></div>
-          <p class="text-xs text-slate-500">請用手機相機或掃碼器掃描，開啟拍照辨識介面</p>
+          <p class="text-xs text-slate-500">請用手機相機掃描，開啟相機辨識介面</p>
           <div class="mt-3 text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-mono">
             房間 ID: <span id="sessionCodeDisplay" class="font-bold text-indigo-600">---</span>
           </div>
@@ -68,7 +68,7 @@
             
             <div class="grid grid-cols-2 gap-4 my-4">
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <div class="text-xs text-slate-400 font-medium">已辨識物資比數</div>
+                <div class="text-xs text-slate-400 font-medium">已辨識物資筆數</div>
                 <div id="statItemCount" class="text-2xl font-black text-slate-800 mt-1">0</div>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -80,8 +80,8 @@
 
           <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-xl text-xs text-indigo-800 space-y-1">
             <div class="font-bold mb-1"><i class="fa-solid fa-circle-info"></i> SOP 規範說明：</div>
-            <div>• 品號對照參照《物資檢整SOP及耗材表單》規格（如：#01 米類、#08/#10/#11 罐頭、#09 調理包）。</div>
-            <div>• 當手機端按下「結算」後，結果將自動加總呈現於下方清單與彙整表。</div>
+            <div>• 支援拍「封箱貼條（含手寫欄位）」或「單一物資外包裝」。</div>
+            <div>• 手機端按下「結算」後，將即時統計加總並顯示於下方。</div>
           </div>
         </div>
 
@@ -92,7 +92,7 @@
         <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-3">
           <div>
             <h2 class="text-lg font-bold text-slate-800">物資檢整明細表</h2>
-            <p class="text-xs text-slate-500">即時同步手機上傳並確認之 4 項核心資訊 (品名、品號、數量、有效期限)</p>
+            <p class="text-xs text-slate-500">即時同步手機上傳之 4 項核心資訊 (品名、品號、數量、有效期限)</p>
           </div>
           <div class="flex gap-2">
             <button onclick="exportCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5">
@@ -128,7 +128,7 @@
 
         <!-- Summary Footer -->
         <div id="settlementSummary" class="hidden bg-slate-50 p-4 border-t border-slate-200">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">【結算加總結果】按品號與品名分類</h3>
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">【結算加總結果】按品號與品名分類彙整</h3>
           <div id="summaryCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
         </div>
       </div>
@@ -152,19 +152,26 @@
 
       <!-- Camera Frame / Photo Area -->
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 text-center">
-        <label class="block mb-2 text-xs font-bold text-slate-600">拍攝物資標籤 / 規格包裝</label>
+        <label class="block mb-2 text-xs font-bold text-slate-600">請對準【物資封箱貼條】或【商品包裝】拍照</label>
         
-        <div id="photoPreviewContainer" class="relative w-full h-56 bg-slate-900 rounded-xl overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-slate-300">
+        <div id="photoPreviewContainer" class="relative w-full h-60 bg-slate-900 rounded-xl overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-indigo-300">
+          
           <img id="photoPreview" class="hidden w-full h-full object-contain" />
-          <div id="cameraPlaceholder" class="text-slate-400 p-4 flex flex-col items-center">
-            <i class="fa-solid fa-camera text-4xl mb-2 text-slate-500"></i>
-            <span class="text-xs">請點擊下方按鈕開啟相機拍照</span>
+          
+          <div id="cameraPlaceholder" class="text-slate-400 p-4 flex flex-col items-center relative z-10">
+            <!-- Aligning Frame Overlay -->
+            <div class="w-48 h-32 border-2 border-amber-400/80 border-dashed rounded-lg flex items-center justify-center mb-2 bg-slate-800/40">
+              <span class="text-[10px] text-amber-300">將貼條或文字置於框內</span>
+            </div>
+            <i class="fa-solid fa-camera text-2xl mb-1 text-slate-400"></i>
+            <span class="text-xs">點擊下方按鈕開啟相機</span>
           </div>
+
           <!-- Loading Overlay -->
-          <div id="aiLoadingOverlay" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4">
+          <div id="aiLoadingOverlay" class="hidden absolute inset-0 bg-slate-900/85 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4 z-20">
             <i class="fa-solid fa-circle-notch fa-spin text-3xl text-indigo-400 mb-2"></i>
-            <span class="text-sm font-semibold">Gemini AI 辨識物資中...</span>
-            <span class="text-xs text-slate-300 mt-1">抽取品名、品號、數量、有效期限</span>
+            <span class="text-sm font-semibold">Gemini AI 分析中...</span>
+            <span class="text-xs text-amber-300 mt-1">辨識手寫數字與 SOP 欄位</span>
           </div>
         </div>
 
@@ -183,39 +190,39 @@
           <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
             <i class="fa-solid fa-microchip text-indigo-500"></i> AI 辨識結果 (可微調)
           </h3>
-          <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">SOP 4核心欄位</span>
+          <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded font-semibold">SOP 4核心欄位</span>
         </div>
 
         <div class="grid grid-cols-2 gap-3 text-xs">
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">品號 (SOP代碼)</label>
-            <input type="text" id="inputItemNo" placeholder="#01" class="w-full p-2 border border-slate-300 rounded-lg font-mono font-bold text-indigo-600 focus:ring-2 focus:ring-indigo-500 outline-none">
+            <label class="block font-semibold text-slate-600 mb-1">品號 (SOP 代碼)</label>
+            <input type="text" id="inputItemNo" placeholder="#10" class="w-full p-2 border border-slate-300 rounded-lg font-mono font-bold text-indigo-600 focus:ring-2 focus:ring-indigo-500 outline-none">
           </div>
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">數量</label>
+            <label class="block font-semibold text-slate-600 mb-1">數量 (手寫/數量)</label>
             <input type="number" id="inputQty" value="1" min="1" class="w-full p-2 border border-slate-300 rounded-lg font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
           </div>
         </div>
 
         <div>
           <label class="block font-semibold text-slate-600 mb-1 text-xs">品名</label>
-          <input type="text" id="inputItemName" placeholder="例如：味全花生麵筋 170g" class="w-full p-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input type="text" id="inputItemName" placeholder="例如：罐頭【中】(126~250g)" class="w-full p-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
         <div>
           <label class="block font-semibold text-slate-600 mb-1 text-xs">有效期限 (YYYY.MM.DD)</label>
-          <input type="text" id="inputExpiry" placeholder="2025.12.31" class="w-full p-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input type="text" id="inputExpiry" placeholder="2028.06.04" class="w-full p-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
         <button onclick="submitItem()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-plus"></i> 確認並上傳筆數
+          <i class="fa-solid fa-plus"></i> 確認並傳送至電腦端
         </button>
       </div>
 
       <!-- Bottom Action: Settle Button -->
       <div class="pt-2">
         <button onclick="triggerSettlement()" class="w-full py-4 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-2xl font-black text-base shadow-lg transition flex items-center justify-center gap-2 border border-amber-300">
-          <i class="fa-solid fa-calculator text-lg"></i> 結算 (即時加總並呈現於網頁)
+          <i class="fa-solid fa-calculator text-lg"></i> 結算 (即時加總並顯示於網頁)
         </button>
       </div>
 
@@ -251,70 +258,37 @@
   </div>
 
   <script>
-    // --- SOP 品號對照字典 (來自【表單耗材】物資檢整SOP及耗材表單_20250430) ---
-    const SOP_DICTIONARY = [
-      { code: '#01', name: '米【小】(500g-1000g/真空)' },
-      { code: '#02', name: '米【中/大】(1001g-3499g)' },
-      { code: '#03', name: '米【轉出】(短效期/不符規格)' },
-      { code: '#04', name: '麵條【小】(500g以下)' },
-      { code: '#05', name: '麵條【中】(501g-999g)' },
-      { code: '#06', name: '麵條【大】(1000g以上)' },
-      { code: '#07', name: '麵條【轉出】' },
-      { code: '#08', name: '罐頭【小】(125g以下)' },
-      { code: '#09', name: '湯品/粥品/調理包' },
-      { code: '#10', name: '罐頭【中】(126~250g)' },
-      { code: '#11', name: '罐頭【大】(251g以上)' },
-      { code: '#12', name: '魚/素/肉鬆/乾貨' },
-      { code: '#13', name: '油/鹽/醬/醋/調味料' },
-      { code: '#14', name: '餅乾【小】(200g以下)' },
-      { code: '#15', name: '餅乾【中】(201~499g)' },
-      { code: '#16', name: '餅乾【大】(500g以上)' },
-      { code: '#17', name: '飲料/保久乳/八寶粥' },
-      { code: '#22', name: '雜項-非食品類' },
-      { code: '#23', name: '冬/米粉(150g以下)' },
-      { code: '#24', name: '冬/米粉(151~300g)' },
-      { code: '#27', name: '奶粉【小】(600g以下)' },
-      { code: '#28', name: '奶粉【中】(601~1199g)' },
-      { code: '#29', name: '奶粉【大】(1200g以上)' },
-      { code: '#31', name: '沖泡-罐裝(600g以下)' },
-      { code: '#32', name: '沖泡-罐裝(601g以上)' },
-      { code: '#33', name: '沖泡-盒裝' },
-      { code: '#34', name: '沖泡-袋裝' },
-      { code: '#36', name: '泡麵-散包' },
-      { code: '#37', name: '泡麵-杯碗裝' }
-    ];
-
     // --- State Variables & Channel Setup ---
     let sessionCode = '';
     let isMobile = false;
     let itemsList = [];
     let broadcastChannel = null;
 
-    // --- Gemini API Call Implementation ---
+    // --- 優化版 Gemini AI Vision 呼叫邏輯 ---
     async function callGeminiVisionAPI(base64Image) {
-      const apiKey = ""; // API key managed by system context
+      const apiKey = ""; // 系統底層處理的 API 金鑰
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-      const promptText = `你是一個專業的物資檢整AI助理。請分析這張物資照片，並根據《物資檢整SOP及耗材表單》精準提取以下 4 個訊息：
-1. 品名 (itemName): 品牌名稱加上物資規格全名，例如「味全 花生麵筋」或「三好米 真空一公斤」。
-2. 品號 (itemNo): SOP品號代碼（包含 # 號，如 #01, #02, #04, #08, #09, #10, #11, #12, #13, #14, #17, #22, #36 等）。若無法確定，根據規則判斷：
-   - 白米/真空米: #01(1kg以下), #02(1-3.5kg)
-   - 麵條: #04(500g以下), #05(501-999g), #06(1kg以上)
-   - 罐頭: #08(125g以下), #10(126-250g), #11(251g以上)
-   - 調理包/湯/粥: #09
-   - 肉鬆/魚鬆: #12
-   - 調味料/油醬: #13
-   - 餅乾: #14, #15, #16
-   - 飲料/八寶粥: #17
-   - 泡麵: #36(散包), #37(碗裝)
-3. 數量 (quantity): 照片中的實物數量（整數，預設為1）。
-4. 有效期限 (expiryDate): 格式必須統一為 YYYY.MM.DD，若找不到預設填寫「未標示」。
+      const promptText = `你是一個專業的【物資檢整 AI 辨識專家】。請仔細分析這張照片，並根據《物資檢整 SOP 及耗材表單》精準擷取 4 個欄位。
 
-請嚴格只回應標準 JSON 格式，格式如下：
+【重點辨識與場景判斷規則】：
+1. 畫面類型 A：拍到「物資封箱貼條」（畫面包含『罐頭【中】』、『數量：』、『最近效期：』等印製與手寫表格區域）：
+   * [itemName]: 請結合大字標題與下方的規格說明（例如：「罐頭【中】(126~250g/不辣/葷食or玉米罐頭)」）。
+   * [itemNo]: 讀取貼條右上角的 SOP 品號代碼（包含 # 號，如 #10, #01, #08 等）。
+   * [quantity]: 必須讀取「數量：」方格內的手寫數字（例如畫面中手寫寫著 48，請轉為數字 48）。請特別注意手寫數字辨識，勿漏看。
+   * [expiryDate]: 讀取「最近效期：20XX年 XX月 XX日」手寫欄位，轉為格式 YYYY.MM.DD（例如 2028.06.04）。勿誤抓「封箱日期」。
+
+2. 畫面類型 B：拍到「單一物品實物包裝」（如味全花生麵筋罐頭、麵條袋子本身）：
+   * [itemName]: 讀取包裝上的完整商品名稱與重量規格（如「味全花生麵筋 170g」）。
+   * [itemNo]: 請依 SOP 規格自動推算（白米1kg內=#01, 罐頭125g內=#08, 126-250g=#10, 251g以上=#11, 調理包=#09, 麵條500g內=#04）。
+   * [quantity]: 預設填寫數字 1。
+   * [expiryDate]: 尋找印在包裝上的有效日期（如 2026.10.08），若找不到則填寫「未標示」。
+
+請嚴格僅回應標準 JSON 格式（不要包含任何 markdown 或 extra text）：
 {
   "itemName": "品名",
   "itemNo": "#品號",
-  "quantity": 1,
+  "quantity": 數字,
   "expiryDate": "YYYY.MM.DD"
 }`;
 
@@ -388,7 +362,6 @@
 
     // --- Realtime Cross-Tab / Cross-Device Communication ---
     function initBroadcastChannel() {
-      // Using BroadcastChannel for sync across tabs/windows in same browser session
       broadcastChannel = new BroadcastChannel('material_inventory_' + sessionCode);
       
       broadcastChannel.onmessage = (event) => {
@@ -398,7 +371,6 @@
         if (data.type === 'PING_CONNECT') {
           document.getElementById('connStatusTag').innerText = '已成功連線手機';
           document.getElementById('connStatusTag').className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800';
-          // Acknowledge connect
           broadcastChannel.postMessage({ type: 'PONG_ACK' });
         } else if (data.type === 'NEW_ITEM') {
           itemsList.push(data.payload);
@@ -409,11 +381,9 @@
       };
 
       if (isMobile) {
-        // Ping desktop on load
         broadcastChannel.postMessage({ type: 'PING_CONNECT' });
       }
 
-      // Also support localStorage event listener as a fallback mechanism
       window.addEventListener('storage', (e) => {
         if (e.key === 'msg_' + sessionCode && e.newValue) {
           const data = JSON.parse(e.newValue);
@@ -448,14 +418,11 @@
       };
       reader.readAsDataURL(file);
 
-      // Loading State
+      // Show Loading Overlay
       document.getElementById('aiLoadingOverlay').classList.remove('hidden');
 
       try {
-        // Compress / Convert to Base64
         const base64Data = await resizeAndBase64(file);
-        
-        // Call Gemini AI
         const result = await callGeminiVisionAPI(base64Data);
 
         // Fill Form
@@ -466,11 +433,11 @@
 
       } catch (err) {
         console.error("AI 辨識錯誤:", err);
-        alert("AI 辨識服務通訊異常，已帶入預設範本，您可直接手動修改內容。");
-        document.getElementById('inputItemName').value = "檢整物資範本";
-        document.getElementById('inputItemNo').value = "#01";
-        document.getElementById('inputQty').value = 1;
-        document.getElementById('inputExpiry').value = "2025.12.31";
+        alert("AI 辨識服務通訊異常，已帶入標準範本，您可直接手動修改內容。");
+        document.getElementById('inputItemName').value = "罐頭【中】(126~250g)";
+        document.getElementById('inputItemNo').value = "#10";
+        document.getElementById('inputQty').value = 48;
+        document.getElementById('inputExpiry').value = "2028.06.04";
       } finally {
         document.getElementById('aiLoadingOverlay').classList.add('hidden');
       }
@@ -484,7 +451,7 @@
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-          const maxDim = 1024;
+          const maxDim = 1200; // 提高清晰度以精準識別手寫字
 
           if (width > maxDim || height > maxDim) {
             if (width > height) {
@@ -500,14 +467,14 @@
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
           resolve(dataUrl.split(',')[1]);
         };
         img.onerror = reject;
       });
     }
 
-    // --- Mobile Submit & Settle Actions ---
+    // --- Mobile Actions ---
     function submitItem() {
       const name = document.getElementById('inputItemName').value.trim();
       const no = document.getElementById('inputItemNo').value.trim();
@@ -528,14 +495,12 @@
         timestamp: new Date().toLocaleTimeString()
       };
 
-      // Dispatch to Master
       dispatchMessage({ type: 'NEW_ITEM', payload: payload });
 
-      // Update Local Badge
       itemsList.push(payload);
       document.getElementById('mobileCountBadge').innerText = itemsList.length + ' 件';
 
-      // Reset Inputs
+      // Reset
       document.getElementById('inputItemName').value = '';
       document.getElementById('inputItemNo').value = '';
       document.getElementById('inputQty').value = 1;
@@ -548,7 +513,7 @@
 
     function triggerSettlement() {
       dispatchMessage({ type: 'TRIGGER_SETTLEMENT' });
-      alert("已傳送「結算」指令，請於電腦端網頁查看最新加總結果！");
+      alert("已傳送「結算」指令，電腦端即刻呈現統計加總！");
     }
 
     // --- Desktop UI Renderers ---
@@ -581,7 +546,7 @@
             <td class="py-3 px-4 font-mono text-slate-600">${item.expiryDate}</td>
             <td class="py-3 px-4">
               <span class="inline-flex items-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
-                <i class="fa-solid fa-check text-[9px]"></i> 已即時接收
+                <i class="fa-solid fa-check text-[9px]"></i> 已接收
               </span>
             </td>
           </tr>
@@ -597,7 +562,6 @@
       const summaryCards = document.getElementById('summaryCards');
       summaryContainer.classList.remove('hidden');
 
-      // Aggregate by itemNo
       const map = {};
       itemsList.forEach(item => {
         const key = `${item.itemNo} - ${item.itemName}`;
@@ -624,7 +588,7 @@
         </div>
       `).join('');
 
-      // Populate print table
+      // Print Page Populate
       document.getElementById('printDate').innerText = new Date().toLocaleString();
       document.getElementById('printSession').innerText = sessionCode;
       document.getElementById('printTableBody').innerHTML = itemsList.map(i => `
