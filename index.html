@@ -98,11 +98,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 25px;
+      padding: 10px 28px;
       background: rgba(0, 30, 60, 0.4);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-radius: 16px;
+      border-radius: 18px;
       border: 1px solid var(--glass-border);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
@@ -110,19 +110,16 @@
     .brand-section {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
     }
 
-    .logo-badge {
-      width: 52px;
-      height: 52px;
-      background: linear-gradient(135deg, #00529B, #002D5A);
-      border: 2px solid var(--accent-gold);
-      border-radius: 50%;
+    /* 官方 Logo 融合容器 */
+    .official-logo-box {
+      height: 56px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      box-shadow: 0 0 15px rgba(245, 166, 35, 0.4);
+      justify-content: center;
+      filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.5));
     }
 
     .brand-titles {
@@ -131,7 +128,7 @@
     }
 
     .brand-title-main {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 900;
       letter-spacing: 2px;
       background: linear-gradient(180deg, #FFFFFF 0%, #E0EBF5 100%);
@@ -141,7 +138,7 @@
     }
 
     .brand-title-sub {
-      font-size: 0.95rem;
+      font-size: 1rem;
       color: var(--accent-gold);
       letter-spacing: 1.5px;
       font-weight: 700;
@@ -264,70 +261,38 @@
       letter-spacing: 2px;
     }
 
-    /* 底部導覽與標語 */
+    /* 底部標語與說明 */
     footer {
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 20px;
     }
 
     .quote-box {
-      flex: 1;
+      width: 100%;
       background: rgba(0, 25, 50, 0.5);
-      border-left: 5px solid var(--accent-gold);
-      padding: 12px 24px;
-      border-radius: 0 14px 14px 0;
+      border-left: 6px solid var(--accent-gold);
+      padding: 14px 28px;
+      border-radius: 0 16px 16px 0;
       backdrop-filter: blur(10px);
     }
 
     .quote-text {
-      font-size: 1.25rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: #FFFFFF;
       letter-spacing: 1px;
     }
 
+    /* 下方文字說明，放大為 200% */
     .announcement-text {
-      font-size: 1.05rem;
+      font-size: 2.1rem;
+      font-weight: 900;
       color: var(--warm-amber);
-      margin-top: 2px;
-    }
-
-    /* 30秒倒數進度條 */
-    .progress-container {
-      width: 260px;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 10px 18px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .progress-info {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: #D1E3F8;
-    }
-
-    .progress-bar-bg {
-      width: 100%;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--primary-blue), var(--accent-gold));
-      border-radius: 4px;
-      transition: width 0.2s linear;
+      margin-top: 6px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
     }
 
     /* 控制面板選單 */
@@ -476,7 +441,6 @@
           </linearGradient>
         </defs>
         <rect width="100%" height="100%" fill="url(#bgG1)"/>
-        <!-- 象徵愛心與食物箱的溫暖線條與幾何圖形 -->
         <circle cx="960" cy="540" r="450" fill="none" stroke="rgba(245, 166, 35, 0.08)" stroke-width="2"/>
         <circle cx="960" cy="540" r="320" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5"/>
         <path d="M 0,800 Q 480,700 960,850 T 1920,750 L 1920,1080 L 0,1080 Z" fill="rgba(0, 82, 155, 0.3)"/>
@@ -526,11 +490,40 @@
     <!-- 頂部標題與日期 -->
     <header>
       <div class="brand-section">
-        <div class="logo-badge">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        <!-- 融合安得烈官方圖片標誌 (麥穗 + 愛心 + 小魚) -->
+        <div class="official-logo-box">
+          <svg width="100" height="56" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- 1. 左上方棕色方塊 (麥穗) -->
+            <g transform="rotate(-6, 45, 30)">
+              <rect x="5" y="5" width="80" height="75" rx="3" fill="#A06828" stroke="#F5A623" stroke-width="2"/>
+              <!-- 麥穗圖騰 -->
+              <path d="M20 70 Q 40 45 68 15" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <path d="M 32 50 Q 20 42 22 35 Q 35 40 38 48 Z" fill="#FFFFFF"/>
+              <path d="M 38 48 Q 50 40 52 32 Q 40 35 36 45 Z" fill="#FFFFFF"/>
+              <path d="M 44 38 Q 32 30 34 22 Q 47 28 48 35 Z" fill="#FFFFFF"/>
+              <path d="M 50 34 Q 62 25 64 18 Q 52 20 48 30 Z" fill="#FFFFFF"/>
+              <path d="M 56 24 Q 48 15 50 8 Q 60 14 60 21 Z" fill="#FFFFFF"/>
+            </g>
+
+            <!-- 2. 右上方綠色方塊 (愛心) -->
+            <g transform="rotate(8, 140, 30)">
+              <rect x="95" y="8" width="80" height="75" rx="3" fill="#8CB728" stroke="#F5A623" stroke-width="2"/>
+              <!-- 愛心圖騰 -->
+              <path d="M135 60 C120 45 110 32 125 22 C135 15 145 25 148 28 C151 25 161 15 171 22 C186 32 176 45 161 60 L148 70 Z" fill="#FFFFFF"/>
+            </g>
+
+            <!-- 3. 左下方棕色方塊 (小魚) -->
+            <g transform="rotate(-12, 40, 85)">
+              <rect x="8" y="70" width="75" height="80" rx="3" fill="#B07020" stroke="#F5A623" stroke-width="2"/>
+              <!-- 魚圖騰 -->
+              <g transform="translate(18, 80) rotate(-40) scale(0.7)">
+                <path d="M 10 30 Q 35 5 70 30 Q 35 55 10 30 Z" fill="#8CB728"/>
+                <path d="M 10 30 L -10 15 L -5 30 L -10 45 Z" fill="#8CB728"/>
+              </g>
+            </g>
           </svg>
         </div>
+
         <div class="brand-titles">
           <span class="brand-title-main">安得烈慈善協會</span>
           <span class="brand-title-sub">ANDREW CHARITY ASSOCIATION</span>
@@ -563,21 +556,11 @@
       </div>
     </main>
 
-    <!-- 底部標語與背景輪播進度條 -->
+    <!-- 底部標語與放大 200% 的文字說明 -->
     <footer>
       <div class="quote-box">
         <div class="quote-text" id="quoteText">「攜手分擔困境，用愛點亮希望」</div>
         <div class="announcement-text" id="announcementText">安得烈膳糧箱專案 — 陪伴弱勢孩童健康成長</div>
-      </div>
-
-      <div class="progress-container">
-        <div class="progress-info">
-          <span>背景自動切換</span>
-          <span id="timerCountdown">30s</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progressBar"></div>
-        </div>
       </div>
     </footer>
 
@@ -607,8 +590,6 @@
     const ampmTag = document.getElementById('ampmTag');
     const dateTextEl = document.getElementById('dateText');
     const quoteTextEl = document.getElementById('quoteText');
-    const progressBar = document.getElementById('progressBar');
-    const timerCountdown = document.getElementById('timerCountdown');
 
     // --- 時間與日期更新 ---
     function updateClock() {
@@ -657,18 +638,12 @@
       switchBackground(bgIndex);
     }
 
-    // --- 30 秒倒數計時器 ---
+    // --- 30 秒背景切換計時器 ---
     setInterval(() => {
       updateClock();
 
       if (autoRotate) {
         secondsElapsed++;
-        const remaining = cycleDuration - (secondsElapsed % cycleDuration);
-        const progressPercent = ((secondsElapsed % cycleDuration) / cycleDuration) * 100;
-
-        progressBar.style.width = `${progressPercent}%`;
-        timerCountdown.innerText = `${remaining}s`;
-
         if (secondsElapsed % cycleDuration === 0) {
           nextBackground();
         }
