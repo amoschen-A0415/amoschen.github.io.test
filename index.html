@@ -1,1 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安得烈慈善協會 - 全螢幕大字體數位時鐘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #00529B;
+      --accent-gold: #F5A623;
+      --warm-amber: #FF9800;
+      --soft-white: #F8FAF9;
+      --glass-bg: rgba(7, 24, 48, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --shadow-color: rgba(0, 0, 0, 0.6);
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #031020;
+      color: var(--soft-white);
+    }
+
+    /* 牆面與動態背景 */
+    .bg-stage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .bg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.02);
+    }
+
+    .bg-layer.active {
+      opacity: 1;
+    }
+
+    .bg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(3, 16, 32, 0.3) 0%, rgba(2, 10, 20, 0.75) 100%);
+      z-index: 2;
+    }
+
+    /* SVG 繪製安得烈意象背景 */
+    .bg-svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 主版面佈局 */
+    .clock-app-container {
+      position: relative;
+      z-index: 10;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2.5vh 3vw;
+    }
+
+    /* 頂部標題列 */
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 25px;
+      background: rgba(0, 30, 60, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-badge {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #00529B, #002D5A);
+      border: 2px solid var(--accent-gold);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 15px rgba(245, 166, 35, 0.4);
+    }
+
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title-main {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #E0EBF5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .brand-title-sub {
+      font-size: 0.95rem;
+      color: var(--accent-gold);
+      letter-spacing: 1.5px;
+      font-weight: 700;
+    }
+
+    .date-lunar-display {
+      text-align: right;
+    }
+
+    .date-text {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 1px;
+    }
+
+    .lunar-text {
+      font-size: 1.1rem;
+      color: #D1E3F8;
+      margin-top: 2px;
+    }
+
+    /* 核心時間框 (滿版極致放大) */
+    .main-clock-card {
+      position: relative;
+      width: 100%;
+      height: 72vh;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.05), 0 20px 50px rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      padding: 0 2vw;
+    }
+
+    /* 時間容器 */
+    .time-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 時與分 (極大化呈現) */
+    .time-hm {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: clamp(14rem, 40vh, 38vw);
+      font-weight: 700;
+      line-height: 0.8;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      text-shadow: 
+        0 0 30px rgba(255, 255, 255, 0.2),
+        0 10px 30px rgba(0, 0, 0, 0.8);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+    }
+
+    .colon {
+      color: var(--accent-gold);
+      display: inline-block;
+      margin: 0 -0.02em;
+      animation: pulseColon 2s infinite;
+      text-shadow: 0 0 20px rgba(245, 166, 35, 0.6);
+    }
+
+    @keyframes pulseColon {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* 右下角秒數區塊 */
+    .seconds-badge {
+      position: absolute;
+      bottom: 2.5vh;
+      right: 3vw;
+      background: rgba(0, 20, 45, 0.7);
+      border: 1px solid var(--accent-gold);
+      border-radius: 16px;
+      padding: 0.4vh 1.8vw;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    .seconds-label {
+      font-size: 1.2rem;
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+
+    .time-sec {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: clamp(3rem, 9vh, 7vw);
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1;
+    }
+
+    .ampm-tag {
+      position: absolute;
+      top: 3vh;
+      left: 3vw;
+      font-size: clamp(1.8rem, 4vh, 3vw);
+      font-weight: 900;
+      color: var(--accent-gold);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 18px;
+      border-radius: 10px;
+      border: 1px solid rgba(245, 166, 35, 0.4);
+      letter-spacing: 2px;
+    }
+
+    /* 底部導覽與標語 */
+    footer {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .quote-box {
+      flex: 1;
+      background: rgba(0, 25, 50, 0.5);
+      border-left: 5px solid var(--accent-gold);
+      padding: 12px 24px;
+      border-radius: 0 14px 14px 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .quote-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 1px;
+    }
+
+    .announcement-text {
+      font-size: 1.05rem;
+      color: var(--warm-amber);
+      margin-top: 2px;
+    }
+
+    /* 30秒倒數進度條 */
+    .progress-container {
+      width: 260px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #D1E3F8;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary-blue), var(--accent-gold));
+      border-radius: 4px;
+      transition: width 0.2s linear;
+    }
+
+    /* 控制面板選單 */
+    .menu-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      background: rgba(0, 40, 80, 0.6);
+      border: 1px solid var(--glass-border);
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s;
+      opacity: 0.3;
+    }
+
+    .menu-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -360px;
+      width: 340px;
+      height: 100%;
+      background: rgba(4, 18, 36, 0.95);
+      backdrop-filter: blur(20px);
+      z-index: 90;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+      padding: 30px 25px;
+      transition: right 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      border-left: 1px solid var(--glass-border);
+    }
+
+    .drawer.open {
+      right: 0;
+    }
+
+    .drawer-title {
+      font-size: 1.4rem;
+      color: var(--accent-gold);
+      border-bottom: 2px solid rgba(245, 166, 35, 0.3);
+      padding-bottom: 10px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-label {
+      font-size: 0.95rem;
+      color: #B0C4DE;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .btn.active, .btn:hover {
+      background: var(--primary-blue);
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--glass-border);
+      color: white;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 控制面板觸發鈕 -->
+  <button class="menu-btn" id="menuToggle">⚙️</button>
+
+  <!-- 側邊控制面板 -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-title">顯示設定</div>
+    
+    <div class="control-group">
+      <div class="control-label">時間制</div>
+      <div class="btn-row">
+        <button class="btn active" id="btn24h">24 小時制</button>
+        <button class="btn" id="btn12h">12 小時制</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">背景輪播 (每30秒)</div>
+      <div class="btn-row">
+        <button class="btn active" id="btnPauseBg">自動播放</button>
+        <button class="btn" id="btnNextBg">切換下一張</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">自訂活動公告</div>
+      <input type="text" id="announcementInput" class="input-field" placeholder="請輸入欲顯示的公告文字...">
+    </div>
+
+    <div class="control-group" style="margin-top: auto;">
+      <button class="btn" id="btnFullscreen" style="background: var(--accent-gold); color: #000;">開啟全螢幕</button>
+    </div>
+  </div>
+
+  <!-- 動態背景輪播層 -->
+  <div class="bg-stage">
+    <!-- 背景 1: 膳糧食物箱 (Care Food Box) -->
+    <div class="bg-layer active" id="bg1">
+      <svg class="bg-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="bgG1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#021B38"/>
+            <stop offset="50%" stop-color="#003366"/>
+            <stop offset="100%" stop-color="#00152B"/>
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bgG1)"/>
+        <!-- 象徵愛心與食物箱的溫暖線條與幾何圖形 -->
+        <circle cx="960" cy="540" r="450" fill="none" stroke="rgba(245, 166, 35, 0.08)" stroke-width="2"/>
+        <circle cx="960" cy="540" r="320" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5"/>
+        <path d="M 0,800 Q 480,700 960,850 T 1920,750 L 1920,1080 L 0,1080 Z" fill="rgba(0, 82, 155, 0.3)"/>
+        <path d="M 0,850 Q 550,950 1100,820 T 1920,900 L 1920,1080 L 0,1080 Z" fill="rgba(245, 166, 35, 0.12)"/>
+      </svg>
+    </div>
+
+    <!-- 背景 2: 弱勢學童陪伴 (Nurturing Children) -->
+    <div class="bg-layer" id="bg2">
+      <svg class="bg-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="bgG2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0A2540"/>
+            <stop offset="60%" stop-color="#004080"/>
+            <stop offset="100%" stop-color="#051329"/>
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bgG2)"/>
+        <path d="M-100,200 C 400,100 800,500 1920,100 L 1920,1080 L -100,1080 Z" fill="rgba(255, 152, 0, 0.08)"/>
+        <circle cx="300" cy="300" r="250" fill="rgba(0, 82, 155, 0.25)"/>
+        <circle cx="1600" cy="750" r="350" fill="rgba(245, 166, 35, 0.08)"/>
+      </svg>
+    </div>
+
+    <!-- 背景 3: 社會關懷與希望 (Hope & Love) -->
+    <div class="bg-layer" id="bg3">
+      <svg class="bg-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="bgG3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#001F3F"/>
+            <stop offset="50%" stop-color="#002D5A"/>
+            <stop offset="100%" stop-color="#081426"/>
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bgG3)"/>
+        <polygon points="0,0 1920,1080 0,1080" fill="rgba(0, 82, 155, 0.15)"/>
+        <polygon points="1920,0 1920,1080 0,0" fill="rgba(245, 166, 35, 0.06)"/>
+      </svg>
+    </div>
+    
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- 時鐘主要內容架構 -->
+  <div class="clock-app-container">
+    
+    <!-- 頂部標題與日期 -->
+    <header>
+      <div class="brand-section">
+        <div class="logo-badge">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <span class="brand-title-main">安得烈慈善協會</span>
+          <span class="brand-title-sub">ANDREW CHARITY ASSOCIATION</span>
+        </div>
+      </div>
+
+      <div class="date-lunar-display">
+        <div class="date-text" id="dateText">2026年10月19日 星期一</div>
+        <div class="lunar-text" id="lunarText">農曆丙午年九月十日</div>
+      </div>
+    </header>
+
+    <!-- 核心時間框 (滿版極致放大) -->
+    <main class="main-clock-card">
+      <div class="ampm-tag" id="ampmTag" style="display: none;">AM</div>
+      
+      <div class="time-wrapper">
+        <!-- 同列只保留 時:分 -->
+        <div class="time-hm">
+          <span id="hours">09</span>
+          <span class="colon">:</span>
+          <span id="minutes">37</span>
+        </div>
+      </div>
+
+      <!-- 秒數獨立置於右下角 -->
+      <div class="seconds-badge">
+        <span class="seconds-label">SEC</span>
+        <span class="time-sec" id="seconds">00</span>
+      </div>
+    </main>
+
+    <!-- 底部標語與背景輪播進度條 -->
+    <footer>
+      <div class="quote-box">
+        <div class="quote-text" id="quoteText">「攜手分擔困境，用愛點亮希望」</div>
+        <div class="announcement-text" id="announcementText">安得烈膳糧箱專案 — 陪伴弱勢孩童健康成長</div>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-info">
+          <span>背景自動切換</span>
+          <span id="timerCountdown">30s</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // --- 狀態控制 ---
+    let is24Hour = true;
+    let autoRotate = true;
+    let bgIndex = 0;
+    const totalBgs = 3;
+    const cycleDuration = 30; // 30 秒輪播
+    let secondsElapsed = 0;
+
+    // 安得烈金句庫
+    const quotes = [
+      "「攜手分擔困境，用愛點亮希望」",
+      "「用膳糧傳遞溫暖，陪伴弱勢學童安心成長」",
+      "「慈愛與誠實彼此相遇，公義與平安彼此相親」",
+      "「微小的善舉，能凝聚無窮的希望」"
+    ];
+
+    // --- DOM 元素 ---
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    const ampmTag = document.getElementById('ampmTag');
+    const dateTextEl = document.getElementById('dateText');
+    const quoteTextEl = document.getElementById('quoteText');
+    const progressBar = document.getElementById('progressBar');
+    const timerCountdown = document.getElementById('timerCountdown');
+
+    // --- 時間與日期更新 ---
+    function updateClock() {
+      const now = new Date();
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+
+      if (!is24Hour) {
+        ampmTag.style.display = 'block';
+        ampmTag.innerText = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+      } else {
+        ampmTag.style.display = 'none';
+      }
+
+      hoursEl.innerText = String(h).padStart(2, '0');
+      minutesEl.innerText = m;
+      secondsEl.innerText = s;
+
+      // 日期更新
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      const date = now.getDate();
+      const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+      const dayName = days[now.getDay()];
+
+      dateTextEl.innerText = `${year}年${month}月${date}日 ${dayName}`;
+    }
+
+    // --- 背景切換邏輯 ---
+    function switchBackground(index) {
+      document.querySelectorAll('.bg-layer').forEach((layer, idx) => {
+        if (idx === index) {
+          layer.classList.add('active');
+        } else {
+          layer.classList.remove('active');
+        }
+      });
+      // 更換金句
+      quoteTextEl.innerText = quotes[index % quotes.length];
+    }
+
+    function nextBackground() {
+      bgIndex = (bgIndex + 1) % totalBgs;
+      switchBackground(bgIndex);
+    }
+
+    // --- 30 秒倒數計時器 ---
+    setInterval(() => {
+      updateClock();
+
+      if (autoRotate) {
+        secondsElapsed++;
+        const remaining = cycleDuration - (secondsElapsed % cycleDuration);
+        const progressPercent = ((secondsElapsed % cycleDuration) / cycleDuration) * 100;
+
+        progressBar.style.width = `${progressPercent}%`;
+        timerCountdown.innerText = `${remaining}s`;
+
+        if (secondsElapsed % cycleDuration === 0) {
+          nextBackground();
+        }
+      }
+    }, 1000);
+
+    // --- 控制選單邏輯 ---
+    const menuBtn = document.getElementById('menuToggle');
+    const drawer = document.getElementById('drawer');
+    const btn24h = document.getElementById('btn24h');
+    const btn12h = document.getElementById('btn12h');
+    const btnPauseBg = document.getElementById('btnPauseBg');
+    const btnNextBg = document.getElementById('btnNextBg');
+    const btnFullscreen = document.getElementById('btnFullscreen');
+    const announcementInput = document.getElementById('announcementInput');
+    const announcementText = document.getElementById('announcementText');
+
+    menuBtn.addEventListener('click', () => drawer.classList.toggle('open'));
+
+    btn24h.addEventListener('click', () => {
+      is24Hour = true;
+      btn24h.classList.add('active');
+      btn12h.classList.remove('active');
+      updateClock();
+    });
+
+    btn12h.addEventListener('click', () => {
+      is24Hour = false;
+      btn12h.classList.add('active');
+      btn24h.classList.remove('active');
+      updateClock();
+    });
+
+    btnPauseBg.addEventListener('click', () => {
+      autoRotate = !autoRotate;
+      btnPauseBg.innerText = autoRotate ? '自動播放' : '已暫停';
+      btnPauseBg.classList.toggle('active', autoRotate);
+    });
+
+    btnNextBg.addEventListener('click', () => {
+      secondsElapsed = 0;
+      nextBackground();
+    });
+
+    announcementInput.addEventListener('input', (e) => {
+      announcementText.innerText = e.target.value || '安得烈膳糧箱專案 — 陪伴弱勢孩童健康成長';
+    });
+
+    btnFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        btnFullscreen.innerText = '退出全螢幕';
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          btnFullscreen.innerText = '開啟全螢幕';
+        }
+      }
+    });
+
+    // 初始化執行
+    updateClock();
+  </script>
+</body>
+</html>
