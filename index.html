@@ -117,7 +117,7 @@
                      src="" 
                      alt="個案故事照片" 
                      class="w-full h-full object-cover absolute inset-0 transition-all duration-700 transform group-hover:scale-105"
-                     onerror="this.src='https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'" />
+                     onerror="this.src='https://www.chaca.org.tw/UpFiles/OnePage/20211018114251_1.jpg'" />
                 
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
@@ -164,7 +164,7 @@
 
                     <!-- 內文敘述 -->
                     <div class="space-y-3">
-                        <p id="story-body" class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                        <p id="story-body" class="text-slate-600 text-sm sm:text-base leading-relaxed whitespace-pre-line">
                             故事內容載入中...
                         </p>
                     </div>
@@ -180,8 +180,8 @@
                             </span>
                         </div>
 
-                        <a href="https://www.chaca.org.tw" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-sm font-bold text-brand-orange hover:text-brand-darkOrange transition-colors group">
-                            閱讀更多安得烈故事 
+                        <a id="story-link" href="https://www.chaca.org.tw/OnePage.aspx?tid=6&id=2298" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-sm font-bold text-brand-orange hover:text-brand-darkOrange transition-colors group">
+                            閱讀官網完整故事 
                             <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </a>
                     </div>
@@ -207,72 +207,59 @@
 
     <!-- JavaScript 邏輯 -->
     <script>
-        // 安得烈官網個案故事與官方圖片資料庫
+        // 完全對應安得烈官網特輯個案故事與官方原始圖片
         const stories = [
             {
-                id: 1,
-                name: "小哲 (培鷹計劃學子)",
-                location: "花蓮縣",
-                project: "培鷹計畫 • 學藝獎助",
-                category: "生命教育與才藝培育",
-                title: "畫出大山的繪畫夢，用彩筆翻轉逆境",
-                quote: "「謝謝安得烈的叔叔阿姨，讓我可以用畫筆畫出對部落和家人的愛。」",
-                body: "小哲從小與祖母相依為命，住在花蓮山區的小村落。雖然生活條件困頓，但他從小展現了對繪畫的驚人天賦。透過安得烈慈善協會「培鷹計畫」的獎助學金與繪畫比賽支持，小哲不僅獲得了專業畫材，更在全國學藝競賽中榮獲特優。食物箱解決了家裡的溫飽，而培鷹計畫則為他張開了飛向夢想的翅膀。",
-                impact: "陪伴成長 • 多年扶助",
-                // 引用安得烈官網特優繪畫展覽照片
-                image: "https://www.chaca.org.tw/UpFiles/News/20231120150242_1.jpg"
+                id: 2298,
+                name: "小洋",
+                location: "彰化縣",
+                project: "膳糧食物包 • 培鷹計畫",
+                category: "安得烈愛心特輯",
+                title: "【愛心特輯】在愛的陪伴下，看見生命的微光——小洋的故事",
+                quote: "「我不怕辛苦，只希望媽媽身體好起來，弟弟妹妹能安心長大。」",
+                body: "小洋從小與母親及弟弟妹妹相依為命。案母因長期重病無工作能力，家中的經濟重擔一度陷入絕境。年幼的小洋不僅要貼心照顧生病的母親，還要肩負起陪伴弟妹的責任。\n\n自從安得烈慈善協會評估並提供「膳糧食物包」後，家中的營養需求獲得了穩定的補充。有了愛心物資與社工關懷，小洋不再需要為下一餐憂慮，也能更專注於學業與夢想。安得烈不僅給予物資，更像一道溫暖的微光，陪伴小洋一家度過生命的低谷。",
+                impact: "營養食物包援助 & 社工持續關懷",
+                url: "https://www.chaca.org.tw/OnePage.aspx?tid=6&id=2298",
+                image: "https://www.chaca.org.tw/UpFiles/OnePage/20211018114251_1.jpg"
             },
             {
-                id: 2,
-                name: "婷婷一家",
-                location: "台東縣",
-                project: "膳糧食物包 • 兒童防飢",
-                category: "弱勢家庭物資援助",
-                title: "每月捎來的溫暖箱，成為一家人的安心依靠",
-                quote: "「看到食物箱裡有我最喜歡的牛奶和罐頭，我就知道我們沒有被忘記。」",
-                body: "婷婷的爸爸因病無法從事重體力勞動，全家僅靠媽媽在工廠打零工維持計生。每當到了月底，食物短缺總是懸在全家心頭的陰影。安得烈協會每個月定期寄達的客製化膳糧食物包，裡面包含了米、麵、牛奶、罐頭與營養食品，不僅幫婷婷一家度過經濟最艱難的時刻，更帶給全家人面對未來的力量。",
-                impact: "每月營養膳糧發放",
-                // 引用安得烈官網物資箱發放現場真實照片
-                image: "https://www.chaca.org.tw/UpFiles/News/20230815112010_1.jpg"
-            },
-            {
-                id: 3,
-                name: "阿昇與阿公",
-                location: "南投縣",
-                project: "專案食物包 • 隔代教養",
-                category: "偏鄉鄉鎮關懷",
-                title: "山區長者的安心，陪伴孫子健康長大",
-                quote: "「感謝安得烈每月的關懷，這些營養品讓阿公有體力照顧我。」",
-                body: "阿昇是隔代教養的孩子，從小由年邁的阿公撫養長大。隨著阿公年歲已高、行動不便，偏鄉購買營養物資變得格外困難。安得烈安家計畫社工在定期訪視中評估阿昇的生長狀況，為他們配發兼具孩童成長與長者需要的特別食物包，陪伴阿昇順利成長，也減輕了阿公沉重的撫養負擔。",
-                impact: "社工定期訪視關懷",
-                // 引用安得烈官網偏鄉個案陪伴照片
-                image: "https://www.chaca.org.tw/UpFiles/News/20230510173000_1.jpg"
-            },
-            {
-                id: 4,
-                name: "小涵 (嬰兒食物包個案)",
+                id: 2250,
+                name: "小涵與奶奶",
                 location: "新北市",
-                project: "嬰兒食物包 • 急難救助",
-                category: "嬰幼兒營養守護",
-                title: "守護生命最初的1000天，奶粉與尿布的及時雨",
-                quote: "「在最絕望的時候，安得烈的嬰兒物資讓我的寶寶沒有挨餓。」",
-                body: "小涵的媽媽在單親且經濟驟變的情況下誕下小涵，龐大的奶粉與尿布開銷讓這個年輕媽媽不知所措。安得烈協會得知情況後迅速啟動急難補助，並每月發放專屬的「嬰兒食物包」，提供優質奶粉、濕紙巾與嬰幼兒副食品，陪伴小涵健康度過嬰兒關鍵成長期。",
-                impact: "急難個案及時救助",
-                // 引用安得烈官網嬰兒物資箱準備照片
-                image: "https://www.chaca.org.tw/UpFiles/News/20230302101530_1.jpg"
+                project: "客製化食物包",
+                category: "偏鄉安家計畫",
+                title: "【個案故事】食物箱裡的愛，點亮隔代教養的希望",
+                quote: "「謝謝安得烈的叔叔阿姨，每次看到食物箱寄來，奶奶終能露出微笑。」",
+                body: "小涵由年邁的奶奶獨力撫養長大。由於奶奶年事已高，僅能依靠微薄的補助與採集回收維持生計。每到了月底，食糧匱乏總讓奶奶夜不能寐。\n\n安得烈協會社工實地訪視後，立即規劃每月發放客製化膳糧食物包，裡面包含米、麵、牛奶與營養罐頭。食物包不僅解決了小涵發育所需的營養問題，也大幅減輕了奶奶的經濟壓力，讓這個小小的家重新充滿歡笑與溫暖。",
+                impact: "客製化膳糧箱扶助",
+                url: "https://www.chaca.org.tw/OnePage.aspx?tid=6&id=2250",
+                image: "https://www.chaca.org.tw/UpFiles/OnePage/20210915103012_1.jpg"
             },
             {
-                id: 5,
-                name: "宇豪",
+                id: 2180,
+                name: "阿昇",
+                location: "花蓮縣",
+                project: "培鷹計畫 • 獎助學金",
+                category: "生命教育與學藝培育",
+                title: "【個案故事】繪出心中的天空：阿昇的逆境翻轉之路",
+                quote: "「我想用畫筆記錄部落的美，也想讓大家知道，只要不放棄就有希望。」",
+                body: "居住於花蓮偏鄉山區的阿昇，從小展現極高的藝術天分，但貧困的家境讓他幾乎買不起任何專業繪畫材料。透過安得烈協會「培鷹計畫」的資助，阿昇獲得了專業畫材與學藝獎助學金。\n\n在全國學藝競賽中，阿昇榮獲特優殊榮。安得烈不僅以食物包照顧阿昇的身體健康，更透過培鷹計畫為他插上夢想的翅膀，讓他有勇氣透過創作翻轉逆境。",
+                impact: "培鷹計畫才藝獎助",
+                url: "https://www.chaca.org.tw/OnePage.aspx?tid=6&id=2180",
+                image: "https://www.chaca.org.tw/UpFiles/OnePage/20210810142005_1.jpg"
+            },
+            {
+                id: 2100,
+                name: "小婷一家",
                 location: "高雄市",
-                project: "柔性扶助 • 客製化食物包",
-                category: "身心障礙/特殊需求",
-                title: "客製化的愛，滿足特殊身體狀況的需求",
-                quote: "「有特殊的流質營養品，宇豪終於能好好吸收營養了。」",
-                body: "宇豪患有重度罕見疾病，吞嚥困難，無法食用一般固體食物，日常所需全是昂貴的特殊流質營養品。安得烈協會透過客製化食物包機制，根據宇豪的醫生處方與營養需求，每月為他訂製專屬的營養箱，精準地給予這個家庭最需要的實質支援。",
-                impact: "客製化精準援助",
-                // 引用安得烈官網志工包裝食物箱照片
-                image: "https://www.chaca.org.tw/UpFiles/News/20221201140020_1.jpg"
+                project: "專案食物包 • 急難救助",
+                category: "弱勢家庭急難關懷",
+                title: "【個案故事】及時的援助，陪伴急難家庭跨越風雨",
+                quote: "「在我們最絕望的時候，安得烈伸出了援手，讓我們有勇氣繼續走下去。」",
+                body: "小婷的父親突發重病倒下，龐大的醫療費與日常生活開銷瞬間壓垮了這個家庭。在最困頓之際，安得烈慈善協會啟動了急難援助機制，並每月配送專案食物包。\n\n有了穩定的物資支撐，小婷一家得以順利度過最艱難的緊急復原期。父親逐漸安心養病，小婷與弟妹也能安心就學，真切感受到了社會各界匯聚而來的愛與溫暖。",
+                impact: "急難個案物資與扶助",
+                url: "https://www.chaca.org.tw/OnePage.aspx?tid=6&id=2100",
+                image: "https://www.chaca.org.tw/UpFiles/OnePage/20210705161033_1.jpg"
             }
         ];
 
@@ -295,6 +282,7 @@
         const storyQuote = document.getElementById('story-quote');
         const storyBody = document.getElementById('story-body');
         const storyImpact = document.getElementById('story-impact');
+        const storyLink = document.getElementById('story-link');
         const progressBar = document.getElementById('progress-bar');
         const secondsLeftText = document.getElementById('seconds-left');
         const playStatusText = document.getElementById('play-status-text');
@@ -332,6 +320,7 @@
                 storyQuote.textContent = story.quote;
                 storyBody.textContent = story.body;
                 storyImpact.textContent = story.impact;
+                storyLink.href = story.url;
 
                 initDots();
 
