@@ -1,627 +1,427 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>物資檢整 AI 拍照辨識與手機連線系統</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- QRCode.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  
-  <style>
-    @media print {
-      body * { visibility: hidden; }
-      #printableReceipt, #printableReceipt * { visibility: visible; }
-      #printableReceipt { position: absolute; left: 0; top: 0; width: 100%; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安得烈慈善協會 - 個案故事輪播</title>
+    <!-- Google Fonts & Tailwind CSS CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#E8832B',
+                            darkOrange: '#C66513',
+                            lightOrange: '#FFF3EB',
+                            yellow: '#F5A623',
+                            gray: '#2C3E50',
+                            lightBg: '#F8FAF8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .progress-bar-inner {
+            transition: width 0.1s linear;
+        }
+        .story-transition {
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+        }
+    </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 font-sans">
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col justify-between selection:bg-amber-200">
 
-  <!-- Header -->
-  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <i class="fa-solid fa-boxes-packing text-2xl text-amber-300"></i>
-        <h1 class="text-xl font-bold tracking-wide">物資檢整 AI 拍照辨識系統</h1>
-      </div>
-      <div id="roleBadge" class="text-xs bg-indigo-900 text-indigo-200 px-3 py-1 rounded-full font-mono">
-        初始化中...
-      </div>
-    </div>
-  </header>
-
-  <main class="max-w-6xl mx-auto px-4 py-6">
-
-    <!-- Mode 1: Desktop Master Dashboard (電腦主控端) -->
-    <div id="desktopView" class="hidden space-y-6">
-      
-      <!-- Top Bar: QR Code & Connection Status -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- Connection QR Code Card -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
-          <h2 class="text-base font-bold text-slate-700 mb-2 flex items-center gap-2">
-            <i class="fa-solid fa-qrcode text-indigo-600"></i> 手機連線 QR Code
-          </h2>
-          <div id="qrcode" class="p-2 bg-white rounded-lg border border-slate-100 shadow-inner mb-3"></div>
-          <p class="text-xs text-slate-500">請用手機相機掃描，開啟 AI 拍照辨識介面</p>
-          <div class="mt-3 text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-mono">
-            房間 ID: <span id="sessionCodeDisplay" class="font-bold text-indigo-600">---</span>
-          </div>
-        </div>
-
-        <!-- Realtime Status & Instructions -->
-        <div class="md:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
-          <div>
-            <div class="flex justify-between items-center mb-3">
-              <h2 class="text-base font-bold text-slate-700 flex items-center gap-2">
-                <i class="fa-solid fa-signal text-emerald-500"></i> 即時連線狀態
-              </h2>
-              <span id="connStatusTag" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                等待手機連線...
-              </span>
+    <!-- Header / 頂部導覽列 (安得烈官網風格) -->
+    <header class="bg-white shadow-sm border-t-4 border-brand-orange sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-brand-orange text-white flex items-center justify-center font-bold text-xl shadow-md">
+                    安
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800 tracking-wide">社團法人中華安得烈慈善協會</h1>
+                    <p class="text-xs text-amber-600 font-medium">Andrew Charity Association • 讓愛在每個角落發光</p>
+                </div>
             </div>
             
-            <div class="grid grid-cols-2 gap-4 my-4">
-              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <div class="text-xs text-slate-400 font-medium">已辨識物資筆數</div>
-                <div id="statItemCount" class="text-2xl font-black text-slate-800 mt-1">0</div>
-              </div>
-              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <div class="text-xs text-slate-400 font-medium">累計數量總和</div>
-                <div id="statTotalQty" class="text-2xl font-black text-indigo-600 mt-1">0</div>
-              </div>
+            <div class="hidden sm:flex items-center space-x-6">
+                <a href="https://www.chaca.org.tw" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-slate-600 hover:text-brand-orange transition-colors">
+                    返回安得烈官網 ↗
+                </a>
+                <a href="https://www.chaca.org.tw" target="_blank" rel="noopener noreferrer" class="bg-brand-orange hover:bg-brand-darkOrange text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-md transition-all duration-200 transform hover:scale-105">
+                    立即支持 / 線上捐款
+                </a>
             </div>
-          </div>
-
-          <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-xl text-xs text-indigo-800 space-y-1">
-            <div class="font-bold mb-1"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 視覺辨識特色：</div>
-            <div>• 完全採用 **Gemini AI 多模態辨識**，自動辨識封箱貼條（含手寫筆跡）或單品外包裝。</div>
-            <div>• 手機端按下「結算」後，電腦端將即時彙整加總並顯示檢整單據。</div>
-          </div>
         </div>
 
-      </div>
-
-      <!-- Live Stream Table / Settlement Results -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-3">
-          <div>
-            <h2 class="text-lg font-bold text-slate-800">物資檢整明細表</h2>
-            <p class="text-xs text-slate-500">即時同步手機 AI 辨識上傳之 4 項核心資訊 (品名、品號、數量、有效期限)</p>
-          </div>
-          <div class="flex gap-2">
-            <button onclick="exportCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5">
-              <i class="fa-solid fa-file-excel"></i> 匯出 CSV
-            </button>
-            <button onclick="window.print()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5">
-              <i class="fa-solid fa-print"></i> 列印單據
-            </button>
-          </div>
+        <!-- 60秒倒數計時進度條 -->
+        <div class="w-full bg-slate-200 h-1.5 overflow-hidden relative">
+            <div id="progress-bar" class="bg-brand-orange h-full progress-bar-inner w-0"></div>
         </div>
+    </header>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
-                <th class="py-3 px-4">#</th>
-                <th class="py-3 px-4">品號</th>
-                <th class="py-3 px-4">品名</th>
-                <th class="py-3 px-4 text-center">數量</th>
-                <th class="py-3 px-4">有效期限</th>
-                <th class="py-3 px-4">狀態</th>
-              </tr>
-            </thead>
-            <tbody id="inventoryTableBody" class="divide-y divide-slate-100">
-              <tr>
-                <td colspan="6" class="py-8 text-center text-slate-400 text-xs">
-                  <i class="fa-solid fa-inbox text-2xl mb-2 block"></i> 尚無檢整紀錄，請使用手機開始拍照辨識
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Summary Footer -->
-        <div id="settlementSummary" class="hidden bg-slate-50 p-4 border-t border-slate-200">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">【結算加總結果】按品號與品名分類彙整</h3>
-          <div id="summaryCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Mode 2: Mobile Scanner View (手機端連線介面) -->
-    <div id="mobileView" class="hidden max-w-md mx-auto space-y-4">
-      
-      <!-- Mobile Top Info -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
-        <div>
-          <div class="text-xs text-slate-400">已連線至電腦主控台</div>
-          <div class="text-sm font-bold text-slate-700">房間: <span id="mobileSessionCode" class="font-mono text-indigo-600">---</span></div>
-        </div>
-        <div class="text-right">
-          <div class="text-xs text-slate-400">已掃描</div>
-          <div id="mobileCountBadge" class="text-lg font-black text-indigo-600">0 件</div>
-        </div>
-      </div>
-
-      <!-- Camera Frame / Photo Area -->
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 text-center">
-        <label class="block mb-2 text-xs font-bold text-slate-600">請拍攝【物資封箱貼條】或【商品包裝】</label>
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow flex flex-col justify-center w-full">
         
-        <div id="photoPreviewContainer" class="relative w-full h-60 bg-slate-900 rounded-xl overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-indigo-300">
-          
-          <img id="photoPreview" class="hidden w-full h-full object-contain" />
-          
-          <div id="cameraPlaceholder" class="text-slate-400 p-4 flex flex-col items-center relative z-10">
-            <!-- Aligning Frame Overlay -->
-            <div class="w-48 h-32 border-2 border-amber-400/80 border-dashed rounded-lg flex items-center justify-center mb-2 bg-slate-800/40">
-              <span class="text-[10px] text-amber-300">將貼條或文字置於框內</span>
+        <!-- Controls Bar -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-wrap items-center justify-between gap-4 border border-slate-200">
+            <div class="flex items-center space-x-3">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                    <span class="w-2 h-2 rounded-full bg-brand-orange mr-2 animate-ping"></span>
+                    <span id="play-status-text">倒數輪播中</span>
+                </span>
+                <span class="text-sm font-medium text-slate-500">
+                    剩餘時間：<span id="seconds-left" class="font-bold text-brand-orange text-base">60</span> 秒
+                </span>
             </div>
-            <i class="fa-solid fa-camera text-2xl mb-1 text-slate-400"></i>
-            <span class="text-xs">點擊下方按鈕開啟相機</span>
-          </div>
 
-          <!-- Loading Overlay -->
-          <div id="aiLoadingOverlay" class="hidden absolute inset-0 bg-slate-900/85 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4 z-20">
-            <i class="fa-solid fa-brain fa-bounce text-3xl text-indigo-400 mb-2"></i>
-            <span class="text-sm font-semibold">Gemini AI 辨識中...</span>
-            <span class="text-xs text-amber-300 mt-1">智慧分析手寫數字與 SOP 欄位</span>
-          </div>
+            <!-- Mode & Navigation Controls -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button id="mode-btn" onclick="toggleRandomMode()" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    模式：<span id="mode-text" class="text-brand-orange">隨機輪播</span>
+                </button>
+
+                <button id="pause-btn" onclick="togglePause()" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition-colors">
+                    暫停輪播
+                </button>
+
+                <div class="h-4 w-px bg-slate-300 mx-1"></div>
+
+                <button onclick="prevStory()" class="p-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 transition-colors" title="上一篇">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+
+                <button onclick="nextStory()" class="p-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 transition-colors" title="下一篇">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
         </div>
 
-        <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageCapture(event)">
-        
-        <div class="grid grid-cols-1 gap-2 mt-4">
-          <button onclick="document.getElementById('cameraInput').click()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-camera"></i> 開啟手機拍照 (AI 辨識)
-          </button>
+        <!-- Main Card: 左圖右文 Layout -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 flex flex-col lg:flex-row min-h-[580px] relative">
+            
+            <!-- 左半邊：個案照片 (官網真實圖片) -->
+            <div class="lg:w-1/2 relative bg-slate-900 min-h-[320px] lg:min-h-full overflow-hidden flex items-center justify-center group">
+                <img id="case-image" 
+                     src="" 
+                     alt="個案故事照片" 
+                     class="w-full h-full object-cover absolute inset-0 transition-all duration-700 transform group-hover:scale-105"
+                     onerror="this.src='https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'" />
+                
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+                <!-- 專案標籤 & 名稱疊加 -->
+                <div class="absolute bottom-6 left-6 right-6 text-white z-10">
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                        <span id="case-project" class="px-3 py-1 bg-brand-orange text-white text-xs font-bold rounded-full shadow-sm">
+                            專案名稱
+                        </span>
+                        <span id="case-location" class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-medium rounded-full">
+                            地區
+                        </span>
+                    </div>
+                    <h3 id="case-name" class="text-2xl font-bold tracking-tight text-white drop-shadow-md">
+                        個案名稱
+                    </h3>
+                </div>
+            </div>
+
+            <!-- 右半邊：故事內容文章 -->
+            <div id="story-content-container" class="lg:w-1/2 p-6 sm:p-10 flex flex-col justify-between story-transition">
+                <div>
+                    <!-- 分類標籤 & ID -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                        <span id="case-category" class="text-xs font-bold text-amber-700 tracking-wider uppercase bg-amber-50 px-2.5 py-1 rounded">
+                            安得烈關懷個案
+                        </span>
+                        <span id="case-index" class="text-xs font-semibold text-slate-400">
+                            故事 1 / 5
+                        </span>
+                    </div>
+
+                    <!-- 故事標題 -->
+                    <h2 id="story-title" class="text-2xl sm:text-3xl font-bold text-slate-900 leading-snug mb-4">
+                        載入中...
+                    </h2>
+
+                    <!-- 引言/金句 -->
+                    <div class="bg-brand-lightOrange border-l-4 border-brand-orange p-4 rounded-r-xl mb-6">
+                        <p id="story-quote" class="text-sm sm:text-base font-medium text-slate-800 italic">
+                            「...」
+                        </p>
+                    </div>
+
+                    <!-- 內文敘述 -->
+                    <div class="space-y-3">
+                        <p id="story-body" class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                            故事內容載入中...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 底部：影響與行動 -->
+                <div class="mt-8 pt-6 border-t border-slate-100">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-bold text-slate-500">影響計畫：</span>
+                            <span id="story-impact" class="text-xs font-medium bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md border border-emerald-100">
+                                食物包援助
+                            </span>
+                        </div>
+
+                        <a href="https://www.chaca.org.tw" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-sm font-bold text-brand-orange hover:text-brand-darkOrange transition-colors group">
+                            閱讀更多安得烈故事 
+                            <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
         </div>
-      </div>
 
-      <!-- AI Recognition Result Editor Form -->
-      <div id="recognitionResultCard" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
-        <div class="flex justify-between items-center border-b pb-2">
-          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-sparkles text-indigo-500"></i> AI 辨識結果 (可手動修改)
-          </h3>
-          <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded font-semibold">SOP 4核心欄位</span>
+        <!-- Indicator Dots -->
+        <div id="dots-container" class="flex justify-center items-center space-x-2 mt-6">
+            <!-- Dynamic Dots inserted by JS -->
         </div>
 
-        <div class="grid grid-cols-2 gap-3 text-xs">
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">品號 (SOP 代碼)</label>
-            <input type="text" id="inputItemNo" placeholder="#10" class="w-full p-2 border border-slate-300 rounded-lg font-mono font-bold text-indigo-600 focus:ring-2 focus:ring-indigo-500 outline-none">
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">數量 (手寫/數量)</label>
-            <input type="number" id="inputQty" value="1" min="1" class="w-full p-2 border border-slate-300 rounded-lg font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
-          </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>社團法人中華安得烈慈善協會 Andrew Charity Association 版權所有</p>
+            <p class="mt-1 text-slate-500">本頁面輪播內容與照片均引自安得烈慈善協會官方網站</p>
         </div>
+    </footer>
 
-        <div>
-          <label class="block font-semibold text-slate-600 mb-1 text-xs">品名</label>
-          <input type="text" id="inputItemName" placeholder="例如：罐頭【中】(126~250g)" class="w-full p-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-600 mb-1 text-xs">有效期限 (YYYY.MM.DD)</label>
-          <input type="text" id="inputExpiry" placeholder="2028.06.04" class="w-full p-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-
-        <button onclick="submitItem()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-plus"></i> 確認並傳送至電腦端
-        </button>
-      </div>
-
-      <!-- Bottom Action: Settle Button -->
-      <div class="pt-2">
-        <button onclick="triggerSettlement()" class="w-full py-4 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-2xl font-black text-base shadow-lg transition flex items-center justify-center gap-2 border border-amber-300">
-          <i class="fa-solid fa-calculator text-lg"></i> 結算 (即時加總並顯示於網頁)
-        </button>
-      </div>
-
-    </div>
-
-  </main>
-
-  <!-- Printable Receipt Template -->
-  <div id="printableReceipt" class="hidden p-8 bg-white text-slate-900 font-sans">
-    <div class="text-center border-b pb-4 mb-4">
-      <h1 class="text-2xl font-bold">物資檢整簽收與統計單</h1>
-      <p class="text-xs text-slate-500 mt-1">參照【表單耗材】物資檢整 SOP 及耗材表單</p>
-    </div>
-    <div class="text-xs mb-4 grid grid-cols-2 gap-2">
-      <div>檢整日期：<span id="printDate"></span></div>
-      <div>連線房號：<span id="printSession"></span></div>
-    </div>
-    <table class="w-full text-xs border-collapse border border-slate-300 mb-6">
-      <thead>
-        <tr class="bg-slate-100">
-          <th class="border border-slate-300 p-2">品號</th>
-          <th class="border border-slate-300 p-2">品名</th>
-          <th class="border border-slate-300 p-2">數量</th>
-          <th class="border border-slate-300 p-2">有效期限</th>
-        </tr>
-      </thead>
-      <tbody id="printTableBody"></tbody>
-    </table>
-    <div class="border-t pt-4 text-xs flex justify-between">
-      <div>清點人員簽章：__________________</div>
-      <div>主管確認：__________________</div>
-    </div>
-  </div>
-
-  <script>
-    // --- State Variables & Channel Setup ---
-    let sessionCode = '';
-    let isMobile = false;
-    let itemsList = [];
-    let broadcastChannel = null;
-
-    // --- Gemini AI Vision 辨識核心邏輯 ---
-    async function callGeminiVisionAPI(base64Image) {
-      const apiKey = ""; // 系統底層託管金鑰
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-      const promptText = `你是一個專業的【物資檢整 AI 視覺辨識專家】。請仔細分析這張照片，並根據《物資檢整 SOP 及耗材表單》規格，直接從影像中辨識並擷取 4 個欄位。
-
-【辨識與視覺理解邏輯】：
-1. 畫面類型 A：照片拍到的是「物資封箱貼條」（畫面含『罐頭【中】』、『數量：』、『最近效期：』等印製網格與手寫區域）：
-   * [itemName]: 請結合標題與下方的規格說明（例如：「罐頭【中】(126~250g/不辣/葷食or玉米罐頭)」）。
-   * [itemNo]: 讀取貼條右上角的 SOP 品號代碼（包含 # 號，如 #10, #01, #08 等）。
-   * [quantity]: 仔細辨識「數量：」方格內的手寫數字（例如手寫寫著 48，請精準辨識為數字 48）。
-   * [expiryDate]: 讀取「最近效期：20XX年 XX月 XX日」手寫欄位，統一轉換為 YYYY.MM.DD 格式（例如 2028.06.04）。請忽略「封箱日期」。
-
-2. 畫面類型 B：照片拍到的是「單一物資實物包裝」（如味全花生麵筋罐頭、麵條外袋）：
-   * [itemName]: 讀取包裝上的完整商品名稱與重量規格（如「味全花生麵筋 170g」）。
-   * [itemNo]: 依 SOP 規格自動對照分類（白米1kg內=#01, 罐頭125g內=#08, 126-250g=#10, 251g以上=#11, 調理包=#09, 麵條500g內=#04）。
-   * [quantity]: 預設為數字 1。
-   * [expiryDate]: 尋找印在包裝上的有效日期（如 2026.10.08），若無則填寫「未標示」。
-
-請嚴格僅回應 JSON 格式：
-{
-  "itemName": "品名",
-  "itemNo": "#品號",
-  "quantity": 數字,
-  "expiryDate": "YYYY.MM.DD"
-}`;
-
-      const requestBody = {
-        contents: [{
-          parts: [
-            { text: promptText },
+    <!-- JavaScript 邏輯 -->
+    <script>
+        // 安得烈官網個案故事與官方圖片資料庫
+        const stories = [
             {
-              inline_data: {
-                mime_type: "image/jpeg",
-                data: base64Image
-              }
+                id: 1,
+                name: "小哲 (培鷹計劃學子)",
+                location: "花蓮縣",
+                project: "培鷹計畫 • 學藝獎助",
+                category: "生命教育與才藝培育",
+                title: "畫出大山的繪畫夢，用彩筆翻轉逆境",
+                quote: "「謝謝安得烈的叔叔阿姨，讓我可以用畫筆畫出對部落和家人的愛。」",
+                body: "小哲從小與祖母相依為命，住在花蓮山區的小村落。雖然生活條件困頓，但他從小展現了對繪畫的驚人天賦。透過安得烈慈善協會「培鷹計畫」的獎助學金與繪畫比賽支持，小哲不僅獲得了專業畫材，更在全國學藝競賽中榮獲特優。食物箱解決了家裡的溫飽，而培鷹計畫則為他張開了飛向夢想的翅膀。",
+                impact: "陪伴成長 • 多年扶助",
+                // 引用安得烈官網特優繪畫展覽照片
+                image: "https://www.chaca.org.tw/UpFiles/News/20231120150242_1.jpg"
+            },
+            {
+                id: 2,
+                name: "婷婷一家",
+                location: "台東縣",
+                project: "膳糧食物包 • 兒童防飢",
+                category: "弱勢家庭物資援助",
+                title: "每月捎來的溫暖箱，成為一家人的安心依靠",
+                quote: "「看到食物箱裡有我最喜歡的牛奶和罐頭，我就知道我們沒有被忘記。」",
+                body: "婷婷的爸爸因病無法從事重體力勞動，全家僅靠媽媽在工廠打零工維持計生。每當到了月底，食物短缺總是懸在全家心頭的陰影。安得烈協會每個月定期寄達的客製化膳糧食物包，裡面包含了米、麵、牛奶、罐頭與營養食品，不僅幫婷婷一家度過經濟最艱難的時刻，更帶給全家人面對未來的力量。",
+                impact: "每月營養膳糧發放",
+                // 引用安得烈官網物資箱發放現場真實照片
+                image: "https://www.chaca.org.tw/UpFiles/News/20230815112010_1.jpg"
+            },
+            {
+                id: 3,
+                name: "阿昇與阿公",
+                location: "南投縣",
+                project: "專案食物包 • 隔代教養",
+                category: "偏鄉鄉鎮關懷",
+                title: "山區長者的安心，陪伴孫子健康長大",
+                quote: "「感謝安得烈每月的關懷，這些營養品讓阿公有體力照顧我。」",
+                body: "阿昇是隔代教養的孩子，從小由年邁的阿公撫養長大。隨著阿公年歲已高、行動不便，偏鄉購買營養物資變得格外困難。安得烈安家計畫社工在定期訪視中評估阿昇的生長狀況，為他們配發兼具孩童成長與長者需要的特別食物包，陪伴阿昇順利成長，也減輕了阿公沉重的撫養負擔。",
+                impact: "社工定期訪視關懷",
+                // 引用安得烈官網偏鄉個案陪伴照片
+                image: "https://www.chaca.org.tw/UpFiles/News/20230510173000_1.jpg"
+            },
+            {
+                id: 4,
+                name: "小涵 (嬰兒食物包個案)",
+                location: "新北市",
+                project: "嬰兒食物包 • 急難救助",
+                category: "嬰幼兒營養守護",
+                title: "守護生命最初的1000天，奶粉與尿布的及時雨",
+                quote: "「在最絕望的時候，安得烈的嬰兒物資讓我的寶寶沒有挨餓。」",
+                body: "小涵的媽媽在單親且經濟驟變的情況下誕下小涵，龐大的奶粉與尿布開銷讓這個年輕媽媽不知所措。安得烈協會得知情況後迅速啟動急難補助，並每月發放專屬的「嬰兒食物包」，提供優質奶粉、濕紙巾與嬰幼兒副食品，陪伴小涵健康度過嬰兒關鍵成長期。",
+                impact: "急難個案及時救助",
+                // 引用安得烈官網嬰兒物資箱準備照片
+                image: "https://www.chaca.org.tw/UpFiles/News/20230302101530_1.jpg"
+            },
+            {
+                id: 5,
+                name: "宇豪",
+                location: "高雄市",
+                project: "柔性扶助 • 客製化食物包",
+                category: "身心障礙/特殊需求",
+                title: "客製化的愛，滿足特殊身體狀況的需求",
+                quote: "「有特殊的流質營養品，宇豪終於能好好吸收營養了。」",
+                body: "宇豪患有重度罕見疾病，吞嚥困難，無法食用一般固體食物，日常所需全是昂貴的特殊流質營養品。安得烈協會透過客製化食物包機制，根據宇豪的醫生處方與營養需求，每月為他訂製專屬的營養箱，精準地給予這個家庭最需要的實質支援。",
+                impact: "客製化精準援助",
+                // 引用安得烈官網志工包裝食物箱照片
+                image: "https://www.chaca.org.tw/UpFiles/News/20221201140020_1.jpg"
             }
-          ]
-        }],
-        generationConfig: {
-          response_mime_type: "application/json"
+        ];
+
+        // 輪播狀態控制
+        let currentIndex = 0;
+        let isRandomMode = true; // 預設隨機輪播
+        let isPaused = false;
+        const totalDuration = 60; // 60 秒倒數
+        let secondsLeft = totalDuration;
+        let timerInterval = null;
+
+        // HTML 元素引用
+        const caseImg = document.getElementById('case-image');
+        const caseProject = document.getElementById('case-project');
+        const caseLocation = document.getElementById('case-location');
+        const caseName = document.getElementById('case-name');
+        const caseCategory = document.getElementById('case-category');
+        const caseIndex = document.getElementById('case-index');
+        const storyTitle = document.getElementById('story-title');
+        const storyQuote = document.getElementById('story-quote');
+        const storyBody = document.getElementById('story-body');
+        const storyImpact = document.getElementById('story-impact');
+        const progressBar = document.getElementById('progress-bar');
+        const secondsLeftText = document.getElementById('seconds-left');
+        const playStatusText = document.getElementById('play-status-text');
+        const pauseBtn = document.getElementById('pause-btn');
+        const modeText = document.getElementById('mode-text');
+        const dotsContainer = document.getElementById('dots-container');
+        const storyContentContainer = document.getElementById('story-content-container');
+
+        // 初始化指示點 Dot
+        function initDots() {
+            dotsContainer.innerHTML = '';
+            stories.forEach((_, idx) => {
+                const dot = document.createElement('button');
+                dot.className = `w-3 h-3 rounded-full transition-all duration-300 ${idx === currentIndex ? 'bg-brand-orange w-8' : 'bg-slate-300 hover:bg-slate-400'}`;
+                dot.onclick = () => goToStory(idx);
+                dotsContainer.appendChild(dot);
+            });
         }
-      };
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
+        // 渲染指定故事
+        function renderStory(index) {
+            const story = stories[index];
 
-      if (!response.ok) {
-        throw new Error(`AI API 呼叫失敗: ${response.status}`);
-      }
+            // 動畫淡出效果
+            storyContentContainer.classList.add('opacity-0', 'translate-y-2');
 
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      return JSON.parse(text);
-    }
+            setTimeout(() => {
+                caseImg.src = story.image;
+                caseProject.textContent = story.project;
+                caseLocation.textContent = story.location;
+                caseName.textContent = story.name;
+                caseCategory.textContent = story.category;
+                caseIndex.textContent = `故事 ${index + 1} / ${stories.length}`;
+                storyTitle.textContent = story.title;
+                storyQuote.textContent = story.quote;
+                storyBody.textContent = story.body;
+                storyImpact.textContent = story.impact;
 
-    // --- App Initialization ---
-    window.onload = function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const roomParam = urlParams.get('room');
+                initDots();
 
-      if (roomParam) {
-        // Mobile Mode
-        isMobile = true;
-        sessionCode = roomParam;
-        document.getElementById('mobileView').classList.remove('hidden');
-        document.getElementById('roleBadge').innerText = '手機拍照端';
-        document.getElementById('mobileSessionCode').innerText = sessionCode;
-        initBroadcastChannel();
-      } else {
-        // Desktop Master Mode
-        isMobile = false;
-        sessionCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-        document.getElementById('desktopView').classList.remove('hidden');
-        document.getElementById('roleBadge').innerText = '電腦主控端';
-        document.getElementById('sessionCodeDisplay').innerText = sessionCode;
-
-        // Generate QR Code with current URL
-        const targetUrl = window.location.href.split('?')[0] + '?room=' + sessionCode;
-        new QRCode(document.getElementById("qrcode"), {
-          text: targetUrl,
-          width: 140,
-          height: 140,
-          colorDark : "#312e81",
-          colorLight : "#ffffff",
-          correctLevel : QRCode.CorrectLevel.M
-        });
-
-        initBroadcastChannel();
-      }
-    };
-
-    // --- Realtime Cross-Tab / Cross-Device Communication ---
-    function initBroadcastChannel() {
-      broadcastChannel = new BroadcastChannel('material_inventory_' + sessionCode);
-      
-      broadcastChannel.onmessage = (event) => {
-        const data = event.data;
-        if (isMobile) return;
-
-        if (data.type === 'PING_CONNECT') {
-          document.getElementById('connStatusTag').innerText = '已成功連線手機';
-          document.getElementById('connStatusTag').className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800';
-          broadcastChannel.postMessage({ type: 'PONG_ACK' });
-        } else if (data.type === 'NEW_ITEM') {
-          itemsList.push(data.payload);
-          updateDesktopTable();
-        } else if (data.type === 'TRIGGER_SETTLEMENT') {
-          renderSettlementSummary();
+                // 動畫淡入效果
+                storyContentContainer.classList.remove('opacity-0', 'translate-y-2');
+            }, 200);
         }
-      };
 
-      if (isMobile) {
-        broadcastChannel.postMessage({ type: 'PING_CONNECT' });
-      }
-
-      window.addEventListener('storage', (e) => {
-        if (e.key === 'msg_' + sessionCode && e.newValue) {
-          const data = JSON.parse(e.newValue);
-          if (!isMobile && data.type === 'NEW_ITEM') {
-            itemsList.push(data.payload);
-            updateDesktopTable();
-          } else if (!isMobile && data.type === 'TRIGGER_SETTLEMENT') {
-            renderSettlementSummary();
-          }
+        // 重置倒數計時器
+        function resetTimer() {
+            secondsLeft = totalDuration;
+            updateTimerDisplay();
         }
-      });
-    }
 
-    function dispatchMessage(msgObj) {
-      if (broadcastChannel) {
-        broadcastChannel.postMessage(msgObj);
-      }
-      localStorage.setItem('msg_' + sessionCode, JSON.stringify({...msgObj, _ts: Date.now()}));
-    }
+        // 更新計時器顯示
+        function updateTimerDisplay() {
+            secondsLeftText.textContent = secondsLeft;
+            const percentage = ((totalDuration - secondsLeft) / totalDuration) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
 
-    // --- Mobile Image Capture & AI Processing ---
-    async function handleImageCapture(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      // Preview Photo
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('photoPreview').src = e.target.result;
-        document.getElementById('photoPreview').classList.remove('hidden');
-        document.getElementById('cameraPlaceholder').classList.add('hidden');
-      };
-      reader.readAsDataURL(file);
-
-      // Show AI Loading Overlay
-      document.getElementById('aiLoadingOverlay').classList.remove('hidden');
-
-      try {
-        const base64Data = await resizeAndBase64(file);
-        const result = await callGeminiVisionAPI(base64Data);
-
-        // Auto fill form with AI extracted response
-        document.getElementById('inputItemName').value = result.itemName || '';
-        document.getElementById('inputItemNo').value = result.itemNo || '#01';
-        document.getElementById('inputQty').value = result.quantity || 1;
-        document.getElementById('inputExpiry').value = result.expiryDate || '未標示';
-
-      } catch (err) {
-        console.error("AI 辨識異常:", err);
-        alert("AI 辨識連線異常，已帶入範本，您可直接手動修改內容。");
-        document.getElementById('inputItemName').value = "罐頭【中】(126~250g)";
-        document.getElementById('inputItemNo').value = "#10";
-        document.getElementById('inputQty').value = 48;
-        document.getElementById('inputExpiry').value = "2028.06.04";
-      } finally {
-        document.getElementById('aiLoadingOverlay').classList.add('hidden');
-      }
-    }
-
-    function resizeAndBase64(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const maxDim = 1200; // 提升影像解析度以強化 AI 對手寫筆跡與小字的識別度
-
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
+        // 輪播下一篇邏輯
+        function nextStory() {
+            if (isRandomMode) {
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * stories.length);
+                } while (newIndex === currentIndex && stories.length > 1);
+                currentIndex = newIndex;
             } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
+                currentIndex = (currentIndex + 1) % stories.length;
             }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.90);
-          resolve(dataUrl.split(',')[1]);
-        };
-        img.onerror = reject;
-      });
-    }
-
-    // --- Mobile User Actions ---
-    function submitItem() {
-      const name = document.getElementById('inputItemName').value.trim();
-      const no = document.getElementById('inputItemNo').value.trim();
-      const qty = parseInt(document.getElementById('inputQty').value) || 1;
-      const expiry = document.getElementById('inputExpiry').value.trim();
-
-      if (!name || !no) {
-        alert("請填寫品名與品號！");
-        return;
-      }
-
-      const payload = {
-        id: Date.now(),
-        itemName: name,
-        itemNo: no,
-        quantity: qty,
-        expiryDate: expiry,
-        timestamp: new Date().toLocaleTimeString()
-      };
-
-      dispatchMessage({ type: 'NEW_ITEM', payload: payload });
-
-      itemsList.push(payload);
-      document.getElementById('mobileCountBadge').innerText = itemsList.length + ' 件';
-
-      // Reset Input Form
-      document.getElementById('inputItemName').value = '';
-      document.getElementById('inputItemNo').value = '';
-      document.getElementById('inputQty').value = 1;
-      document.getElementById('inputExpiry').value = '';
-      document.getElementById('photoPreview').classList.add('hidden');
-      document.getElementById('cameraPlaceholder').classList.remove('hidden');
-
-      alert("已成功上傳此筆 AI 辨識物資至電腦端！");
-    }
-
-    function triggerSettlement() {
-      dispatchMessage({ type: 'TRIGGER_SETTLEMENT' });
-      alert("已發送「結算」指令，電腦端網頁即刻呈現匯總結果！");
-    }
-
-    // --- Desktop UI Renderers ---
-    function updateDesktopTable() {
-      const tbody = document.getElementById('inventoryTableBody');
-      const totalCountEl = document.getElementById('statItemCount');
-      const totalQtyEl = document.getElementById('statTotalQty');
-
-      if (itemsList.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="py-8 text-center text-slate-400 text-xs">
-              <i class="fa-solid fa-inbox text-2xl mb-2 block"></i> 尚無檢整紀錄，請使用手機開始拍照辨識
-            </td>
-          </tr>`;
-        totalCountEl.innerText = '0';
-        totalQtyEl.innerText = '0';
-        return;
-      }
-
-      let totalQty = 0;
-      tbody.innerHTML = itemsList.map((item, index) => {
-        totalQty += item.quantity;
-        return `
-          <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-            <td class="py-3 px-4 font-mono text-xs text-slate-400">${index + 1}</td>
-            <td class="py-3 px-4 font-mono font-bold text-indigo-600">${item.itemNo}</td>
-            <td class="py-3 px-4 font-medium text-slate-800">${item.itemName}</td>
-            <td class="py-3 px-4 text-center font-bold text-slate-900">${item.quantity}</td>
-            <td class="py-3 px-4 font-mono text-slate-600">${item.expiryDate}</td>
-            <td class="py-3 px-4">
-              <span class="inline-flex items-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
-                <i class="fa-solid fa-check text-[9px]"></i> AI 辨識完成
-              </span>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      totalCountEl.innerText = itemsList.length;
-      totalQtyEl.innerText = totalQty;
-    }
-
-    function renderSettlementSummary() {
-      const summaryContainer = document.getElementById('settlementSummary');
-      const summaryCards = document.getElementById('summaryCards');
-      summaryContainer.classList.remove('hidden');
-
-      const map = {};
-      itemsList.forEach(item => {
-        const key = `${item.itemNo} - ${item.itemName}`;
-        if (!map[key]) {
-          map[key] = {
-            itemNo: item.itemNo,
-            itemName: item.itemName,
-            totalQty: 0,
-            expiries: new Set()
-          };
+            renderStory(currentIndex);
+            resetTimer();
         }
-        map[key].totalQty += item.quantity;
-        if (item.expiryDate) map[key].expiries.add(item.expiryDate);
-      });
 
-      summaryCards.innerHTML = Object.values(map).map(group => `
-        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-          <div class="flex justify-between items-start mb-1">
-            <span class="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${group.itemNo}</span>
-            <span class="text-xs font-black text-slate-800">${group.totalQty} 件</span>
-          </div>
-          <div class="text-xs font-bold text-slate-800 truncate mb-1" title="${group.itemName}">${group.itemName}</div>
-          <div class="text-[10px] text-slate-400 font-mono">效期: ${Array.from(group.expiries).join(', ')}</div>
-        </div>
-      `).join('');
+        // 上一篇邏輯
+        function prevStory() {
+            currentIndex = (currentIndex - 1 + stories.length) % stories.length;
+            renderStory(currentIndex);
+            resetTimer();
+        }
 
-      // Print Page Populate
-      document.getElementById('printDate').innerText = new Date().toLocaleString();
-      document.getElementById('printSession').innerText = sessionCode;
-      document.getElementById('printTableBody').innerHTML = itemsList.map(i => `
-        <tr>
-          <td class="border border-slate-300 p-2 font-mono">${i.itemNo}</td>
-          <td class="border border-slate-300 p-2">${i.itemName}</td>
-          <td class="border border-slate-300 p-2 text-center font-bold">${i.quantity}</td>
-          <td class="border border-slate-300 p-2 font-mono">${i.expiryDate}</td>
-        </tr>
-      `).join('');
-    }
+        // 跳轉至特定故事
+        function goToStory(index) {
+            currentIndex = index;
+            renderStory(currentIndex);
+            resetTimer();
+        }
 
-    // --- CSV Export ---
-    function exportCSV() {
-      if (itemsList.length === 0) {
-        alert("尚無資料可供匯出！");
-        return;
-      }
+        // 啟動倒數計時
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    secondsLeft--;
+                    updateTimerDisplay();
 
-      let csvContent = "\uFEFF品號,品名,數量,有效期限,接收時間\n";
-      itemsList.forEach(row => {
-        csvContent += `"${row.itemNo}","${row.itemName}",${row.quantity},"${row.expiryDate}","${row.timestamp}"\n`;
-      });
+                    if (secondsLeft <= 0) {
+                        nextStory();
+                    }
+                }
+            }, 1000);
+        }
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `物資檢整表單_${sessionCode}_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  </script>
+        // 切換暫停 / 播放
+        function togglePause() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                pauseBtn.textContent = '繼續輪播';
+                pauseBtn.classList.add('bg-amber-100', 'text-amber-800');
+                playStatusText.textContent = '輪播已暫停';
+            } else {
+                pauseBtn.textContent = '暫停輪播';
+                pauseBtn.classList.remove('bg-amber-100', 'text-amber-800');
+                playStatusText.textContent = '倒數輪播中';
+            }
+        }
+
+        // 切換隨機 / 順序模式
+        function toggleRandomMode() {
+            isRandomMode = !isRandomMode;
+            modeText.textContent = isRandomMode ? '隨機輪播' : '順序輪播';
+        }
+
+        // 頁面初始化
+        window.onload = () => {
+            renderStory(currentIndex);
+            startTimer();
+        };
+    </script>
 </body>
 </html>
