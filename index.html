@@ -184,7 +184,24 @@ button:active{transform:scale(.98)}
 @media(max-width:700px){#avatar-select-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}.avatar-option-btn{background:#fff8e7!important;border-color:#d9b86f!important;border-radius:16px!important}.map-tile-grid .tile-story-icon{width:24px;height:24px}.map-tile-grid .tile-story-label{font-size:10px!important}#players-dashboard .game-animal-avatar{width:34px!important;height:34px!important}}
 </style>
 
-</head>
+
+<style id="visual-detail-fixes">
+.map-tile-grid{position:relative!important;overflow:hidden!important;background-image:none!important;background-size:cover!important}
+.map-tile-grid>.ref-tile-art{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;display:block!important;z-index:0!important;border-radius:inherit!important}
+.map-tile-grid>.ref-tile-inner{position:absolute!important;inset:0!important;z-index:3!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;padding:0 2px 4px!important;pointer-events:none!important}
+.map-tile-grid .ref-tile-label{max-width:100%!important;white-space:normal!important;background:rgba(255,250,230,.88)!important;box-shadow:0 1px 4px #3b2b1b40!important}
+.map-tile-grid.story-no-icon>.ref-tile-inner{justify-content:center!important;padding:4px!important}
+.map-tile-grid.story-no-icon .ref-tile-label{font-size:clamp(19px,2.2vw,34px)!important}
+#view-game .map-tile-grid [id^="tile-players-"]{z-index:5!important}
+#ready-prompt-overlay{background-color:rgba(255,248,224,.88)!important;background-image:linear-gradient(rgba(255,249,225,.78),rgba(255,249,225,.78)),var(--ready-banner)!important;background-size:cover!important;background-position:center!important;border:5px solid #c99b53!important}
+#ready-prompt-overlay>*{position:relative;z-index:2}
+#ready-prompt-overlay:before{content:"";position:absolute;inset:0;background-image:var(--ready-banner);background-size:contain;background-repeat:no-repeat;background-position:center 8%;opacity:.22;pointer-events:none}
+#score-rules-box li{display:flex!important;align-items:center!important;gap:7px!important;padding:4px!important;border-radius:8px!important;background:rgba(255,255,255,.42)!important}
+#score-rules-box .rule-art-icon{width:28px;height:28px;flex:0 0 28px;object-fit:contain;filter:drop-shadow(0 1px 1px #6b503233)}
+@media(max-width:700px){.map-tile-grid>.ref-tile-inner{padding-bottom:2px!important}.map-tile-grid .ref-tile-label{font-size:clamp(8px,2vw,12px)!important}}
+</style>
+
+<style id="pawn-cutout-detail">.ref-animal-pawn,.ref-dashboard-avatar,.ref-current-pawn{mix-blend-mode:multiply;clip-path:polygon(15% 0,85% 0,100% 18%,96% 78%,82% 100%,18% 100%,4% 78%,0 18%)} .ref-pawn-wrap{background:transparent!important;border:0!important;box-shadow:none!important;overflow:hidden!important}</style></head>
 <body class="h-screen w-screen flex flex-col justify-between overflow-hidden bg-chch-lightGreen">
 
     <!-- 背景音樂：Two_Coins_Left.mp3 -->
@@ -1954,11 +1971,11 @@ button:active{transform:scale(.98)}
 #center-board-area>*{position:relative;z-index:1}
 #center-board-area #player-info-container{background:rgba(255,250,230,.76)!important;border-color:#ddc68f!important}
 #center-ball-container{background:rgba(247,244,220,.72)!important}
-.ref-animal-pawn{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 2px #5b472b55)}
+.ref-animal-pawn{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 2px #5b472b55);mix-blend-mode:multiply;clip-path:polygon(15% 0,85% 0,100% 22%,96% 78%,83% 100%,17% 100%,4% 78%,0 22%)}
 #view-game .map-tile-grid [id^="tile-players-"]{width:100%;height:100%;inset:0!important;display:flex;align-items:flex-start;justify-content:flex-end;gap:0!important;padding:1px;flex-wrap:wrap;pointer-events:none}
 #view-game .map-tile-grid [id^="tile-players-"] .ref-pawn-wrap{width:35%;height:44%;max-width:30px;display:inline-flex;align-items:center;justify-content:center;animation:bobPawn 1.7s ease-in-out infinite alternate}
 @keyframes bobPawn{from{transform:translateY(1px)}to{transform:translateY(-2px)}}
-#players-dashboard .ref-dashboard-avatar{width:30px;height:30px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 1px 1px #76513c33)}
+#players-dashboard .ref-dashboard-avatar{width:30px;height:30px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 1px 1px #76513c33);mix-blend-mode:multiply;clip-path:polygon(15% 0,85% 0,100% 22%,96% 78%,83% 100%,17% 100%,4% 78%,0 22%)}
 #current-player-avatar .ref-current-pawn{width:1.7em;height:1.7em;object-fit:contain;vertical-align:middle;filter:drop-shadow(0 3px 3px #76513c55)}
 @media(max-width:768px){.map-tile-grid .ref-tile-label{font-size:clamp(9px,2.2vw,14px)!important;padding:1px 2px}.map-tile-grid .ref-tile-label.long{font-size:clamp(8px,1.8vw,12px)!important}#view-game .map-tile-grid [id^="tile-players-"] .ref-pawn-wrap{width:43%;height:34%}}
 </style>
@@ -1976,19 +1993,22 @@ button:active{transform:scale(.98)}
  function image(src,cls){const im=document.createElement('img');im.src=src;im.className=cls;im.alt='';im.draggable=false;return im;}
  function decorateTiles(){
   document.querySelectorAll('.map-tile-grid').forEach(tile=>{
-   if(tile.dataset.refArt==='1') return;
    const raw=tile.innerText.replace(/\s+/g,' ').trim();
    let key='food';
    if(raw.includes('起點'))key='start'; else if(raw.includes('教育推廣'))key='education'; else if(raw.includes('弱勢扶助'))key='weak'; else if(raw.includes('災害援助'))key='disaster'; else if(raw.includes('急難救助'))key='emergency'; else if(raw.includes('禮物驚喜'))key='gift'; else if(raw.includes('金幣獎勵'))key='coins'; else if(raw.includes('終點'))key='finish'; else if(raw.includes('休息'))key='rest'; else if(raw.includes('食物銀行'))key='bank'; else if(raw.includes('商店')||raw.includes('愛心義賣'))key='shop'; else if(raw.includes('機會'))key='chance'; else if(raw.includes('命運'))key='fate';
-   tile.style.backgroundImage='url("'+ART[key]+'")';
-   tile.querySelectorAll(':scope > div').forEach((d,idx)=>{if(idx===0)d.style.display='none';});
+   tile.style.setProperty('background-image','none','important');
+   tile.style.setProperty('position','relative','important');tile.style.setProperty('overflow','hidden','important');
+   let art=tile.querySelector(':scope > .ref-tile-art');
+   if(!art){art=image(ART[key]||ART.food,'ref-tile-art');art.classList.add('ref-tile-art');tile.insertBefore(art,tile.firstChild);}
+   else art.src=ART[key]||ART.food;
+   tile.querySelectorAll(':scope > div').forEach((d)=>{if(!d.id?.startsWith('tile-players-')&&!d.classList.contains('ref-tile-inner'))d.style.display='none';});
    const holder=tile.querySelector('[id^="tile-players-"]');
    tile.querySelectorAll('.ref-tile-inner').forEach(n=>n.remove());
    const inner=document.createElement('div');inner.className='ref-tile-inner';
    const label=document.createElement('span');label.className='ref-tile-label'+(raw.length>=5?' long':'');label.textContent=raw.replace(/🦌|🐱|🐷|🦁|🐯|🦊|🐰|🐼|🐨|🐶|🚩|📦|🤝|🚨|⛈️|🏫|☕/gu,'').trim();
    if(key==='chance'||key==='fate') tile.classList.add('story-no-icon'); else tile.classList.remove('story-no-icon');
    if(label.textContent) inner.appendChild(label); tile.appendChild(inner);
-   if(holder){holder.style.display='flex';holder.style.position='absolute';holder.style.inset='0';holder.style.width='100%';holder.style.height='100%';}
+   if(holder){holder.style.display='flex';holder.style.position='absolute';holder.style.inset='0';holder.style.width='100%';holder.style.height='100%';holder.style.zIndex='5';}
    tile.dataset.refArt='1';
   });
  }
@@ -2001,7 +2021,13 @@ button:active{transform:scale(.98)}
   });
   const current=document.getElementById('current-player-avatar'); if(current&&!current.querySelector('img')&&current.textContent.trim()){const idx=pawnIndex(current.textContent);current.textContent='';current.appendChild(image(ART['pawn'+idx],'ref-current-pawn'));}
  }
- function run(){decorateTiles();decoratePawns();}
+ function decorateRules(){
+  const rules=document.querySelectorAll('#score-rules-box li');
+  const keys=['coins','start','weak','chance'];
+  rules.forEach((li,i)=>{if(li.querySelector('.rule-art-icon'))return;const txt=li.textContent;let key=keys[i]||'food';if(txt.includes('弱勢'))key='weak';else if(txt.includes('起點'))key='start';else if(txt.includes('機會')||txt.includes('命運'))key='chance';else if(txt.includes('擲骰'))key='coins';const old=li.firstChild;if(old&&old.nodeType===Node.TEXT_NODE)old.textContent=old.textContent.replace(/^\s*[^\s]+\s*/,'');else if(old&&old.nodeType===Node.ELEMENT_NODE&&old.tagName!=='B')old.remove();const im=image(ART[key]||ART.food,'rule-art-icon');li.insertBefore(im,li.firstChild);});
+ }
+ function decorateReadyBanner(){const ready=document.getElementById('ready-prompt-overlay');if(ready&&ART.center)ready.style.setProperty('--ready-banner','url("'+ART.center+'")');}
+ function run(){decorateTiles();decoratePawns();decorateRules();decorateReadyBanner();}
  const mo=new MutationObserver(()=>{if(!mo.busy){mo.busy=true;requestAnimationFrame(()=>{run();mo.busy=false;});}});
  function init(){run();mo.observe(document.body,{subtree:true,childList:true,characterData:true});}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
