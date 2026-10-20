@@ -1891,5 +1891,74 @@
 })();
 </script>
 
+
+<style id="storybook-board-redesign">
+:root{--forest:#315b3d;--moss:#6f8d57;--paper:#fff7df;--paper2:#f8e9c6;--ink:#68452b;--gold:#d99b43;--rose:#d98278}
+body{background:radial-gradient(ellipse at top,#fff9e9 0%,#e8f0d8 58%,#c8d9ae 100%)!important;color:var(--ink)!important}
+#main-header{background:linear-gradient(180deg,#fff9e9,#f4e4bc)!important;border-bottom:3px solid #cfa05a!important;box-shadow:0 4px 12px #76513c22!important}
+#main-header h1{color:#416747!important;text-shadow:1px 2px #fff}
+#main-header .text-3xl{filter:drop-shadow(0 2px 2px #b88742)}
+#view-lobby,#view-player-mobile,#view-game{font-family:'Noto Sans TC',sans-serif}
+#view-lobby{background:linear-gradient(135deg,#fff9e8,#f3e4c0)!important;border:3px solid #d7b06c!important;box-shadow:0 10px 28px #76513c24!important}
+#view-game>div:first-child{background:linear-gradient(180deg,#fdf3d8,#f4e6c3)!important;border-color:#cfa05a!important;box-shadow:inset 0 0 0 3px #fff8e5,0 6px 18px #76513c18!important}
+#view-game>div:nth-child(2){background:linear-gradient(135deg,#e9edcf,#d8e4bb)!important;border:3px solid #b99054!important;box-shadow:inset 0 0 0 3px #fff8e8,0 6px 18px #76513c22!important}
+#center-board-area{background:linear-gradient(135deg,#fff8df,#e9edcf)!important;border-color:#b99054!important;box-shadow:inset 0 0 0 3px #fffdf1,0 5px 18px #76513c20!important}
+#center-board-area:after{content:'惜食 × 分享 × 愛　　讓每一份食物都有意義';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(16px,2vw,30px);font-weight:900;letter-spacing:.08em;color:#47724c;opacity:.13;pointer-events:none;z-index:0}
+#player-info-container,#center-ball-container,#ready-prompt-overlay,#center-question-box,#center-chance-box{z-index:1}
+.map-tile-grid{background:linear-gradient(145deg,#fffdf1,#f5e5bd)!important;border:2px solid #d7b56f!important;border-radius:15px!important;box-shadow:0 3px 0 #d8bd86,0 5px 10px #76513c18!important;color:#66452b;transition:transform .18s ease}
+.map-tile-grid:nth-child(4n+1){background:linear-gradient(145deg,#fff9e5,#e8efcf)!important}
+.map-tile-grid span{color:#66452b!important}
+.map-tile-grid .tile-story-icon{display:flex;align-items:center;justify-content:center;width:clamp(34px,4vw,64px);height:clamp(34px,4vw,64px);filter:drop-shadow(0 2px 2px #76513c20)}
+.map-tile-grid .tile-story-icon svg{width:100%;height:100%}
+#players-dashboard>div{border-radius:15px!important;border-color:#d9bd83!important;background:linear-gradient(135deg,#fffdf4,#f8edcf)!important;box-shadow:0 2px 0 #e1cc9d!important;padding:8px!important}
+#players-dashboard>div.border-amber-400{background:linear-gradient(135deg,#fff0bc,#f5d78a)!important;border-color:#c98d35!important;box-shadow:0 0 0 2px #ffe8a6,0 4px 10px #a8732933!important}
+#players-dashboard .game-animal-avatar,#players-dashboard .storybook-player{width:42px!important;height:42px!important;border-radius:50%!important;border:2px solid #e0bc70;object-fit:cover}
+#players-dashboard .text-xl{display:flex;align-items:center;justify-content:center;width:42px;height:42px}
+#players-dashboard .text-chch-orange{color:#a85c25!important}
+#view-result .game-animal-avatar,#view-result .storybook-player{width:1.25em!important;height:1.25em!important;object-fit:cover;border-radius:50%}
+#view-player-mobile{background:linear-gradient(180deg,#fff7df,#e7edcf)!important}
+#mobile-half-display{background:linear-gradient(150deg,#fff7df,#dce8c6)!important;border-color:#c59b57!important}
+#mobile-controls-area{background:linear-gradient(145deg,#536c50,#2e4b3a)!important;border-color:#c59b57!important}
+button{transition:transform .15s ease,filter .15s ease}
+button:active{transform:scale(.98)}
+#main-footer{background:#fff8e6!important;color:#6d5738!important;border-color:#d8bd83!important}
+/* 命運、機會格：只顯示放大的文字，不保留圖示 */
+.map-tile-grid.story-no-icon .tile-story-icon{display:none!important}
+.map-tile-grid.story-no-icon .tile-story-label{font-size:clamp(19px,2.2vw,34px)!important;font-weight:1000!important;line-height:1.15!important;letter-spacing:.08em}
+@media(max-width:700px){#avatar-select-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}.avatar-option-btn{background:#fff8e7!important;border-color:#d9b86f!important;border-radius:16px!important}.map-tile-grid .tile-story-icon{width:28px;height:28px}.map-tile-grid .tile-story-label{font-size:11px!important}#players-dashboard .game-animal-avatar{width:36px!important;height:36px!important}}
+</style>
+<script id="storybook-board-sync">
+(function(){
+ const art={
+ '起點':['M12 40 L12 12 L37 12 L37 40 Z','#d9a24e','M17 18 L32 18 M17 24 L32 24 M17 30 L28 30'],
+ '教育推廣':['M8 18 L32 5 L56 18 L32 30 Z','#557b9b','M16 22 V40 Q32 52 48 40 V22 M23 27 V39 M32 30 V43 M41 27 V39'],
+ '弱勢扶助':['M32 51 C25 44 8 33 12 20 C15 10 27 12 32 22 C37 12 49 10 52 20 C56 33 39 44 32 51Z','#d98286',''],
+ '災害援助':['M32 5 L55 45 H9 Z','#6f8eaa','M32 18 V31 M32 38 V39'],
+ '急難救助':['M18 8 H46 V54 H18 Z','#c86c55','M25 20 H39 M32 13 V27 M25 38 H39 M25 44 H36'],
+ '食物補給':['M8 29 Q32 18 56 29 L50 48 H14 Z','#8b9f55','M16 27 Q20 9 29 22 M28 26 Q34 5 40 24 M40 27 Q48 13 50 26'],
+ '禮物驚喜':['M8 23 H56 V52 H8 Z','#d78a78','M5 17 H59 V26 H5 Z M32 17 V52 M32 17 C12 17 17 2 26 8 Q32 12 32 17 M32 17 C52 17 47 2 38 8 Q32 12 32 17'],
+ '金幣獎勵':['M8 20 Q32 8 56 20 Q32 32 8 20Z','#dba33f','M8 30 Q32 42 56 30 M8 39 Q32 51 56 39'],
+ '休息':['M8 39 Q32 32 56 39 L52 46 H12 Z','#8ca16b','M15 35 V17 M15 20 Q30 6 42 20 M22 39 V48 M45 39 V48'],
+ '食物銀行':['M9 27 L32 8 L55 27 V52 H9 Z','#7d9b68','M24 52 V35 H40 V52 M18 29 H46'],
+ '商店':['M8 24 H56 V52 H8 Z','#d58c62','M5 24 L12 10 H52 L59 24Z M18 31 H27 V41 H18Z M36 31 H46 V42 H36Z'],
+ '終點':['M32 5 L38 21 L55 22 L42 33 L46 50 L32 41 L18 50 L22 33 L9 22 L26 21Z','#dba33f',''],
+ '休息站':['M32 6 Q15 20 20 34 Q22 42 32 48 Q42 42 44 34 Q49 20 32 6Z','#6f9668','M32 17 V36 M24 27 L32 34 L40 25']
+ };
+ function svgForTile(type){const a=art[type]||art['食物銀行'];return `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="${a[0]}" fill="${a[1]}" stroke="#76513c" stroke-width="2.5" stroke-linejoin="round"/>${a[2]?`<path d="${a[2]}" fill="none" stroke="#fff4d7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`:''}<circle cx="14" cy="12" r="2" fill="#fff4d7" opacity=".8"/></svg>`}
+ const originalRender=window.renderMapBoard;
+ if(typeof originalRender==='function'){
+   window.renderMapBoard=function(){originalRender();document.querySelectorAll('.map-tile-grid').forEach((el,i)=>{const holder=el.querySelector('.flex.items-center');if(!holder)return;const icon=holder.querySelector('span:first-child');const label=holder.querySelector('span:last-child');if(!icon||!label)return;let title=(label.innerText||label.textContent||'').replace(/\s+/g,'').replace(/<br>/g,'');
+      if(title==='命運'||title==='機會'){el.classList.add('story-no-icon');icon.className='tile-story-icon';icon.innerHTML='';label.className='tile-story-label text-base md:text-2xl font-black leading-tight flex-grow';label.textContent=title;}
+      else {icon.className='tile-story-icon';icon.innerHTML=svgForTile(title);label.className='tile-story-label text-base md:text-2xl font-black leading-tight flex-grow';}
+   });};
+ }
+ const originalDashboard=window.renderPlayersDashboard;
+ if(typeof originalDashboard==='function'){
+   window.renderPlayersDashboard=function(){originalDashboard();document.querySelectorAll('#players-dashboard>div').forEach(card=>{const avatar=card.querySelector('span.text-xl');if(!avatar)return;const emoji=avatar.textContent.trim();const img=document.querySelector(`#avatar-select-grid img[alt]`);/* portrait sync is handled by the existing avatar renderer */ if(emoji){avatar.classList.add('dashboard-avatar-token');}});};
+ }
+ document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('#center-chance-box').forEach(el=>{el.style.background='linear-gradient(145deg,#fff8df,#e8efcf)';const title=el.querySelector('span');if(title){title.textContent='機會選擇（成功率 30%）';title.style.fontSize='clamp(20px,2vw,30px)';}});});
+})();
+</script>
+
 </body>
 </html>
