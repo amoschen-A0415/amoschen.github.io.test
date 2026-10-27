@@ -1676,7 +1676,10 @@
             ];
             const matchedNotice = noticeIconByTitle.find(([pattern]) => pattern.test(String(title || '')));
             const mainIcon = matchedNotice ? matchedNotice[1] : (icon1 || '🍎');
-            document.getElementById('notice-icon-1').innerHTML = mainIcon;
+            const noticeArt = document.getElementById('notice-icon-1');
+            const isChanceOrFate = ['機會', '命運'].includes(String(title || '').trim());
+            noticeArt.classList.toggle('notice-text-label', isChanceOrFate);
+            noticeArt.innerText = isChanceOrFate ? String(title).trim() : mainIcon;
             document.getElementById('notice-icon-2').innerHTML = '';
             document.getElementById('notice-title').innerText = title;
             document.getElementById('notice-original-text').innerText = text;
@@ -2136,6 +2139,19 @@
 <style id="award-opacity-70-only">
 /* Requested award panel opacity: 70%; no QR-related styles here. */
 #view-result #result-notice-box { background: rgba(255,247,221,.70) !important; }
+
+/* 機會／命運訊息窗：左側只顯示大字標題，不顯示圖示 */
+#tile-notice-overlay .notice-main-art.notice-text-label {
+    width: 100% !important;
+    height: 100% !important;
+    font-size: clamp(5rem, 12vw, 10rem) !important;
+    font-weight: 900 !important;
+    color: #347b3e !important;
+    filter: none !important;
+    text-shadow: 0 3px 0 rgba(255,255,255,.85), 0 5px 12px rgba(52,123,62,.16) !important;
+    letter-spacing: .12em;
+}
+
 </style>
 
 </body>
