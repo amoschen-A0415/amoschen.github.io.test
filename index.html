@@ -236,11 +236,15 @@
                             <div class="font-bold border-b border-amber-300/60 pb-1 mb-1.5 flex items-center gap-1.5 text-chch-orange">
                                 <i class="fa-solid fa-circle-info"></i> 簡明規則指南
                             </div>
-                            <ul class="grid grid-cols-2 gap-1 text-xs text-slate-700 font-bold">
-                                <li>🎯 <b>碰撞擲骰</b>：移動小球選1-6點。</li>
-                                <li>🚩 <b>起點踩中</b>：第一圈起剛好停+30分。</li>
-                                <li>🤝 <b>弱勢扶助</b>：配對正確食物箱+15分。</li>
-                                <li>❓ <b>機會命運</b>：高風險搶奪與對換分數。</li>
+                            <ul class="storybook-rules-grid grid grid-cols-2 gap-2 text-xs text-slate-700 font-bold">
+                                <li><span class="rule-art">🎯</span><span><b>擲骰前進</b>：碰撞飄浮球，依點數決定本回合步數。</span></li>
+                                <li><span class="rule-art">🚩</span><span><b>起點／完成一圈</b>：經過起點並完成圈數，依遊戲設定取得積分。</span></li>
+                                <li><span class="rule-art">🤲</span><span><b>弱勢扶助</b>：回答食物箱配對題，答對可獲得 15 分。</span></li>
+                                <li><span class="rule-art">❓</span><span><b>機會／命運</b>：抽取事件，可能獲得獎勵或遇到分數挑戰。</span></li>
+                                <li><span class="rule-art">⛈</span><span><b>災害援助／急難救助</b>：認識緊急援助與物資支援的意義。</span></li>
+                                <li><span class="rule-art">📖</span><span><b>教育推廣</b>：認識惜食、分享與食物教育，依題目獲得積分。</span></li>
+                                <li><span class="rule-art">💰</span><span><b>食物補給／金幣獎勵／禮物</b>：依格子事件取得對應獎勵。</span></li>
+                                <li><span class="rule-art">🌱</span><span><b>休息站</b>：停留休息，依遊戲流程等待下一回合。</span></li>
                             </ul>
                         </div>
                     </div>
@@ -481,9 +485,9 @@
                 <!-- 【修改優化 1】通知窗格：透明度極淡（bg-black/10），且卡片縮小為原 90% 大小（w-[72%], h-[72%]） -->
                 <div id="tile-notice-overlay" class="hidden absolute inset-0 z-40 bg-black/10 backdrop-blur-[2px] flex items-center justify-center p-6">
                     <div id="notice-box" class="w-[72%] h-[72%] bg-white/95 rounded-3xl border-4 border-chch-green shadow-2xl p-6 flex items-center justify-between overflow-hidden relative">
-                        <div class="w-1/2 h-full flex flex-col items-center justify-around border-r-2 border-chch-green/20 p-4">
-                            <span id="notice-icon-1" class="text-[7.5rem]">🚨</span>
-                            <span id="notice-icon-2" class="text-[7.5rem]">🍲</span>
+                        <div class="notice-art-panel w-1/2 h-full flex items-center justify-center border-r-2 border-chch-green/20 p-4">
+                            <span id="notice-icon-1" class="notice-main-art" aria-label="事件圖示">🚨</span>
+                            <span id="notice-icon-2" class="hidden" aria-hidden="true"></span>
                         </div>
                         <div class="w-1/2 h-full flex flex-col justify-between p-6 text-left">
                             <div class="w-full flex-grow flex flex-col justify-start">
@@ -1655,8 +1659,23 @@
             const overlay = document.getElementById('tile-notice-overlay');
             const scoreEl = document.getElementById('score-change-text');
 
-            document.getElementById('notice-icon-1').innerText = icon1 || "🏠";
-            document.getElementById('notice-icon-2').innerText = icon2 || "🍲";
+            // 每個事件只顯示一個主圖示，依事件標題優先選擇最貼近內容的繪本圖案。
+            const noticeIconByTitle = [
+                [/教育推廣|宣導|食物教育|食物箱包裝/, '📖'],
+                [/弱勢扶助|食物箱|配對/, '🤲'],
+                [/災害援助|災害|風災|水災|地震/, '⛈'],
+                [/急難救助|急難|緊急|救助/, '🚨'],
+                [/機會|命運|事件|挑戰/, '❓'],
+                [/休息|休息站/, '🌱'],
+                [/金幣|獎勵|積分|加分/, '💰'],
+                [/食物補給|食物銀行|惜食|分享/, '🍎'],
+                [/禮物|驚喜/, '🎁'],
+                [/起點|完成一圈|終點/, '🚩']
+            ];
+            const matchedNotice = noticeIconByTitle.find(([pattern]) => pattern.test(String(title || '')));
+            const mainIcon = matchedNotice ? matchedNotice[1] : (icon1 || '🍎');
+            document.getElementById('notice-icon-1').innerHTML = mainIcon;
+            document.getElementById('notice-icon-2').innerHTML = '';
             document.getElementById('notice-title').innerText = title;
             document.getElementById('notice-original-text').innerText = text;
             document.getElementById('notice-child-text').innerText = childText;
@@ -1972,6 +1991,25 @@
 @media (max-width: 700px) {
   .map-tile-grid [id^="tile-players-"] { top: -.75rem !important; right: -.45rem !important; }
   .map-tile-grid [id^="player-tile-avatar-"] { width: 2rem !important; height: 2rem !important; font-size: 2rem !important; }
+}
+/* 最終視覺校正：彈窗左半只保留一個置中主插畫；規則指南採繪本小卡 */
+#tile-notice-overlay #notice-box { background: rgba(255,252,239,.97) !important; border-color:#347b3e !important; }
+#tile-notice-overlay .notice-art-panel { position:relative; justify-content:center !important; align-items:center !important; background:radial-gradient(ellipse at center,#fff9e6 0%,#f8edcf 70%,#f3e5c2 100%); border-right:2px solid rgba(81,139,79,.28) !important; }
+#tile-notice-overlay .notice-main-art { display:flex; align-items:center; justify-content:center; width:min(78%, 340px); height:min(78%, 340px); font-size:clamp(8rem, 16vw, 15rem); line-height:1; filter:drop-shadow(0 9px 5px rgba(91,64,35,.22)); }
+#tile-notice-overlay .notice-main-art .storybook-art { width:100%; height:100%; padding:0; border:0; border-radius:0; background:transparent; filter:drop-shadow(0 8px 4px rgba(91,64,35,.22)); }
+#tile-notice-overlay .notice-main-art .storybook-art svg { width:100% !important; height:100% !important; }
+#tile-notice-overlay #notice-icon-2 { display:none !important; }
+#score-rules-box { background:linear-gradient(135deg,#fff7df,#ffedc4) !important; border-color:#e4bd70 !important; }
+#score-rules-box .storybook-rules-grid li { display:flex; align-items:center; gap:.45rem; min-height:42px; padding:.38rem .45rem; border:1px solid rgba(211,169,91,.42); border-radius:12px; background:rgba(255,255,255,.72); box-shadow:0 2px 3px rgba(119,83,37,.07); line-height:1.45; }
+#score-rules-box .storybook-rules-grid li b { color:#805022; }
+#score-rules-box .rule-art { display:flex; flex:0 0 2rem; width:2rem; height:2rem; align-items:center; justify-content:center; border-radius:10px; border:1px solid #e7c779; background:linear-gradient(145deg,#fffdf5,#f5e4bb); font-size:1.45rem; filter:drop-shadow(0 2px 1px rgba(91,64,35,.16)); }
+#score-rules-box .rule-art .storybook-art { font-size:1.65rem; }
+#score-rules-box .rule-art .storybook-art svg { width:1.7rem; height:1.7rem; }
+@media (max-width: 700px) {
+ #tile-notice-overlay #notice-box { width:94% !important; height:88% !important; padding:.75rem !important; }
+ #tile-notice-overlay .notice-art-panel { padding:.25rem !important; }
+ #tile-notice-overlay .notice-main-art { font-size:clamp(4.5rem, 22vw, 8rem); width:90%; height:70%; }
+ #score-rules-box .storybook-rules-grid { grid-template-columns:1fr !important; }
 }
 </style>
 
