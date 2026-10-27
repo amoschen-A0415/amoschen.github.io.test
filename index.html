@@ -1004,12 +1004,16 @@
         function updatePlayerPositionsUI() {
             for (let i = 0; i < 20; i++) {
                 const holder = document.getElementById(`tile-players-${i}`);
-                if (holder) holder.innerHTML = '';
+                if (holder) {
+                    holder.innerHTML = '';
+                    if (holder.parentElement) holder.parentElement.classList.remove('has-player-token');
+                }
             }
 
             players.forEach(p => {
                 const holder = document.getElementById(`tile-players-${p.tileIndex}`);
                 if (holder) {
+                    if (holder.parentElement) holder.parentElement.classList.add('has-player-token');
                     const avatarSpan = document.createElement('span');
                     avatarSpan.id = `player-tile-avatar-${p.id}`;
                     avatarSpan.className = 'animate-bounce opacity-95 drop-shadow-2xl inline-block transition-transform';
@@ -1861,6 +1865,84 @@
   else {convertIcons(document.body);new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,characterData:true});}
 })();
 </script>
+
+
+<style id="final-integrated-fixes">
+/* 棋子跳出格子：格子圖保持完整，棋子位於最上層且可跨越相鄰格子 */
+#board-grid, #game-board-grid, .map-board-grid { overflow: visible !important; }
+.map-tile-grid {
+  position: relative !important;
+  overflow: visible !important;
+  isolation: auto !important;
+  z-index: 1;
+}
+.map-tile-grid.has-player-token { z-index: 9999 !important; }
+.map-tile-grid > div:first-child { overflow: hidden !important; border-radius: 10px; }
+.map-tile-grid .tile-players,
+.map-tile-grid [id^="tile-players-"] {
+  position: absolute !important;
+  top: -1.05rem !important;
+  right: -0.65rem !important;
+  z-index: 100000 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  gap: .12rem !important;
+  width: max-content !important;
+  max-width: none !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  white-space: nowrap !important;
+  filter: drop-shadow(0 5px 4px rgba(70,45,20,.35)) !important;
+}
+.map-tile-grid [id^="player-tile-avatar-"] {
+  position: relative !important;
+  z-index: 100001 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: clamp(2.5rem, 4.6vw, 4.2rem) !important;
+  height: clamp(2.5rem, 4.6vw, 4.2rem) !important;
+  font-size: clamp(2.5rem, 4.6vw, 4.2rem) !important;
+  line-height: 1 !important;
+  transform-origin: center bottom !important;
+  animation: token-hop 1.05s ease-in-out infinite !important;
+  filter: drop-shadow(0 5px 3px rgba(65,43,24,.35)) !important;
+}
+.map-tile-grid [id^="player-tile-avatar-"] .storybook-art,
+.map-tile-grid [id^="player-tile-avatar-"] img,
+.map-tile-grid [id^="player-tile-avatar-"] svg { overflow: visible !important; }
+@keyframes token-hop {
+  0%,100% { transform: translateY(0) rotate(-2deg) scale(1); }
+  45% { transform: translateY(-13px) rotate(2deg) scale(1.08); }
+  65% { transform: translateY(-8px) rotate(0) scale(1.04); }
+}
+/* 訊息窗與 QR 遊戲資訊的圖示採一致的手繪繪本比例、描邊與陰影 */
+#tile-notice-overlay .storybook-art { filter: drop-shadow(0 4px 2px rgba(88,61,31,.2)); }
+#tile-notice-overlay #notice-icon-1 .storybook-art svg,
+#tile-notice-overlay #notice-icon-2 .storybook-art svg { width: 1.18em !important; height: 1.18em !important; }
+#view-lobby .storybook-art,
+#view-lobby .fa-solid .storybook-art,
+#view-lobby .fa-regular .storybook-art { color: #7a4b22; vertical-align: middle; }
+#view-lobby .storybook-art svg { stroke-linecap: round; stroke-linejoin: round; }
+#view-lobby .storybook-art { filter: drop-shadow(0 2px 1px rgba(99,67,31,.16)); }
+/* 圖示和格子圖片完整填滿，不裁切；標題保留清晰可讀 */
+.map-tile-grid .tile-art {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 8px !important;
+}
+.map-tile-grid .tile-title { display: none !important; }
+@media (max-width: 700px) {
+  .map-tile-grid [id^="tile-players-"] { top: -.75rem !important; right: -.45rem !important; }
+  .map-tile-grid [id^="player-tile-avatar-"] { width: 2rem !important; height: 2rem !important; font-size: 2rem !important; }
+}
+</style>
 
 </body>
 </html>
