@@ -2189,5 +2189,19 @@
 @media (max-width:900px) { #view-result #result-four-grid { gap:.45rem !important; } }
 </style>
 
+
+<style id="qr-size-match-original-20261027">
+/* 精確比照 03安得烈食物銀行惜食大富翁20261020.html：QRCode.js 原生 480×480；外層維持原始 p-5 卡片與 qrcode 的 p-4 留白，不再把 QR 本體縮放成 380px 或被 520px 卡片擠壓。 */
+.qr-code-card { width:auto !important; max-width:none !important; padding:1.25rem !important; box-sizing:border-box !important; }
+#qrcode { width:auto !important; height:auto !important; max-width:none !important; padding:1rem !important; box-sizing:content-box !important; }
+#qrcode canvas, #qrcode img { width:480px !important; height:480px !important; max-width:none !important; max-height:none !important; object-fit:contain !important; margin:0 auto !important; display:block !important; }
+/* 小螢幕保留原始 480px QR 尺寸與比例；讓大廳可捲動/超出視窗，而不是悄悄縮小 QR。 */
+#view-lobby, #qr-lobby-stage { overflow:auto !important; }
+@media (max-width:600px) {
+  .qr-code-card { width:max-content !important; max-width:none !important; }
+  #qrcode, #qrcode canvas, #qrcode img { flex-shrink:0 !important; }
+}
+</style>
+
 </body>
 </html>
