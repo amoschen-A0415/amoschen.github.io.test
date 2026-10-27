@@ -2190,17 +2190,15 @@
 </style>
 
 
-<style id="qr-size-match-original-20261027">
-/* 精確比照 03安得烈食物銀行惜食大富翁20261020.html：QRCode.js 原生 480×480；外層維持原始 p-5 卡片與 qrcode 的 p-4 留白，不再把 QR 本體縮放成 380px 或被 520px 卡片擠壓。 */
+<style id="restore-original-qr-and-award-opacity-20261027">
+/* QR 碼完整恢復原始 03安得烈食物銀行惜食大富翁20261020.html 的呈現方式：QRCode.js 產生 480×480，CSS 僅 max-width:100%、height:auto；保留原始卡片 p-5 與 QR 容器 p-4。 */
 .qr-code-card { width:auto !important; max-width:none !important; padding:1.25rem !important; box-sizing:border-box !important; }
-#qrcode { width:auto !important; height:auto !important; max-width:none !important; padding:1rem !important; box-sizing:content-box !important; }
-#qrcode canvas, #qrcode img { width:480px !important; height:480px !important; max-width:none !important; max-height:none !important; object-fit:contain !important; margin:0 auto !important; display:block !important; }
-/* 小螢幕保留原始 480px QR 尺寸與比例；讓大廳可捲動/超出視窗，而不是悄悄縮小 QR。 */
+#qrcode { width:auto !important; height:auto !important; max-width:100% !important; padding:1rem !important; box-sizing:content-box !important; }
+#qrcode canvas, #qrcode img { width:auto !important; height:auto !important; max-width:100% !important; max-height:none !important; object-fit:contain !important; margin:0 auto !important; display:block !important; }
+/* 大廳在小螢幕可捲動，但不強制 QR 碼固定 480px，也不強制縮成 380px；由原始 max-width 規則自適應。 */
 #view-lobby, #qr-lobby-stage { overflow:auto !important; }
-@media (max-width:600px) {
-  .qr-code-card { width:max-content !important; max-width:none !important; }
-  #qrcode, #qrcode canvas, #qrcode img { flex-shrink:0 !important; }
-}
+/* 頒獎窗由原先 50% 不透明度提高 20 個百分點至 70%；底圖仍保持不加暗幕。 */
+#view-result #result-notice-box { background:rgba(255,247,221,.70) !important; }
 </style>
 
 </body>
