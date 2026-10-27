@@ -2191,10 +2191,16 @@
 
 
 <style id="restore-original-qr-and-award-opacity-20261027">
-/* 精確沿用原始檔 QR 顯示規則：QRCode.js 原生 480×480；canvas/img 只套用原始 max-width:100%、height:auto。不要對 #qrcode 本身設定寬高或 max-width。 */
+/* QR 碼區塊：撤銷先前所有強制寬高/縮放覆寫，恢復原始 HTML 的自然尺寸與原始 CSS。 */
 .qr-code-card { width:auto !important; max-width:none !important; padding:1.25rem !important; box-sizing:border-box !important; }
-#qrcode { width:auto !important; height:auto !important; max-width:none !important; padding:1rem !important; box-sizing:content-box !important; }
+#qr-lobby-stage { overflow:hidden !important; }
+#qrcode { width:auto !important; height:auto !important; max-width:none !important; min-width:0 !important; box-sizing:content-box !important; }
 #qrcode canvas, #qrcode img { width:auto !important; height:auto !important; max-width:100% !important; max-height:none !important; object-fit:contain !important; margin:0 auto !important; display:block !important; }
+@media (max-width:900px) {
+  .qr-code-card { width:auto !important; max-width:none !important; padding:1.25rem !important; }
+  #qrcode { width:auto !important; height:auto !important; max-width:none !important; }
+  #qrcode canvas, #qrcode img { width:auto !important; height:auto !important; max-width:100% !important; }
+}
 /* 頒獎視窗透明度由 50% 提高 20 個百分點至 70%，底下棋盤不加暗幕。 */
 #view-result #result-notice-box { background:rgba(255,247,221,.70) !important; }
 </style>
