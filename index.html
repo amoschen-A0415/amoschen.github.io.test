@@ -54,12 +54,6 @@
             height: 0 !important;
         }
 
-        #qrcode canvas, #qrcode img {
-            margin: 0 auto;
-            display: block;
-            max-width: 100%;
-            height: auto;
-        }
 
         .music-speed-btn {
             background-color: #ffffff;
@@ -150,7 +144,6 @@
         #main-header { background:linear-gradient(90deg,#fff2c7,#f7d48d,#fff0c0)!important; border-bottom:4px solid #d99a43!important; }
         #main-header h1 { color:#70401b!important; text-shadow:0 2px #fff3c9; }
         #view-lobby { background:rgba(255,249,224,.96)!important; border:5px solid #e9b65e!important; border-radius:30px!important; box-shadow:0 10px 0 rgba(133,88,31,.18),0 20px 50px #5e7d3d55!important; }
-        #qrcode { border:5px solid #e7b45a!important; }
         #btn-start-game { background:linear-gradient(#ffdb67,#f2a82c,#d98516)!important; color:#713d10!important; border:3px solid #fff0b3!important; text-shadow:0 1px #fff4c5; }
         #view-game { background:transparent!important; }
         #view-game > div:first-child { background:rgba(255,247,215,.96)!important; border:4px solid #dca452!important; border-radius:22px!important; }
@@ -855,7 +848,6 @@
                 chip.className = `qr-player-chip ${spots[i]}`;
                 const safeName = String(p.displayName || p.name || '參賽者');
                 chip.innerHTML = `<span class="qr-player-avatar">${avatarHtml(p.avatar, 'sm')}</span><span class="qr-player-name"></span>`;
-                chip.querySelector('.qr-player-name').textContent = safeName;
                 ring.appendChild(chip);
             });
         }
@@ -2035,20 +2027,7 @@
 #in-game-music-panel { display:none !important; }
 #main-header #game-stage-badge { display:none !important; }
 #btn-start-game { letter-spacing:.02em; }
-#qr-lobby-stage { isolation:isolate; }
-.qr-code-card { max-width:min(100%,360px); }
-#qr-player-ring { z-index:20; }
-.qr-player-chip { position:absolute; display:flex; align-items:center; gap:.4rem; max-width:38%; min-width:110px; padding:.4rem .65rem; border:2px solid #e8c777; border-radius:16px; background:rgba(255,250,229,.96); color:#69451f; box-shadow:0 4px 12px rgba(91,64,35,.18); font-weight:900; font-size:clamp(11px,1vw,15px); }
-.qr-player-avatar { display:flex; align-items:center; justify-content:center; flex:0 0 2rem; width:2rem; height:2rem; border-radius:50%; background:linear-gradient(145deg,#fff,#f5e6b9); border:1px solid #e5c47f; font-size:1.6rem; }
-.qr-player-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.qr-player-chip.top-left { top:8%; left:1%; }
-.qr-player-chip.top-right { top:8%; right:1%; }
-.qr-player-chip.bottom-left { bottom:8%; left:1%; }
-.qr-player-chip.bottom-right { bottom:8%; right:1%; }
 @media (max-width:900px) {
- #qr-player-ring { position:relative; display:flex; flex-wrap:wrap; justify-content:center; gap:.35rem; margin-top:.5rem; inset:auto; width:100%; }
- .qr-player-chip { position:static; max-width:48%; min-width:0; padding:.25rem .4rem; }
- .qr-player-avatar { width:1.6rem;height:1.6rem;flex-basis:1.6rem;font-size:1.25rem; }
  #score-rules-box .storybook-rules-grid { grid-template-columns:1fr !important; }
 }
 /* 遊戲事件視窗採半透明紙張底，保留後方踩中格子的可辨識度 */
@@ -2060,9 +2039,6 @@
 
 <style id="user-request-final-fixes-20261027">
 /* QR lobby: restore the clean previous QR presentation; never place player chips around the QR */
-#qr-player-ring, .qr-player-chip { display:none !important; }
-#qr-lobby-stage { overflow:hidden !important; }
-.qr-code-card { position:relative; z-index:1; }
 /* Keep the existing right-hand roster area; let the roster itself use its allotted space */
 #view-lobby .md\:col-span-6.lg\:col-span-5 { min-height:0 !important; overflow:hidden !important; }
 #view-lobby .md\:col-span-6.lg\:col-span-5 > .flex-grow { min-height:0 !important; overflow:hidden !important; }
@@ -2101,15 +2077,7 @@
 
 <style id="requested-final-adjustments-20261027">
 /* QR：恢復最初的大尺寸 QR Code，保持在原本 QR 區域內，不顯示玩家環繞標籤 */
-#qr-player-ring, .qr-player-chip { display:none !important; }
-#qr-lobby-stage { overflow:visible !important; }
-.qr-code-card { width:min(100%, 520px) !important; max-width:520px !important; padding:16px !important; }
-#qrcode { width:480px !important; height:480px !important; max-width:100% !important; box-sizing:content-box !important; }
-#qrcode canvas, #qrcode img { width:480px !important; height:480px !important; max-width:100% !important; object-fit:contain !important; }
 @media (max-width:900px) {
-  .qr-code-card { width:min(100%, 420px) !important; max-width:420px !important; padding:12px !important; }
-  #qrcode { width:min(380px, 100%) !important; height:auto !important; aspect-ratio:1 / 1; }
-  #qrcode canvas, #qrcode img { width:100% !important; height:auto !important; }
 }
 /* 標題圖示重新簡化：每個標題只顯示一個溫暖繪本符號，隱藏原 Font Awesome 圖示 */
 #view-lobby h2 > span:first-child > i,
@@ -2165,78 +2133,9 @@
 #view-result #result-title, #view-result #result-four-grid, #view-result button { position:relative; z-index:1; }
 </style>
 
-
-<style id="final-request-adjustments-20261027">
-/* QR Code 尺寸與原始 03安得烈食物銀行惜食大富翁20261020.html 一致：QRCode.js 原生 480×480，僅在容器不足時由 max-width 自適應 */
-.qr-code-card { width:auto !important; max-width:none !important; padding:1.25rem !important; box-sizing:border-box !important; }
-#qrcode { width:auto !important; height:auto !important; max-width:100% !important; box-sizing:content-box !important; }
-#qrcode canvas, #qrcode img { width:auto !important; height:auto !important; max-width:100% !important; object-fit:contain !important; margin:0 auto !important; display:block !important; }
-@media (max-width:900px) {
-  .qr-code-card { width:auto !important; max-width:100% !important; padding:1.25rem !important; }
-  #qrcode { max-width:100% !important; }
-  #qrcode canvas, #qrcode img { max-width:100% !important; }
-}
-/* 遊戲事件訊息窗比上一版再增加約 20 個百分點不透明度；窗體始終位於格子上方 */
-#tile-notice-overlay { z-index:250000 !important; position:fixed !important; }
-#tile-notice-overlay #notice-box { background:rgba(255,252,239,.92) !important; backdrop-filter:blur(1px) !important; position:relative !important; z-index:250001 !important; }
-#tile-notice-overlay .notice-art-panel { background:rgba(255,249,230,.76) !important; }
-/* 頒獎畫面保留底下地圖原狀；透明頒獎窗置頂。只顯示實際參賽者的名次卡片，由 showFinalResult() 動態決定 */
-#view-result { position:fixed !important; inset:0 !important; z-index:300000 !important; background:transparent !important; backdrop-filter:none !important; }
-#view-result #result-notice-box { background:rgba(255,247,221,.50) !important; backdrop-filter:none !important; }
-#view-result #result-four-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
-#view-result #result-four-grid > div { background-color:rgba(255,255,255,.50) !important; }
-@media (max-width:900px) { #view-result #result-four-grid { gap:.45rem !important; } }
-</style>
-
-
-<style id="restore-original-qr-and-award-opacity-20261027">
-/* QR 碼區塊：撤銷先前所有強制寬高/縮放覆寫，恢復原始 HTML 的自然尺寸與原始 CSS。 */
-.qr-code-card { width:auto !important; max-width:none !important; padding:1.25rem !important; box-sizing:border-box !important; }
-#qr-lobby-stage { overflow:hidden !important; }
-#qrcode { width:auto !important; height:auto !important; max-width:none !important; min-width:0 !important; box-sizing:content-box !important; }
-#qrcode canvas, #qrcode img { width:auto !important; height:auto !important; max-width:100% !important; max-height:none !important; object-fit:contain !important; margin:0 auto !important; display:block !important; }
-@media (max-width:900px) {
-  .qr-code-card { width:auto !important; max-width:none !important; padding:1.25rem !important; }
-  #qrcode { width:auto !important; height:auto !important; max-width:none !important; }
-  #qrcode canvas, #qrcode img { width:auto !important; height:auto !important; max-width:100% !important; }
-}
-/* 頒獎視窗透明度由 50% 提高 20 個百分點至 70%，底下棋盤不加暗幕。 */
-#view-result #result-notice-box { background:rgba(255,247,221,.70) !important; }
-</style>
-
-
-<style id="qr-block-exact-source-restore">
-/* Restore QR display behavior from 03安得烈食物銀行惜食大富翁20261020.html.
-   The original QR column markup is copied verbatim; the QRCode.js canvas keeps
-   its native 480x480 intrinsic size and may shrink only to fit its container. */
-#view-lobby #qrcode {
-  width: auto !important;
-  height: auto !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: content-box !important;
-}
-#view-lobby #qrcode canvas,
-#view-lobby #qrcode img {
-  width: auto !important;
-  height: auto !important;
-  max-width: 100% !important;
-  max-height: none !important;
-  object-fit: contain !important;
-  margin: 0 auto !important;
-  display: block !important;
-}
-#view-lobby .md\\:col-span-6.lg\\:col-span-7 {
-  overflow: hidden !important;
-}
-#view-lobby .md\\:col-span-6.lg\\:col-span-7 > div {
-  width: auto !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-#view-result #result-notice-box {
-  background: rgba(255,247,221,.70) !important;
-}
+<style id="award-opacity-70-only">
+/* Requested award panel opacity: 70%; no QR-related styles here. */
+#view-result #result-notice-box { background: rgba(255,247,221,.70) !important; }
 </style>
 
 </body>
