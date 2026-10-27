@@ -196,11 +196,7 @@
                 安得烈食物銀行惜食大富翁
             </h1>
         </div>
-        <div class="flex items-center gap-3">
-            <div id="game-stage-badge" class="px-4 py-1.5 rounded-full text-sm md:text-base font-black bg-slate-100 border border-slate-300 text-slate-700 shadow-sm">
-                版本 2026.10.14.01
-            </div>
-        </div>
+        <div class="flex items-center gap-3" aria-hidden="true"></div>
     </header>
 
     <!-- 主要內容區域 -->
@@ -211,10 +207,11 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
                 
                 <!-- 左側：QR Code -->
-                <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-chch-green/20 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
-                    <div class="p-5 bg-gradient-to-br from-chch-green via-emerald-600 to-chch-darkGreen rounded-3xl shadow-lg my-auto transition-transform hover:scale-[1.02] duration-300 border-2 border-white">
+                <div id="qr-lobby-stage" class="md:col-span-6 lg:col-span-7 relative flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-chch-green/20 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-visible">
+                    <div class="qr-code-card p-5 bg-gradient-to-br from-chch-green via-emerald-600 to-chch-darkGreen rounded-3xl shadow-lg my-auto transition-transform duration-300 border-2 border-white relative z-10">
                         <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-emerald-100 flex items-center justify-center shadow-inner"></div>
                     </div>
+                    <div id="qr-player-ring" aria-live="polite" aria-label="已連線參賽者" class="absolute inset-0 pointer-events-none"></div>
                 </div>
 
                 <!-- 右側：玩家名單 & 設定選項 & 開始按鈕 -->
@@ -243,8 +240,6 @@
                                 <li><span class="rule-art">❓</span><span><b>機會／命運</b>：抽取事件，可能獲得獎勵或遇到分數挑戰。</span></li>
                                 <li><span class="rule-art">⛈</span><span><b>災害援助／急難救助</b>：認識緊急援助與物資支援的意義。</span></li>
                                 <li><span class="rule-art">📖</span><span><b>教育推廣</b>：認識惜食、分享與食物教育，依題目獲得積分。</span></li>
-                                <li><span class="rule-art">💰</span><span><b>食物補給／金幣獎勵／禮物</b>：依格子事件取得對應獎勵。</span></li>
-                                <li><span class="rule-art">🌱</span><span><b>休息站</b>：停留休息，依遊戲流程等待下一回合。</span></li>
                             </ul>
                         </div>
                     </div>
@@ -287,7 +282,7 @@
 
                     <div id="lobby-start-box" class="w-full pt-1 flex-shrink-0">
                         <button id="btn-start-game" class="w-full py-3.5 text-2xl font-black text-white bg-gradient-to-r from-chch-green to-emerald-700 rounded-2xl shadow-lg hover:brightness-105 active:scale-95 transition-all border-2 border-white">
-                            🎮 開始惜食大富翁
+                            開始惜食大富翁
                         </button>
                     </div>
                 </div>
@@ -394,8 +389,8 @@
                     </div>
                 </div>
 
-                <!-- 排行榜下方音樂控制面板 -->
-                <div class="mt-2 pt-2 border-t-2 border-chch-green/20 flex-shrink-0 bg-chch-lightGreen rounded-xl p-2 border border-chch-green/30">
+                <!-- 音樂播放器已依需求移除；保留音訊程式相容性 -->
+                <div id="in-game-music-panel" class="mt-2 pt-2 border-t-2 border-chch-green/20 flex-shrink-0 bg-chch-lightGreen rounded-xl p-2 border border-chch-green/30">
                     <div class="flex items-center justify-between mb-1">
                         <span class="font-bold text-[10px] text-chch-darkGreen truncate" title="Two_Coins_Left.mp3">Two_Coins_Left.mp3</span>
                         <span id="music-status-text" class="text-[9px] bg-chch-green text-white px-1.5 py-0.5 rounded font-bold">100%</span>
@@ -847,6 +842,22 @@
                     </span>
                 `;
                 container.appendChild(item);
+            });
+            renderQrPlayerRing();
+        }
+
+        function renderQrPlayerRing() {
+            const ring = document.getElementById('qr-player-ring');
+            if (!ring) return;
+            ring.innerHTML = '';
+            const spots = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+            players.slice(0, 4).forEach((p, i) => {
+                const chip = document.createElement('div');
+                chip.className = `qr-player-chip ${spots[i]}`;
+                const safeName = String(p.displayName || p.name || '參賽者');
+                chip.innerHTML = `<span class="qr-player-avatar">${avatarHtml(p.avatar, 'sm')}</span><span class="qr-player-name"></span>`;
+                chip.querySelector('.qr-player-name').textContent = safeName;
+                ring.appendChild(chip);
             });
         }
 
@@ -2011,6 +2022,37 @@
  #tile-notice-overlay .notice-main-art { font-size:clamp(4.5rem, 22vw, 8rem); width:90%; height:70%; }
  #score-rules-box .storybook-rules-grid { grid-template-columns:1fr !important; }
 }
+
+/* 2026-10 更新：大廳規則指南固定六項，不被設定選單擠壓或覆蓋 */
+#view-lobby > .grid { min-height:0; }
+#view-lobby .grid > div { min-height:0; }
+#score-rules-box { margin-top:.55rem !important; padding:.55rem !important; flex:0 0 auto !important; }
+#score-rules-box .storybook-rules-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:.35rem !important; }
+#score-rules-box .storybook-rules-grid li { min-height:34px !important; padding:.28rem .35rem !important; font-size:11px !important; line-height:1.28 !important; }
+#score-rules-box .rule-art { flex-basis:1.65rem !important; width:1.65rem !important; height:1.65rem !important; font-size:1.15rem !important; }
+#in-game-music-panel { display:none !important; }
+#main-header #game-stage-badge { display:none !important; }
+#btn-start-game { letter-spacing:.02em; }
+#qr-lobby-stage { isolation:isolate; }
+.qr-code-card { max-width:min(100%,360px); }
+#qr-player-ring { z-index:20; }
+.qr-player-chip { position:absolute; display:flex; align-items:center; gap:.4rem; max-width:38%; min-width:110px; padding:.4rem .65rem; border:2px solid #e8c777; border-radius:16px; background:rgba(255,250,229,.96); color:#69451f; box-shadow:0 4px 12px rgba(91,64,35,.18); font-weight:900; font-size:clamp(11px,1vw,15px); }
+.qr-player-avatar { display:flex; align-items:center; justify-content:center; flex:0 0 2rem; width:2rem; height:2rem; border-radius:50%; background:linear-gradient(145deg,#fff,#f5e6b9); border:1px solid #e5c47f; font-size:1.6rem; }
+.qr-player-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.qr-player-chip.top-left { top:8%; left:1%; }
+.qr-player-chip.top-right { top:8%; right:1%; }
+.qr-player-chip.bottom-left { bottom:8%; left:1%; }
+.qr-player-chip.bottom-right { bottom:8%; right:1%; }
+@media (max-width:900px) {
+ #qr-player-ring { position:relative; display:flex; flex-wrap:wrap; justify-content:center; gap:.35rem; margin-top:.5rem; inset:auto; width:100%; }
+ .qr-player-chip { position:static; max-width:48%; min-width:0; padding:.25rem .4rem; }
+ .qr-player-avatar { width:1.6rem;height:1.6rem;flex-basis:1.6rem;font-size:1.25rem; }
+ #score-rules-box .storybook-rules-grid { grid-template-columns:1fr !important; }
+}
+/* 遊戲事件視窗採半透明紙張底，保留後方踩中格子的可辨識度 */
+#tile-notice-overlay { background:rgba(28,48,30,.22) !important; backdrop-filter:blur(1px) !important; }
+#tile-notice-overlay #notice-box { background:rgba(255,252,239,.84) !important; backdrop-filter:blur(2px); }
+#tile-notice-overlay .notice-art-panel { background:rgba(255,249,230,.72) !important; }
 </style>
 
 </body>
