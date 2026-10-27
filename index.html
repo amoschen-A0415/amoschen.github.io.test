@@ -2055,5 +2055,46 @@
 #tile-notice-overlay .notice-art-panel { background:rgba(255,249,230,.72) !important; }
 </style>
 
+
+<style id="user-request-final-fixes-20261027">
+/* QR lobby: restore the clean previous QR presentation; never place player chips around the QR */
+#qr-player-ring, .qr-player-chip { display:none !important; }
+#qr-lobby-stage { overflow:hidden !important; }
+.qr-code-card { position:relative; z-index:1; }
+/* Keep the existing right-hand roster area; let the roster itself use its allotted space */
+#view-lobby .md\:col-span-6.lg\:col-span-5 { min-height:0 !important; overflow:hidden !important; }
+#view-lobby .md\:col-span-6.lg\:col-span-5 > .flex-grow { min-height:0 !important; overflow:hidden !important; }
+#player-list-lobby { min-height:0 !important; flex:1 1 auto !important; overflow-y:auto !important; align-content:start !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:.45rem !important; }
+#player-list-lobby > .col-span-full { padding:.8rem .5rem !important; font-size:clamp(.72rem,1vw,.95rem) !important; line-height:1.35 !important; }
+#player-list-lobby > :not(.col-span-full) { min-width:0 !important; max-width:100% !important; }
+#score-rules-box { flex:0 0 auto !important; margin-top:.45rem !important; }
+#score-rules-box .storybook-rules-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+/* One small icon only before each lobby section title. Do not add duplicate icons via pseudo elements. */
+#view-lobby h2 > span:first-child, #view-lobby h3 { gap:.45rem !important; }
+#view-lobby h2 > span:first-child > i, #view-lobby h3 > i { display:inline-flex !important; width:1.15em !important; height:1.15em !important; flex:0 0 1.15em !important; align-items:center !important; justify-content:center !important; }
+#view-lobby h2 > span:first-child::before, #view-lobby h3::before { content:none !important; display:none !important; }
+/* Event notice: translucent paper and backdrop so the tile under the window remains visible without obscuring text */
+#tile-notice-overlay { background:rgba(32,48,31,.18) !important; backdrop-filter:blur(.5px) !important; }
+#tile-notice-overlay #notice-box { background:rgba(255,252,239,.78) !important; backdrop-filter:blur(1px) !important; }
+#tile-notice-overlay .notice-art-panel { background:rgba(255,249,230,.58) !important; }
+#tile-notice-overlay #notice-title, #tile-notice-overlay #notice-original-text,
+#tile-notice-overlay #score-change-text, #tile-notice-overlay #notice-child-text { text-shadow:0 1px rgba(255,255,255,.65); }
+/* The final awards screen shows only the award notice, not the board behind it */
+#view-result { background:rgba(255,247,221,.98) !important; backdrop-filter:none !important; }
+#view-result #result-notice-box { background:rgba(255,253,243,.99) !important; }
+/* Music controls remain removed to give the four player status cards more room */
+#in-game-music-panel { display:none !important; }
+@media (max-width:900px) {
+  #view-lobby .md\:col-span-6.lg\:col-span-5 { overflow-y:auto !important; }
+  #player-list-lobby { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  #score-rules-box .storybook-rules-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+}
+@media (max-height:760px) {
+  #score-rules-box { padding:.35rem !important; margin-top:.3rem !important; }
+  #score-rules-box .storybook-rules-grid li { min-height:28px !important; padding:.2rem .28rem !important; }
+  #player-list-lobby > .col-span-full { padding:.45rem !important; }
+}
+</style>
+
 </body>
 </html>
