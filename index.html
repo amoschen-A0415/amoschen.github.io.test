@@ -207,11 +207,10 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
                 
                 <!-- 左側：QR Code -->
-                <div id="qr-lobby-stage" class="md:col-span-6 lg:col-span-7 relative flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-chch-green/20 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-visible">
-                    <div class="qr-code-card p-5 bg-gradient-to-br from-chch-green via-emerald-600 to-chch-darkGreen rounded-3xl shadow-lg my-auto transition-transform duration-300 border-2 border-white relative z-10">
+                <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-chch-green/20 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
+                    <div class="p-5 bg-gradient-to-br from-chch-green via-emerald-600 to-chch-darkGreen rounded-3xl shadow-lg my-auto transition-transform hover:scale-[1.02] duration-300 border-2 border-white">
                         <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-emerald-100 flex items-center justify-center shadow-inner"></div>
                     </div>
-                    <div id="qr-player-ring" aria-live="polite" aria-label="已連線參賽者" class="absolute inset-0 pointer-events-none"></div>
                 </div>
 
                 <!-- 右側：玩家名單 & 設定選項 & 開始按鈕 -->
@@ -2203,6 +2202,41 @@
 }
 /* 頒獎視窗透明度由 50% 提高 20 個百分點至 70%，底下棋盤不加暗幕。 */
 #view-result #result-notice-box { background:rgba(255,247,221,.70) !important; }
+</style>
+
+
+<style id="qr-block-exact-source-restore">
+/* Restore QR display behavior from 03安得烈食物銀行惜食大富翁20261020.html.
+   The original QR column markup is copied verbatim; the QRCode.js canvas keeps
+   its native 480x480 intrinsic size and may shrink only to fit its container. */
+#view-lobby #qrcode {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: content-box !important;
+}
+#view-lobby #qrcode canvas,
+#view-lobby #qrcode img {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  margin: 0 auto !important;
+  display: block !important;
+}
+#view-lobby .md\\:col-span-6.lg\\:col-span-7 {
+  overflow: hidden !important;
+}
+#view-lobby .md\\:col-span-6.lg\\:col-span-7 > div {
+  width: auto !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+#view-result #result-notice-box {
+  background: rgba(255,247,221,.70) !important;
+}
 </style>
 
 </body>
