@@ -1749,15 +1749,18 @@
                 const nameEl = document.getElementById(`rank-${i+1}-name`);
                 const scoreEl = document.getElementById(`rank-${i+1}-score`);
 
+                const rankCard = document.getElementById(`rank-card-${i+1}`);
+                if (rankCard) rankCard.style.display = p ? 'flex' : 'none';
                 if (p) {
                     avatarEl.innerHTML = avatarHtml(p.avatar, 'lg');
                     nameEl.innerText = p.name;
                     scoreEl.innerText = `${p.score} 分`;
-                } else {
-                    avatarEl.innerText = "❓";
-                    nameEl.innerText = "虛位以待";
-                    scoreEl.innerText = "0 分";
                 }
+            }
+            const resultGrid = document.getElementById('result-four-grid');
+            if (resultGrid) {
+                const participantCount = Math.max(1, Math.min(4, allSorted.length));
+                resultGrid.style.gridTemplateColumns = `repeat(${participantCount}, minmax(0, 1fr))`;
             }
 
             players.forEach(p => {
@@ -2161,6 +2164,29 @@
 #view-result #result-four-grid > div { background-color:rgba(255,255,255,.50) !important; }
 #view-result #result-four-grid #rank-card-1 { background:linear-gradient(to bottom,rgba(253,230,138,.62),rgba(255,251,235,.52),rgba(252,211,77,.60)) !important; }
 #view-result #result-title, #view-result #result-four-grid, #view-result button { position:relative; z-index:1; }
+</style>
+
+
+<style id="final-request-adjustments-20261027">
+/* QR Code 尺寸與原始 03安得烈食物銀行惜食大富翁20261020.html 一致：QRCode.js 原生 480×480，僅在容器不足時由 max-width 自適應 */
+.qr-code-card { width:auto !important; max-width:none !important; padding:1.25rem !important; box-sizing:border-box !important; }
+#qrcode { width:auto !important; height:auto !important; max-width:100% !important; box-sizing:content-box !important; }
+#qrcode canvas, #qrcode img { width:auto !important; height:auto !important; max-width:100% !important; object-fit:contain !important; margin:0 auto !important; display:block !important; }
+@media (max-width:900px) {
+  .qr-code-card { width:auto !important; max-width:100% !important; padding:1.25rem !important; }
+  #qrcode { max-width:100% !important; }
+  #qrcode canvas, #qrcode img { max-width:100% !important; }
+}
+/* 遊戲事件訊息窗比上一版再增加約 20 個百分點不透明度；窗體始終位於格子上方 */
+#tile-notice-overlay { z-index:250000 !important; position:fixed !important; }
+#tile-notice-overlay #notice-box { background:rgba(255,252,239,.92) !important; backdrop-filter:blur(1px) !important; position:relative !important; z-index:250001 !important; }
+#tile-notice-overlay .notice-art-panel { background:rgba(255,249,230,.76) !important; }
+/* 頒獎畫面保留底下地圖原狀；透明頒獎窗置頂。只顯示實際參賽者的名次卡片，由 showFinalResult() 動態決定 */
+#view-result { position:fixed !important; inset:0 !important; z-index:300000 !important; background:transparent !important; backdrop-filter:none !important; }
+#view-result #result-notice-box { background:rgba(255,247,221,.50) !important; backdrop-filter:none !important; }
+#view-result #result-four-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+#view-result #result-four-grid > div { background-color:rgba(255,255,255,.50) !important; }
+@media (max-width:900px) { #view-result #result-four-grid { gap:.45rem !important; } }
 </style>
 
 </body>
