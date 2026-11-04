@@ -1,1 +1,149 @@
-我很帥
+import base64
+import json
+import re
+from typing import List, Dict
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+from openai import OpenAI
+import pandas as pd
+
+app = FastAPI()
+
+# 啟用跨域存取 (CORS)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+client = OpenAI(api_key="YOUR_OPENAI_API_KEY")
+
+# 品號與標準銷帳品號/品名規格對照表
+ITEM_MAPPING = {
+    "#01": {"sales_code": "AA030001", "name_spec": "白米-1000g以下", "unit": "個"},
+    "#02": {"sales_code": "AA030002", "name_spec": "白米-1001～3499g", "unit": "個"},
+    "#03": {"sales_code": "AA030033", "name_spec": "沖泡飲品-盒裝", "unit": "個"},
+    "#04": {"sales_code": "AA030004", "name_spec": "麵條-500g以下", "unit": "包"},
+    "#07": {"sales_code": "AA030007", "name_spec": "館條 大包立體麵", "unit": "個"},
+    "#08": {"sales_code": "AA030008", "name_spec": "罐頭-125g以下", "unit": "個"},
+    "#09": {"sales_code": "AA030009", "name_spec": "湯品/調理包", "unit": "個"},
+    "#10": {"sales_code": "AA030010", "name_spec": "罐頭-126~250g", "unit": "個"},
+    "#12": {"sales_code": "AA030012", "name_spec": "魚/素/肉鬆/乾貨", "unit": "個"},
+    "#13": {"sales_code": "AA030013", "name_spec": "油/醬味料", "unit": "個"},
+    "#15": {"sales_code": "AA030015", "name_spec": "餅乾-201～499g", "unit": "個"},
+    "#17": {"sales_code": "AA030017", "name_spec": "飲料/保久乳/八寶粥", "unit": "個"},
+    "#25": {"sales_code": "AA030025", "name_spec": "冬/米粉-轉出", "unit": "包"},
+    "#32": {"sales_code": "AA030032", "name_spec": "沖泡飲品-罐裝601g以上", "unit": "個"},
+    "#34": {"sales_code": "AA030034", "name_spec": "沖泡飲品-袋裝", "unit": "個"},
+    "#35": {"sales_code": "AA030035", "name_spec": "沖泡飲品-散包", "unit": "個"},
+}
+
+def determine_warehouse(color_name: str) -> str:
+    """純文字庫別判斷：白色=005, 藍色=0058, 其它=0059"""
+    color = color_name.lower()
+    if "white" in color or "白" in color:
+        return "005"
+    elif "blue" in color or "藍" in color:
+        return "0058"
+    else:
+        return "0059"
+
+def format_date_to_yyyymmdd(date_str: str) -> str:
+    """統一將日期整理為 YYYYMMDD 格式 (例如 2027/01/27 -> 20270127)"""
+    digits = re.sub(r'\D', '', str(date_str))
+    if len(digits) == 8:
+        return digits
+    return str(date_str)
+
+@app.post("/api/recognize-supplies")
+async def recognize_supplies(file: UploadFile = File(...)):
+    contents = await file.read()
+    base64_image = base64.b64encode(contents).decode("utf-8")
+
+    prompt = """
+    你是一個物資貼紙辨識專家。請辨識圖片中所有的手寫與印刷物資貼紙。
+    1. 辨識貼紙背景顏色 (white/blue/pink/other)。
+    2. 辨識貼紙上的手寫品號(如 #03, #07, #09, #10, #13, #15, #32, #34, #35 等)、數量、效期。
+    
+    請務必嚴格輸出 JSON 格式：
+    {
+      "stickers": [
+        {
+          "color": "white",
+          "items": [
+            {"raw_code": "#32", "quantity": 6, "expiry_date": "20270709"}
+          ]
+        }
+      ]
+    }
+    """
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                    },
+                ],
+            }
+        ],
+        response_format={"type": "json_object"},
+        temperature=0.1,
+    )
+
+    ai_raw = json.loads(response.choices[0].message.content)
+
+    records = []
+    for sticker in ai_raw.get("stickers", []):
+        warehouse_code = determine_warehouse(sticker.get("color", ""))
+        for item in sticker.get("items", []):
+            raw_code = item.get("raw_code", "").strip()
+            qty = int(item.get("quantity", 0))
+            raw_expiry = item.get("expiry_date", "")
+            formatted_expiry = format_date_to_yyyymmdd(raw_expiry)
+
+            mapping = ITEM_MAPPING.get(raw_code, {
+                "sales_code": f"AA039999",
+                "name_spec": f"未知品項 ({raw_code})",
+                "unit": "個"
+            })
+
+            records.append({
+                "sales_code": mapping["sales_code"],  # 純銷帳品號 (不含簡稱)
+                "name_spec": mapping["name_spec"],
+                "quantity": qty,
+                "unit": mapping["unit"],
+                "warehouse": warehouse_code,           # 純文字庫別 (005/0058/0059)
+                "expiry_date": formatted_expiry        # YYYYMMDD 格式
+            })
+
+    if not records:
+        return {"data": []}
+
+    # 合併相同品號、庫別、效期之數據並累加數量
+    df = pd.DataFrame(records)
+    df_grouped = df.groupby(
+        ["sales_code", "name_spec", "unit", "warehouse", "expiry_date"],
+        as_index=False
+    ).agg({"quantity": "sum"})
+
+    result = []
+    for idx, row in df_grouped.iterrows():
+        result.append({
+            "id": idx + 1,
+            "sales_code": str(row["sales_code"]),
+            "name_spec": str(row["name_spec"]),
+            "quantity": str(row["quantity"]),         # 數量轉純文字
+            "unit": str(row["unit"]),
+            "warehouse": str(row["warehouse"]),       # 庫別轉純文字
+            "expiry_date": str(row["expiry_date"])    # 效期轉純文字 20271104
+        })
+
+    return {"data": result}
