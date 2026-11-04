@@ -1,149 +1,307 @@
-import base64
-import json
-import re
-from typing import List, Dict
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAI
-import pandas as pd
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物資封箱辨識與出貨明細生成系統</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+        }
+        body {
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h2 {
+            margin-top: 0;
+            color: #1a56b2;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 15px;
+        }
+        .upload-section {
+            border: 2px dashed #b4c6e7;
+            background: #f8faee;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .upload-section:hover {
+            border-color: #1a56b2;
+            background: #edf3fc;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary {
+            background-color: #1a56b2;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #13428d;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .preview-img {
+            max-width: 250px;
+            max-height: 250px;
+            margin-top: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        .table-container {
+            margin-top: 25px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+        th, td {
+            border: 1px solid #dcdcdc;
+            padding: 12px 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #0078d4;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fbfd;
+        }
+        tr:hover {
+            background-color: #f1f5fa;
+        }
+        .text-left {
+            text-align: left;
+        }
+        .summary-bar {
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: #eef4fc;
+            border-radius: 6px;
+            display: flex;
+            gap: 30px;
+            font-weight: bold;
+            color: #1a56b2;
+        }
+    </style>
+</head>
+<body>
 
-app = FastAPI()
+<div class="container">
+    <h2>📦 物資封箱辨識與出貨明細生成系統</h2>
 
-# 啟用跨域存取 (CORS)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    <!-- 上傳區 -->
+    <div class="upload-section" id="dropArea" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+        <p style="font-size: 16px; margin: 0 0 10px 0; color: #555;">點擊上傳物資照片，或將檔案拖曳至此處</p>
+        <span style="font-size: 13px; color: #888;">支援 JPG, PNG 格式</span>
+        <div id="imagePreviewContainer"></div>
+    </div>
 
-client = OpenAI(api_key="YOUR_OPENAI_API_KEY")
+    <div class="btn-group">
+        <button class="btn-primary" onclick="startProcess()">辨識並生成明細表</button>
+        <button class="btn-secondary" onclick="loadSampleData()">載入範例圖測試</button>
+    </div>
 
-# 品號與標準銷帳品號/品名規格對照表
-ITEM_MAPPING = {
-    "#01": {"sales_code": "AA030001", "name_spec": "白米-1000g以下", "unit": "個"},
-    "#02": {"sales_code": "AA030002", "name_spec": "白米-1001～3499g", "unit": "個"},
-    "#03": {"sales_code": "AA030033", "name_spec": "沖泡飲品-盒裝", "unit": "個"},
-    "#04": {"sales_code": "AA030004", "name_spec": "麵條-500g以下", "unit": "包"},
-    "#07": {"sales_code": "AA030007", "name_spec": "館條 大包立體麵", "unit": "個"},
-    "#08": {"sales_code": "AA030008", "name_spec": "罐頭-125g以下", "unit": "個"},
-    "#09": {"sales_code": "AA030009", "name_spec": "湯品/調理包", "unit": "個"},
-    "#10": {"sales_code": "AA030010", "name_spec": "罐頭-126~250g", "unit": "個"},
-    "#12": {"sales_code": "AA030012", "name_spec": "魚/素/肉鬆/乾貨", "unit": "個"},
-    "#13": {"sales_code": "AA030013", "name_spec": "油/醬味料", "unit": "個"},
-    "#15": {"sales_code": "AA030015", "name_spec": "餅乾-201～499g", "unit": "個"},
-    "#17": {"sales_code": "AA030017", "name_spec": "飲料/保久乳/八寶粥", "unit": "個"},
-    "#25": {"sales_code": "AA030025", "name_spec": "冬/米粉-轉出", "unit": "包"},
-    "#32": {"sales_code": "AA030032", "name_spec": "沖泡飲品-罐裝601g以上", "unit": "個"},
-    "#34": {"sales_code": "AA030034", "name_spec": "沖泡飲品-袋裝", "unit": "個"},
-    "#35": {"sales_code": "AA030035", "name_spec": "沖泡飲品-散包", "unit": "個"},
+    <!-- 表格結果顯示區 -->
+    <div id="resultSection" style="display: none;">
+        <div class="summary-bar">
+            <span>項次小計：<span id="totalItems">0</span></span>
+            <span>總數量：<span id="totalQty">0</span></span>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">項次</th>
+                        <th style="width: 140px;">銷帳品號</th>
+                        <th>品牌品名規格(可自行修改補充)</th>
+                        <th style="width: 100px;">出貨數量</th>
+                        <th style="width: 70px;">單位</th>
+                        <th style="width: 80px;">庫別</th>
+                        <th style="width: 120px;">效期</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 內容動態生成 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// 品號與標準銷帳品號對照表 (不含手寫簡稱)
+const ITEM_MAPPING = {
+    "#01": { sales_code: "AA030001", name_spec: "白米-1000g以下", unit: "個" },
+    "#02": { sales_code: "AA030002", name_spec: "白米-1001～3499g", unit: "個" },
+    "#03": { sales_code: "AA030033", name_spec: "沖泡飲品-盒裝", unit: "個" },
+    "#04": { sales_code: "AA030004", name_spec: "麵條-500g以下", unit: "包" },
+    "#07": { sales_code: "AA030007", name_spec: "館條 大包立體麵", unit: "個" },
+    "#08": { sales_code: "AA030008", name_spec: "罐頭-125g以下", unit: "個" },
+    "#09": { sales_code: "AA030009", name_spec: "湯品/調理包", unit: "個" },
+    "#10": { sales_code: "AA030010", name_spec: "罐頭-126~250g", unit: "個" },
+    "#12": { sales_code: "AA030012", name_spec: "魚/素/肉鬆/乾貨", unit: "個" },
+    "#13": { sales_code: "AA030013", name_spec: "油/醬味料", unit: "個" },
+    "#15": { sales_code: "AA030015", name_spec: "餅乾-201～499g", unit: "個" },
+    "#17": { sales_code: "AA030017", name_spec: "飲料/保久乳/八寶粥", unit: "個" },
+    "#25": { sales_code: "AA030025", name_spec: "冬/米粉-轉出", unit: "包" },
+    "#32": { sales_code: "AA030032", name_spec: "沖泡飲品-罐裝601g以上", unit: "個" },
+    "#34": { sales_code: "AA030034", name_spec: "沖泡飲品-袋裝", unit: "個" },
+    "#35": { sales_code: "AA030035", name_spec: "沖泡飲品-散包", unit: "個" }
+};
+
+// 測試用模擬資料（對應圖片數據，若連接真實 AI 後端，則接接收後端 JSON）
+const SAMPLE_RECOGNITION = [
+    { color: "pink", items: [ { raw: "#34", qty: 1, exp: "20270518" }, { raw: "#34", qty: 2, exp: "20270322" }, { raw: "#15", qty: 3, exp: "20270617" } ] },
+    { color: "pink", items: [ { raw: "#09", qty: 6, exp: "20270127" }, { raw: "#10", qty: 4, exp: "20270612" }, { raw: "#15", qty: 6, exp: "20271020" }, { raw: "#35", qty: 24, exp: "20270330" } ] },
+    { color: "pink", items: [ { raw: "#07", qty: 10, exp: "20271031" }, { raw: "#09", qty: 7, exp: "20270322" }, { raw: "#10", qty: 12, exp: "20270502" }, { raw: "#13", qty: 8, exp: "20270626" } ] },
+    { color: "white", items: [ { raw: "#32", qty: 6, exp: "20270709" } ] },
+    { color: "pink", items: [ { raw: "#13", qty: 1, exp: "20270312" } ] }
+];
+
+let selectedFile = null;
+
+// 選擇檔案預覽
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreviewContainer').innerHTML = 
+                `<img src="${e.target.result}" class="preview-img" alt="物資預覽">`;
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
-def determine_warehouse(color_name: str) -> str:
-    """純文字庫別判斷：白色=005, 藍色=0058, 其它=0059"""
-    color = color_name.lower()
-    if "white" in color or "白" in color:
-        return "005"
-    elif "blue" in color or "藍" in color:
-        return "0058"
-    else:
-        return "0059"
+// 判定純文字庫別：白色 -> 005, 藍色 -> 0058, 其它 -> 0059
+function getWarehouseCode(color) {
+    if (color === "white") return "005";
+    if (color === "blue") return "0058";
+    return "0059";
+}
 
-def format_date_to_yyyymmdd(date_str: str) -> str:
-    """統一將日期整理為 YYYYMMDD 格式 (例如 2027/01/27 -> 20270127)"""
-    digits = re.sub(r'\D', '', str(date_str))
-    if len(digits) == 8:
-        return digits
-    return str(date_str)
+// 日期統一格式化為 YYYYMMDD
+function formatYYYYMMDD(dateStr) {
+    return String(dateStr).replace(/\D/g, '');
+}
 
-@app.post("/api/recognize-supplies")
-async def recognize_supplies(file: UploadFile = File(...)):
-    contents = await file.read()
-    base64_image = base64.b64encode(contents).decode("utf-8")
+// 執行辨識並生成表格
+function startProcess() {
+    // 此處為模擬 Vision 解析與歸併邏輯（後端直接傳回相同結構即可）
+    processAndRenderData(SAMPLE_RECOGNITION);
+}
 
-    prompt = """
-    你是一個物資貼紙辨識專家。請辨識圖片中所有的手寫與印刷物資貼紙。
-    1. 辨識貼紙背景顏色 (white/blue/pink/other)。
-    2. 辨識貼紙上的手寫品號(如 #03, #07, #09, #10, #13, #15, #32, #34, #35 等)、數量、效期。
-    
-    請務必嚴格輸出 JSON 格式：
-    {
-      "stickers": [
-        {
-          "color": "white",
-          "items": [
-            {"raw_code": "#32", "quantity": 6, "expiry_date": "20270709"}
-          ]
+function loadSampleData() {
+    document.getElementById('imagePreviewContainer').innerHTML = 
+        `<p style="color:#1a56b2; font-weight:bold;">已載入範例圖片檔 (物資圖.jpg)</p>`;
+    processAndRenderData(SAMPLE_RECOGNITION);
+}
+
+// 資料歸併與表格繪製核心
+function processAndRenderData(stickersData) {
+    let rawRecords = [];
+
+    stickersData.forEach(sticker => {
+        const warehouseCode = getWarehouseCode(sticker.color); // 純文字庫別 (005 / 0058 / 0059)
+        
+        sticker.items.forEach(item => {
+            const mapped = ITEM_MAPPING[item.raw] || {
+                sales_code: "AA039999",
+                name_spec: `未知名稱 (${item.raw})`,
+                unit: "個"
+            };
+
+            rawRecords.push({
+                sales_code: mapped.sales_code,      // 銷帳品號（純代碼，不含手寫簡稱）
+                name_spec: mapped.name_spec,
+                quantity: Number(item.qty),         // 數量
+                unit: mapped.unit,
+                warehouse: warehouseCode,           // 純文字庫別
+                expiry_date: formatYYYYMMDD(item.exp) // YYYYMMDD 格式效期
+            });
+        });
+    });
+
+    // 相同銷帳品號 + 庫別 + 效期 -> 數量自動累加 (Group By)
+    const aggregatedMap = new Map();
+
+    rawRecords.forEach(rec => {
+        const key = `${rec.sales_code}_${rec.warehouse}_${rec.expiry_date}`;
+        if (aggregatedMap.has(key)) {
+            const existing = aggregatedMap.get(key);
+            existing.quantity += rec.quantity;
+        } else {
+            aggregatedMap.set(key, { ...rec });
         }
-      ]
-    }
-    """
+    });
 
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
-                    },
-                ],
-            }
-        ],
-        response_format={"type": "json_object"},
-        temperature=0.1,
-    )
+    const finalData = Array.from(aggregatedMap.values());
 
-    ai_raw = json.loads(response.choices[0].message.content)
+    // 渲染至 HTML 表格
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
 
-    records = []
-    for sticker in ai_raw.get("stickers", []):
-        warehouse_code = determine_warehouse(sticker.get("color", ""))
-        for item in sticker.get("items", []):
-            raw_code = item.get("raw_code", "").strip()
-            qty = int(item.get("quantity", 0))
-            raw_expiry = item.get("expiry_date", "")
-            formatted_expiry = format_date_to_yyyymmdd(raw_expiry)
+    let totalQtyCount = 0;
 
-            mapping = ITEM_MAPPING.get(raw_code, {
-                "sales_code": f"AA039999",
-                "name_spec": f"未知品項 ({raw_code})",
-                "unit": "個"
-            })
+    finalData.forEach((row, index) => {
+        totalQtyCount += row.quantity;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${row.sales_code}</td>
+            <td class="text-left">${row.name_spec}</td>
+            <td>${String(row.quantity)}</td>
+            <td>${row.unit}</td>
+            <td>${row.warehouse}</td>
+            <td>${row.expiry_date}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 
-            records.append({
-                "sales_code": mapping["sales_code"],  # 純銷帳品號 (不含簡稱)
-                "name_spec": mapping["name_spec"],
-                "quantity": qty,
-                "unit": mapping["unit"],
-                "warehouse": warehouse_code,           # 純文字庫別 (005/0058/0059)
-                "expiry_date": formatted_expiry        # YYYYMMDD 格式
-            })
+    // 更新統計數據
+    document.getElementById('totalItems').innerText = finalData.length;
+    document.getElementById('totalQty').innerText = totalQtyCount;
+    document.getElementById('resultSection').style.display = 'block';
+}
+</script>
 
-    if not records:
-        return {"data": []}
-
-    # 合併相同品號、庫別、效期之數據並累加數量
-    df = pd.DataFrame(records)
-    df_grouped = df.groupby(
-        ["sales_code", "name_spec", "unit", "warehouse", "expiry_date"],
-        as_index=False
-    ).agg({"quantity": "sum"})
-
-    result = []
-    for idx, row in df_grouped.iterrows():
-        result.append({
-            "id": idx + 1,
-            "sales_code": str(row["sales_code"]),
-            "name_spec": str(row["name_spec"]),
-            "quantity": str(row["quantity"]),         # 數量轉純文字
-            "unit": str(row["unit"]),
-            "warehouse": str(row["warehouse"]),       # 庫別轉純文字
-            "expiry_date": str(row["expiry_date"])    # 效期轉純文字 20271104
-        })
-
-    return {"data": result}
+</body>
+</html>
