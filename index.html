@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>國小三年級國文知識大亂鬥</title>
+    <title>國小六年級國文知識大亂鬥</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- PeerJS & QRCode.js -->
@@ -19,17 +19,15 @@
             theme: {
                 extend: {
                     colors: {
-                        kid: {
-                            cream: '#FFFDF5',
-                            sand: '#FEF5E7',
-                            green: '#2ECC71',
-                            darkGreen: '#1E8449',
-                            orange: '#FF8C42',
-                            yellow: '#FFD166',
-                            blue: '#3A86FF',
-                            pink: '#FF5D8F',
-                            purple: '#8338EC',
-                            brown: '#5C4033'
+                        ink: {
+                            paper: '#F7F5F0',
+                            card: '#FFFFFF',
+                            dark: '#1E293B',
+                            teal: '#0F766E',
+                            indigo: '#3730A3',
+                            cinnabar: '#C81E1E',
+                            gold: '#B45309',
+                            bamboo: '#3F6212'
                         }
                     }
                 }
@@ -37,15 +35,21 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap');
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #FFFDF5;
-            background-image: radial-gradient(#F3E5AB 2px, transparent 2px);
-            background-size: 28px 28px;
-            color: #4A3B32;
+            background-color: #F4F1EA;
+            background-image: 
+                linear-gradient(to right, rgba(15, 118, 110, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(15, 118, 110, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            color: #1E293B;
             user-select: none;
             overflow: hidden;
+        }
+
+        .serif-title {
+            font-family: 'Noto Serif TC', serif;
         }
 
         * {
@@ -65,31 +69,31 @@
             height: auto;
         }
 
-        .kid-card {
-            box-shadow: 0 8px 0 rgba(92, 64, 51, 0.12);
+        .scholar-card {
+            box-shadow: 0 10px 25px -5px rgba(30, 41, 59, 0.1), 0 4px 0 rgba(15, 118, 110, 0.25);
         }
 
-        .kid-btn {
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+        .scholar-btn {
+            box-shadow: 0 5px 0 rgba(15, 23, 42, 0.25);
             transition: all 0.12s ease;
         }
-        .kid-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+        .scholar-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 rgba(15, 23, 42, 0.25);
         }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col justify-between overflow-hidden">
 
     <!-- 頂部 Header -->
-    <header id="main-header" class="w-full px-6 py-3 border-b-4 border-amber-200 bg-white/90 backdrop-blur-md flex justify-between items-center z-10 flex-shrink-0 shadow-sm">
+    <header id="main-header" class="w-full px-6 py-3 border-b-2 border-teal-700/20 bg-white/95 backdrop-blur-md flex justify-between items-center z-10 flex-shrink-0 shadow-sm">
         <div class="flex items-center space-x-3">
-            <span class="text-4xl">📚</span>
-            <h1 class="text-2xl md:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-amber-500 to-orange-500">
-                國小三年級國文知識大亂鬥
+            <span class="text-3xl md:text-4xl">🖋️</span>
+            <h1 class="serif-title text-2xl md:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-teal-800 via-indigo-800 to-red-700">
+                國小六年級國文知識大亂鬥
             </h1>
         </div>
-        <div id="game-stage-badge" class="hidden px-4 py-1.5 rounded-full text-sm md:text-lg font-black bg-amber-100 border-2 border-amber-400 text-amber-800">
+        <div id="game-stage-badge" class="hidden px-4 py-1.5 rounded-full text-sm md:text-lg font-black bg-teal-50 border-2 border-teal-600 text-teal-800">
             準備中
         </div>
     </header>
@@ -98,62 +102,62 @@
     <main class="flex-grow flex items-center justify-center p-2 md:p-4 relative overflow-hidden">
 
         <!-- 大螢幕 - 遊戲大廳 / 掃碼進入 -->
-        <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[90vh] bg-white/95 border-4 border-amber-300 rounded-3xl p-4 md:p-6 kid-card relative flex flex-col justify-between overflow-hidden">
+        <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[90vh] bg-white/95 border-2 border-teal-700/30 rounded-3xl p-4 md:p-6 scholar-card relative flex flex-col justify-between overflow-hidden">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
                 
                 <!-- 左側：QR Code -->
-                <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b-2 md:border-b-0 md:border-r-2 border-dashed border-amber-200 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
-                    <div class="mb-2 px-5 py-1.5 bg-emerald-100 text-emerald-800 font-black rounded-full border-2 border-emerald-400 text-base md:text-lg">
-                        📱 拿出平板或手機掃描 QR Code 加入挑戰！
+                <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b-2 md:border-b-0 md:border-r-2 border-dashed border-slate-300 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
+                    <div class="mb-3 px-5 py-1.5 bg-teal-50 text-teal-900 font-black rounded-full border-2 border-teal-600/40 text-base md:text-lg shadow-sm">
+                        📱 請使用平板或手機掃描 QR Code 進入考場
                     </div>
-                    <div class="p-5 bg-gradient-to-br from-emerald-400 via-amber-300 to-orange-400 rounded-3xl shadow-xl my-auto transition-transform hover:scale-[1.02] duration-300 border-4 border-white">
-                        <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-amber-200 flex items-center justify-center shadow-inner"></div>
+                    <div class="p-5 bg-gradient-to-br from-teal-700 via-indigo-800 to-slate-800 rounded-3xl shadow-xl my-auto transition-transform hover:scale-[1.02] duration-300 border-4 border-amber-200">
+                        <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-slate-200 flex items-center justify-center shadow-inner"></div>
                     </div>
                 </div>
 
                 <!-- 右側：玩家名單 & 設定選項 & 開始按鈕 -->
                 <div class="md:col-span-6 lg:col-span-5 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
                     <div class="flex-grow flex flex-col overflow-hidden">
-                        <h2 class="text-2xl md:text-3xl font-black text-emerald-700 mb-3 flex items-center justify-between flex-shrink-0">
-                            <span class="flex items-center gap-2">🎒 報到小朋友名單</span>
-                            <span id="player-count-badge" class="text-xl bg-amber-100 text-amber-800 px-4 py-1.5 rounded-full font-black border-2 border-amber-400">0 人</span>
+                        <h2 class="serif-title text-2xl md:text-3xl font-black text-teal-900 mb-3 flex items-center justify-between flex-shrink-0">
+                            <span class="flex items-center gap-2">📜 應試學子名冊</span>
+                            <span id="player-count-badge" class="text-xl bg-indigo-50 text-indigo-900 px-4 py-1.5 rounded-full font-black border-2 border-indigo-300">0 人</span>
                         </h2>
 
                         <!-- 人員列表區塊 -->
                         <div id="player-list-lobby" class="grid grid-cols-2 lg:grid-cols-3 gap-2.5 overflow-y-auto max-h-[220px] flex-grow content-start pr-1 mb-2">
-                            <div class="col-span-full text-amber-700/70 bg-amber-50/80 text-center py-8 font-bold border-2 border-dashed border-amber-300 rounded-2xl text-lg">
-                                還沒看到小朋友進來喔～快掃描左邊的條碼吧！
+                            <div class="col-span-full text-slate-500 bg-slate-50 text-center py-8 font-bold border-2 border-dashed border-slate-300 rounded-2xl text-lg">
+                                尚未有同學報到，請掃描左側條碼加入競技！
                             </div>
                         </div>
 
                         <!-- 尚未有人員加入時顯示的 2 大規則提示 -->
-                        <div id="lobby-rules-box" class="w-full bg-amber-50 border-2 border-amber-200 rounded-2xl p-3 text-xs md:text-sm text-stone-700 space-y-2 mb-2">
-                            <div class="font-black text-orange-600 flex items-center gap-1.5 border-b border-amber-200 pb-1 text-base">
-                                📜 國文大冒險規則說明
+                        <div id="lobby-rules-box" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-3 text-xs md:text-sm text-slate-700 space-y-2 mb-2">
+                            <div class="font-black text-red-700 flex items-center gap-1.5 border-b border-slate-200 pb-1 text-base">
+                                🏮 科舉知識競技規則
                             </div>
-                            <div class="space-y-1 text-stone-600 font-bold">
-                                <p><strong class="text-blue-600">1. 積分計算方式：</strong> 答對基本分 20 分！搶答越快加越多分（第1名+10分、第2名+9分...），連續答對還有「連勝加分」喔！</p>
-                                <p><strong class="text-emerald-600">2. 搶答倒數計時：</strong> 題目出現後，只要有人送出第一個答案，就會開始倒數計時（初賽 5 秒、決賽 3 秒）！</p>
+                            <div class="space-y-1 text-slate-600 font-bold">
+                                <p><strong class="text-indigo-700">1. 積分計算規則：</strong> 答對基本分 20 分。搶答排名加分（第1名+10分、第2名+9分，遞減至第10名+1分）；連續答對享有「連勝加分」無上限。</p>
+                                <p><strong class="text-teal-700">2. 搶答倒數規則：</strong> 題目揭示後，首位選手送出答案即啟動倒數計時（初賽 5 秒、決賽 3 秒）！</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- 遊戲參數設定區塊 -->
-                    <div class="w-full flex-shrink-0 bg-emerald-50/90 border-2 border-emerald-200 rounded-2xl p-3 my-1">
-                        <h3 class="text-emerald-800 font-black text-sm mb-2 flex items-center gap-2">
-                            ⚙️ 老師設定區
+                    <div class="w-full flex-shrink-0 bg-teal-50/70 border-2 border-teal-200 rounded-2xl p-3 my-1">
+                        <h3 class="text-teal-900 font-black text-sm mb-2 flex items-center gap-2">
+                            ⚙️ 賽制參數設定
                         </h3>
                         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
                             <div class="flex flex-col gap-1">
-                                <label for="select-game-mode" class="text-xs text-stone-600 font-black">比賽方式</label>
-                                <select id="select-game-mode" class="bg-white text-stone-800 font-bold p-2 rounded-xl border-2 border-emerald-300 outline-none focus:border-orange-400 cursor-pointer text-sm">
+                                <label for="select-game-mode" class="text-xs text-slate-600 font-black">參賽方式</label>
+                                <select id="select-game-mode" class="bg-white text-slate-800 font-bold p-2 rounded-xl border-2 border-teal-300 outline-none focus:border-indigo-500 cursor-pointer text-sm">
                                     <option value="solo" selected>個人賽</option>
                                     <option value="team">紅白對抗賽</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label for="select-stage1-count" class="text-xs text-stone-600 font-black">初賽題數</label>
-                                <select id="select-stage1-count" class="bg-white text-stone-800 font-bold p-2 rounded-xl border-2 border-emerald-300 outline-none focus:border-orange-400 cursor-pointer text-sm">
+                                <label for="select-stage1-count" class="text-xs text-slate-600 font-black">初賽題數</label>
+                                <select id="select-stage1-count" class="bg-white text-slate-800 font-bold p-2 rounded-xl border-2 border-teal-300 outline-none focus:border-indigo-500 cursor-pointer text-sm">
                                     <option value="5" selected>5 題</option>
                                     <option value="10">10 題</option>
                                     <option value="15">15 題</option>
@@ -161,16 +165,16 @@
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label for="select-stage2-count" class="text-xs text-stone-600 font-black">決賽題數</label>
-                                <select id="select-stage2-count" class="bg-white text-stone-800 font-bold p-2 rounded-xl border-2 border-emerald-300 outline-none focus:border-orange-400 cursor-pointer text-sm">
+                                <label for="select-stage2-count" class="text-xs text-slate-600 font-black">決賽題數</label>
+                                <select id="select-stage2-count" class="bg-white text-slate-800 font-bold p-2 rounded-xl border-2 border-teal-300 outline-none focus:border-indigo-500 cursor-pointer text-sm">
                                     <option value="3" selected>3 題</option>
                                     <option value="5">5 題</option>
                                     <option value="7">7 題</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label for="select-ai-count" class="text-xs text-stone-600 font-black">電腦小夥伴</label>
-                                <select id="select-ai-count" class="bg-white text-stone-800 font-bold p-2 rounded-xl border-2 border-emerald-300 outline-none focus:border-orange-400 cursor-pointer text-sm">
+                                <label for="select-ai-count" class="text-xs text-slate-600 font-black">書院陪練 AI</label>
+                                <select id="select-ai-count" class="bg-white text-slate-800 font-bold p-2 rounded-xl border-2 border-teal-300 outline-none focus:border-indigo-500 cursor-pointer text-sm">
                                     <option value="0" selected>0 位</option>
                                     <option value="1">1 位</option>
                                     <option value="2">2 位</option>
@@ -180,8 +184,8 @@
                     </div>
 
                     <div id="lobby-start-box" class="w-full pt-1 flex-shrink-0">
-                        <button id="btn-start-game" class="kid-btn w-full py-3.5 text-2xl font-black text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl hover:brightness-105 border-2 border-emerald-700">
-                            🚀 開始國文大挑戰！
+                        <button id="btn-start-game" class="scholar-btn w-full py-3.5 text-2xl font-black text-white bg-gradient-to-r from-teal-700 via-indigo-700 to-indigo-900 rounded-2xl hover:brightness-110 border-2 border-teal-900">
+                            ⚔️ 鳴鼓開賽！
                         </button>
                     </div>
                 </div>
@@ -190,86 +194,86 @@
         </div>
 
         <!-- 手機端 - 玩家控制器/答題器 -->
-        <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-amber-50 p-4 flex-col justify-between overflow-hidden">
-            <div id="mobile-top-bar" class="text-center space-y-1 flex-shrink-0 bg-white p-3 rounded-2xl border-2 border-amber-300 shadow-sm">
-                <span class="text-3xl">✏️</span>
-                <h2 class="text-2xl font-black text-emerald-700">國文答題遙控器</h2>
-                <p id="player-mobile-name" class="text-orange-600 font-bold text-base">正在連線到大螢幕...</p>
+        <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-[#F4F1EA] p-4 flex-col justify-between overflow-hidden">
+            <div id="mobile-top-bar" class="text-center space-y-1 flex-shrink-0 bg-white p-3 rounded-2xl border-2 border-teal-600/30 shadow-sm">
+                <span class="text-3xl">🖋️</span>
+                <h2 class="serif-title text-2xl font-black text-teal-900">六年級國文答題器</h2>
+                <p id="player-mobile-name" class="text-indigo-700 font-bold text-base">正在連線大螢幕...</p>
                 <div id="mobile-team-badge" class="hidden text-sm font-black px-3 py-1 rounded-full w-max mx-auto border-2 shadow-sm"></div>
-                <div id="mobile-question-banner" class="hidden bg-amber-100 border-2 border-amber-400 py-1.5 px-4 rounded-xl text-amber-900 font-black text-lg mt-2">
+                <div id="mobile-question-banner" class="hidden bg-teal-50 border-2 border-teal-500 py-1.5 px-4 rounded-xl text-teal-900 font-black text-lg mt-2">
                     第 1 題
                 </div>
             </div>
 
-            <div id="mobile-join-form" class="space-y-4 bg-white p-6 rounded-3xl border-4 border-amber-300 my-auto shadow-lg">
-                <label class="block text-center font-black text-stone-700 text-lg">請輸入你的座號或名字</label>
-                <input type="text" id="mobile-name-input" maxlength="8" placeholder="例如：3號王小明" 
-                    class="w-full bg-amber-50 border-2 border-amber-400 p-4 rounded-2xl text-center text-stone-800 text-xl font-black focus:border-emerald-500 outline-none">
+            <div id="mobile-join-form" class="space-y-4 bg-white p-6 rounded-3xl border-2 border-teal-600/40 my-auto shadow-lg">
+                <label class="block text-center font-black text-slate-700 text-lg">請輸入座號或姓名</label>
+                <input type="text" id="mobile-name-input" maxlength="8" placeholder="例如：601陳宥廷" 
+                    class="w-full bg-slate-50 border-2 border-slate-300 p-4 rounded-2xl text-center text-slate-800 text-xl font-black focus:border-teal-600 outline-none">
                 
-                <button id="btn-mobile-join" class="kid-btn w-full py-4 bg-gradient-to-r from-orange-400 to-amber-500 text-white font-black text-xl rounded-2xl border-2 border-orange-600">
-                    🙋‍♂️ 我準備好了！
+                <button id="btn-mobile-join" class="scholar-btn w-full py-4 bg-gradient-to-r from-teal-700 to-indigo-800 text-white font-black text-xl rounded-2xl border-2 border-teal-950">
+                    📜 登錄應試
                 </button>
             </div>
 
             <!-- 答題器按鈕 -->
             <div id="mobile-answers-grid" class="hidden grid-cols-2 gap-4 w-full h-full max-h-[60vh] my-auto items-stretch p-1">
-                <button id="mobile-btn-0" onclick="mobileSubmitAnswer(0)" class="mobile-answer-btn kid-btn w-full h-full bg-sky-500 active:bg-sky-600 rounded-3xl text-5xl font-black text-white flex items-center justify-center border-4 border-sky-700">A</button>
-                <button id="mobile-btn-1" onclick="mobileSubmitAnswer(1)" class="mobile-answer-btn kid-btn w-full h-full bg-emerald-500 active:bg-emerald-600 rounded-3xl text-5xl font-black text-white flex items-center justify-center border-4 border-emerald-700">B</button>
-                <button id="mobile-btn-2" onclick="mobileSubmitAnswer(2)" class="mobile-answer-btn kid-btn w-full h-full bg-amber-400 active:bg-amber-500 rounded-3xl text-5xl font-black text-white flex items-center justify-center border-4 border-amber-600">C</button>
-                <button id="mobile-btn-3" onclick="mobileSubmitAnswer(3)" class="mobile-answer-btn kid-btn w-full h-full bg-rose-500 active:bg-rose-600 rounded-3xl text-5xl font-black text-white flex items-center justify-center border-4 border-rose-700">D</button>
+                <button id="mobile-btn-0" onclick="mobileSubmitAnswer(0)" class="mobile-answer-btn scholar-btn w-full h-full bg-indigo-600 active:bg-indigo-700 rounded-2xl text-5xl font-black text-white flex items-center justify-center border-2 border-indigo-900">A</button>
+                <button id="mobile-btn-1" onclick="mobileSubmitAnswer(1)" class="mobile-answer-btn scholar-btn w-full h-full bg-teal-600 active:bg-teal-700 rounded-2xl text-5xl font-black text-white flex items-center justify-center border-2 border-teal-900">B</button>
+                <button id="mobile-btn-2" onclick="mobileSubmitAnswer(2)" class="mobile-answer-btn scholar-btn w-full h-full bg-amber-600 active:bg-amber-700 rounded-2xl text-5xl font-black text-white flex items-center justify-center border-2 border-amber-900">C</button>
+                <button id="mobile-btn-3" onclick="mobileSubmitAnswer(3)" class="mobile-answer-btn scholar-btn w-full h-full bg-rose-700 active:bg-rose-800 rounded-2xl text-5xl font-black text-white flex items-center justify-center border-2 border-rose-950">D</button>
             </div>
 
             <!-- 手機端 - 決賽應援投票面板 -->
-            <div id="mobile-vote-section" class="hidden my-auto flex-col space-y-3 bg-white border-4 border-amber-400 p-4 rounded-3xl overflow-hidden shadow-lg">
+            <div id="mobile-vote-section" class="hidden my-auto flex-col space-y-3 bg-white border-2 border-amber-500 p-4 rounded-3xl overflow-hidden shadow-lg">
                 <div class="text-center">
                     <span class="text-4xl animate-bounce inline-block">👑</span>
-                    <h3 class="text-xl font-black text-orange-600">幫決賽同學加油打氣！</h3>
-                    <p class="text-xs text-stone-600 mt-0.5 font-bold">點選皇冠送出愛心應援，會出現在大螢幕上喔！</p>
+                    <h3 class="text-xl font-black text-amber-800">支持你最看好的決賽選手</h3>
+                    <p class="text-xs text-slate-600 mt-0.5 font-bold">點擊皇冠送出應援，票數將即時顯示於大螢幕！</p>
                 </div>
                 <div id="mobile-vote-list" class="space-y-2.5 max-h-[45vh] overflow-y-auto pr-1"></div>
-                <div id="mobile-vote-status" class="text-center text-sm font-black text-emerald-700 hidden bg-emerald-100 border-2 border-emerald-400 p-2 rounded-xl">
-                    👑 成功送出加油皇冠囉！
+                <div id="mobile-vote-status" class="text-center text-sm font-black text-teal-800 hidden bg-teal-50 border-2 border-teal-500 p-2 rounded-xl">
+                    👑 已成功送出應援皇冠！
                 </div>
             </div>
 
             <!-- 手機端 - 最終結算 -->
-            <div id="mobile-final-result" class="hidden my-auto flex-col items-center justify-center space-y-4 text-center bg-white border-4 border-amber-400 p-6 rounded-3xl shadow-xl w-full">
+            <div id="mobile-final-result" class="hidden my-auto flex-col items-center justify-center space-y-4 text-center bg-white border-4 border-amber-500 p-6 rounded-3xl shadow-xl w-full">
                 <span class="text-6xl" id="mobile-result-icon">🏆</span>
-                <h2 class="text-2xl font-black text-orange-600" id="mobile-result-title">挑戰成績單</h2>
+                <h2 class="serif-title text-2xl font-black text-amber-800" id="mobile-result-title">科舉金榜成績單</h2>
                 
                 <div id="mobile-solo-result" class="flex flex-col items-center space-y-1 my-2">
-                    <div class="text-5xl font-black text-stone-800 tracking-wider" id="mobile-result-rank">第 - 名</div>
-                    <div class="text-lg font-bold text-stone-500" id="mobile-result-total">共 - 人</div>
-                    <div class="text-2xl font-black text-stone-700 pt-2">你的總分：<span id="mobile-result-score" class="text-emerald-600">0</span> 分</div>
+                    <div class="text-5xl font-black text-slate-800 tracking-wider" id="mobile-result-rank">第 - 名</div>
+                    <div class="text-lg font-bold text-slate-500" id="mobile-result-total">共 - 人</div>
+                    <div class="text-2xl font-black text-slate-700 pt-2">個人總積分：<span id="mobile-result-score" class="text-teal-700">0</span> 分</div>
                 </div>
 
-                <div id="mobile-team-result" class="hidden flex-col items-center space-y-2 w-full my-2 bg-amber-50 p-4 rounded-2xl border-2 border-amber-200">
+                <div id="mobile-team-result" class="hidden flex-col items-center space-y-2 w-full my-2 bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
                     <div class="text-3xl font-black" id="mobile-team-winner-text">🚩 紅隊 獲勝！</div>
-                    <div class="text-lg font-bold text-stone-700">
-                        隊伍總分：<span id="mobile-team-total-score" class="text-orange-600 font-black">0</span> 分
+                    <div class="text-lg font-bold text-slate-700">
+                        隊伍總分：<span id="mobile-team-total-score" class="text-amber-700 font-black">0</span> 分
                     </div>
-                    <div class="w-full border-t-2 border-amber-200 my-2"></div>
-                    <div class="text-sm font-bold text-stone-500">你的個人表現</div>
-                    <div class="text-xl font-black text-stone-800">
-                        貢獻分數：<span id="mobile-team-user-score" class="text-emerald-600">0</span> 分
+                    <div class="w-full border-t border-slate-200 my-2"></div>
+                    <div class="text-sm font-bold text-slate-500">個人戰績統計</div>
+                    <div class="text-xl font-black text-slate-800">
+                        貢獻得分：<span id="mobile-team-user-score" class="text-teal-700">0</span> 分
                     </div>
-                    <div class="text-sm font-bold text-blue-600">
+                    <div class="text-sm font-bold text-indigo-700">
                         隊伍得分佔比：<span id="mobile-team-user-ratio">0%</span>
                     </div>
                 </div>
 
-                <div id="mobile-result-status" class="text-base font-black text-emerald-700 pt-2">你表現得超級棒！</div>
+                <div id="mobile-result-status" class="text-base font-black text-indigo-800 pt-2">感謝您的熱情參與！</div>
             </div>
 
-            <div id="mobile-status-text" class="text-center text-stone-600 font-black py-1 text-sm flex-shrink-0">
-                連線成功！請輸入名字完成報到
+            <div id="mobile-status-text" class="text-center text-slate-600 font-black py-1 text-sm flex-shrink-0">
+                連線成功！請輸入姓名完成登錄
             </div>
         </div>
 
         <!-- 大螢幕 - 題目間隔 Splash -->
-        <div id="view-question-splash" class="hidden fixed inset-0 z-40 bg-amber-100/95 backdrop-blur-md flex flex-col items-center justify-center animate-fade-in">
-            <span class="text-3xl text-orange-600 font-black tracking-widest mb-3">✨ 準備接招 ✨</span>
-            <h1 id="splash-question-number" class="text-7xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-orange-500 to-rose-500 drop-shadow-sm">
+        <div id="view-question-splash" class="hidden fixed inset-0 z-40 bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center animate-fade-in">
+            <span class="text-2xl text-amber-300 font-black tracking-[0.3em] mb-3">NEXT CHALLENGE</span>
+            <h1 id="splash-question-number" class="serif-title text-7xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-amber-200 to-rose-300">
                 第 1 題
             </h1>
         </div>
@@ -278,46 +282,46 @@
         <div id="view-game" class="hidden w-full h-full max-h-[96vh] grid grid-cols-1 md:grid-cols-12 gap-4 overflow-hidden">
             
             <!-- 左側：排行榜 -->
-            <div class="md:col-span-4 lg:col-span-3 bg-white/95 border-4 border-amber-300 rounded-3xl p-3 kid-card flex flex-col justify-between overflow-hidden h-full">
+            <div class="md:col-span-4 lg:col-span-3 bg-white/95 border-2 border-teal-700/30 rounded-3xl p-3 scholar-card flex flex-col justify-between overflow-hidden h-full">
                 <div class="overflow-hidden flex flex-col h-full">
-                    <h3 class="text-stone-800 text-xl md:text-2xl font-black mb-3 flex items-center justify-between flex-shrink-0 border-b-2 border-amber-200 pb-2">
-                        <span>🌟 積分英雄榜</span>
-                        <span id="game-total-players-badge" class="text-base bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border-2 border-emerald-400">0 人</span>
+                    <h3 class="serif-title text-slate-800 text-xl md:text-2xl font-black mb-3 flex items-center justify-between flex-shrink-0 border-b-2 border-slate-200 pb-2">
+                        <span>📊 實時風雲榜</span>
+                        <span id="game-total-players-badge" class="text-base bg-teal-50 text-teal-800 px-3 py-1 rounded-full border border-teal-300">0 人</span>
                     </h3>
 
                     <!-- 團體賽得分看板 -->
                     <div id="team-scoreboard" class="hidden grid-cols-2 gap-2 mb-3 flex-shrink-0">
-                        <div class="bg-rose-100 border-2 border-rose-400 p-2 rounded-2xl text-center">
-                            <span class="text-xs font-black text-rose-700 block">🔴 紅隊總分</span>
-                            <span id="team-red-score-display" class="text-2xl font-black text-rose-900">0</span>
+                        <div class="bg-rose-50 border-2 border-rose-400 p-2 rounded-2xl text-center">
+                            <span class="text-xs font-black text-rose-800 block">🔴 紅隊總分</span>
+                            <span id="team-red-score-display" class="text-2xl font-black text-rose-950">0</span>
                         </div>
-                        <div class="bg-sky-100 border-2 border-sky-400 p-2 rounded-2xl text-center">
-                            <span class="text-xs font-black text-sky-700 block">⚪ 白隊總分</span>
-                            <span id="team-white-score-display" class="text-2xl font-black text-sky-900">0</span>
+                        <div class="bg-indigo-50 border-2 border-indigo-400 p-2 rounded-2xl text-center">
+                            <span class="text-xs font-black text-indigo-800 block">⚪ 白隊總分</span>
+                            <span id="team-white-score-display" class="text-2xl font-black text-indigo-950">0</span>
                         </div>
                     </div>
 
                     <div id="players-dashboard" class="flex flex-col space-y-2.5 overflow-y-auto flex-grow pr-1"></div>
                 </div>
-                <div class="mt-2 pt-2 border-t-2 border-amber-200 text-right flex-shrink-0">
-                    <span id="round-status-hint" class="text-emerald-700 font-black text-base">等待第一位同學搶答...</span>
+                <div class="mt-2 pt-2 border-t-2 border-slate-200 text-right flex-shrink-0">
+                    <span id="round-status-hint" class="text-teal-800 font-black text-base">等待第一位同學搶答...</span>
                 </div>
             </div>
 
             <!-- 右側：中央答題區 -->
-            <div class="md:col-span-8 lg:col-span-9 bg-white/95 border-4 border-emerald-400 rounded-3xl p-6 md:p-8 kid-card flex flex-col justify-between overflow-hidden h-full">
+            <div class="md:col-span-8 lg:col-span-9 bg-white/95 border-2 border-indigo-900/20 rounded-3xl p-6 md:p-8 scholar-card flex flex-col justify-between overflow-hidden h-full">
                 <div class="w-full flex-shrink-0">
-                    <div class="w-full bg-amber-100 h-5 rounded-full mb-4 overflow-hidden border-2 border-amber-300">
-                        <div id="timer-bar" class="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 w-full transition-all duration-100 ease-linear"></div>
+                    <div class="w-full bg-slate-200 h-4 rounded-full mb-4 overflow-hidden border border-slate-300">
+                        <div id="timer-bar" class="h-full bg-gradient-to-r from-teal-600 via-indigo-600 to-rose-600 w-full transition-all duration-100 ease-linear"></div>
                     </div>
 
                     <div class="flex justify-between items-center mb-3">
-                        <span id="question-number" class="text-emerald-700 bg-emerald-100 px-4 py-1 rounded-full border-2 border-emerald-300 font-black text-xl md:text-2xl tracking-wider">第 01 / 10 題</span>
-                        <span id="timer-text" class="text-3xl md:text-4xl font-black text-orange-600">⏱️ 準備作答</span>
+                        <span id="question-number" class="text-indigo-900 bg-indigo-50 px-4 py-1 rounded-full border border-indigo-300 font-black text-xl md:text-2xl tracking-wider">QUESTION 01/10</span>
+                        <span id="timer-text" class="text-3xl md:text-4xl font-black text-red-700">⏱️ 準備作答</span>
                     </div>
 
-                    <div class="w-full overflow-hidden py-3 px-4 mb-4 bg-amber-50/90 rounded-2xl border-2 border-amber-200">
-                        <h2 id="question-text" class="text-2xl md:text-3xl lg:text-4xl font-black text-stone-800 leading-snug tracking-wide">
+                    <div class="w-full overflow-hidden py-3 px-5 mb-4 bg-[#FAF8F3] rounded-2xl border-l-8 border-teal-700 shadow-inner">
+                        <h2 id="question-text" class="text-2xl md:text-3xl lg:text-4xl font-black text-slate-800 leading-snug tracking-wide">
                             題目載入中...
                         </h2>
                     </div>
@@ -328,43 +332,43 @@
         </div>
 
         <!-- 第一階段晉級 / 進入決賽畫面 -->
-        <div id="view-intermission" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-stone-900/70 backdrop-blur-md p-6">
-            <div class="w-full max-w-7xl h-full max-h-[90vh] bg-FFFDF5 bg-white border-4 border-amber-400 rounded-3xl p-6 flex flex-col justify-between shadow-2xl overflow-hidden">
+        <div id="view-intermission" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6">
+            <div class="w-full max-w-7xl h-full max-h-[90vh] bg-[#F7F5F0] border-4 border-teal-700 rounded-3xl p-6 flex flex-col justify-between shadow-2xl overflow-hidden">
                 
-                <h2 class="text-3xl md:text-5xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-orange-500 to-rose-500 mb-2 flex-shrink-0">
-                    🎉 初賽成績結算與決賽名單 🎉
+                <h2 class="serif-title text-3xl md:text-5xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-800 via-indigo-800 to-red-700 mb-2 flex-shrink-0">
+                    📜 初試結算與殿試晉級名單 📜
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
                     
-                    <div class="md:col-span-3 bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex flex-col justify-between overflow-hidden">
-                        <div class="flex justify-between items-center mb-3 border-b-2 border-amber-200 pb-2 flex-shrink-0">
-                            <span class="font-black text-xl md:text-2xl text-stone-700">參賽名單</span>
-                            <span id="intermission-left-count" class="text-xs bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
+                    <div class="md:col-span-3 bg-white rounded-2xl p-4 border-2 border-slate-200 flex flex-col justify-between overflow-hidden shadow-sm">
+                        <div class="flex justify-between items-center mb-3 border-b-2 border-slate-200 pb-2 flex-shrink-0">
+                            <span class="font-black text-xl md:text-2xl text-slate-800">應試積分</span>
+                            <span id="intermission-left-count" class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-black">0 人</span>
                         </div>
                         <div id="intermission-left-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
                     </div>
 
-                    <div class="md:col-span-6 bg-gradient-to-b from-amber-50 to-orange-50 border-4 border-orange-300 rounded-3xl p-6 flex flex-col items-center justify-start text-center overflow-hidden shadow-inner">
+                    <div class="md:col-span-6 bg-white border-4 border-amber-500/70 rounded-3xl p-6 flex flex-col items-center justify-start text-center overflow-hidden shadow-md">
                         <div class="w-full overflow-hidden flex flex-col items-center">
-                            <span class="text-orange-600 text-base font-black tracking-widest bg-white px-4 py-1 rounded-full border border-orange-300">FINALISTS</span>
-                            <h3 class="text-3xl md:text-4xl font-black text-stone-800 mt-2 mb-6">🏆 晉級決賽小高手 🏆</h3>
+                            <span class="text-amber-800 text-sm font-black tracking-widest bg-amber-100 px-4 py-1 rounded-full border border-amber-300">FINAL STAGE QUALIFIERS</span>
+                            <h3 class="serif-title text-3xl md:text-4xl font-black text-slate-900 mt-2 mb-6">🏆 晉級決賽選手 🏆</h3>
                             <div id="qualified-players-list" class="w-full flex flex-col gap-3.5 overflow-y-auto max-h-[55vh] p-2"></div>
                         </div>
                     </div>
 
                     <div class="md:col-span-3 flex flex-col justify-between gap-3 overflow-hidden">
-                        <div class="bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex flex-col justify-between overflow-hidden flex-grow">
-                            <div class="flex justify-between items-center mb-3 border-b-2 border-amber-200 pb-2 flex-shrink-0">
-                                <span class="font-black text-xl md:text-2xl text-stone-700">參賽名單</span>
-                                <span id="intermission-right-count" class="text-xs bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
+                        <div class="bg-white rounded-2xl p-4 border-2 border-slate-200 flex flex-col justify-between overflow-hidden flex-grow shadow-sm">
+                            <div class="flex justify-between items-center mb-3 border-b-2 border-slate-200 pb-2 flex-shrink-0">
+                                <span class="font-black text-xl md:text-2xl text-slate-800">應試積分</span>
+                                <span id="intermission-right-count" class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-black">0 人</span>
                             </div>
                             <div id="intermission-right-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
                         </div>
 
                         <div class="w-full flex-shrink-0">
-                            <button id="btn-start-stage2" class="kid-btn w-full py-4 text-2xl md:text-3xl font-black text-white bg-gradient-to-r from-orange-500 to-rose-500 rounded-2xl hover:brightness-105 border-2 border-orange-700">
-                                🔥 進入總決賽！
+                            <button id="btn-start-stage2" class="scholar-btn w-full py-4 text-2xl md:text-3xl font-black text-white bg-gradient-to-r from-red-700 to-amber-600 rounded-2xl hover:brightness-110 border-2 border-red-900">
+                                ⚔️ 進入總決賽
                             </button>
                         </div>
                     </div>
@@ -375,34 +379,34 @@
         </div>
 
         <!-- 大螢幕 - 最後得獎頒獎畫面 -->
-        <div id="view-result" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-stone-900/70 backdrop-blur-md p-6">
-            <div class="w-full max-w-7xl h-full max-h-[90vh] bg-white border-4 border-amber-400 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden relative">
+        <div id="view-result" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-6">
+            <div class="w-full max-w-7xl h-full max-h-[90vh] bg-[#F7F5F0] border-4 border-amber-500 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden relative">
                 
-                <h2 class="text-3xl md:text-5xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 mb-2 flex-shrink-0">
-                    🏆 國文小博士頒獎典禮 🏆
+                <h2 class="serif-title text-3xl md:text-5xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-700 via-red-700 to-indigo-800 mb-2 flex-shrink-0">
+                    🏆 國文金榜題名頒獎典禮 🏆
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
                     
-                    <div class="md:col-span-3 bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex flex-col justify-between overflow-hidden">
-                        <div class="flex justify-between items-center mb-3 border-b-2 border-amber-200 pb-2 flex-shrink-0">
-                            <span class="font-black text-xl md:text-2xl text-amber-800">全班排名 (左)</span>
-                            <span id="result-left-count" class="text-xs bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
+                    <div class="md:col-span-3 bg-white rounded-2xl p-4 border-2 border-slate-200 flex flex-col justify-between overflow-hidden shadow-sm">
+                        <div class="flex justify-between items-center mb-3 border-b-2 border-slate-200 pb-2 flex-shrink-0">
+                            <span class="font-black text-xl md:text-2xl text-slate-800">全場排名 (左)</span>
+                            <span id="result-left-count" class="text-xs bg-amber-100 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
                         </div>
                         <div id="result-left-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
                     </div>
 
-                    <div class="md:col-span-6 bg-gradient-to-b from-amber-50 to-yellow-50 border-4 border-amber-300 rounded-3xl p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-inner">
+                    <div class="md:col-span-6 bg-white border-4 border-amber-400 rounded-3xl p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-md">
                         <div id="result-center-container" class="w-full flex flex-col items-center">
-                            <span class="text-amber-700 font-black tracking-widest text-sm mb-3">TOP 3 WINNERS</span>
+                            <span class="text-amber-800 font-black tracking-widest text-sm mb-3">TOP 3 WINNERS</span>
                             <div id="top3-container" class="w-full flex flex-col items-center space-y-4 my-auto"></div>
                         </div>
                     </div>
 
-                    <div class="md:col-span-3 bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex flex-col justify-between overflow-hidden">
-                        <div class="flex justify-between items-center mb-3 border-b-2 border-amber-200 pb-2 flex-shrink-0">
-                            <span class="font-black text-xl md:text-2xl text-amber-800">全班排名 (右)</span>
-                            <span id="result-right-count" class="text-xs bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
+                    <div class="md:col-span-3 bg-white rounded-2xl p-4 border-2 border-slate-200 flex flex-col justify-between overflow-hidden shadow-sm">
+                        <div class="flex justify-between items-center mb-3 border-b-2 border-slate-200 pb-2 flex-shrink-0">
+                            <span class="font-black text-xl md:text-2xl text-slate-800">全場排名 (右)</span>
+                            <span id="result-right-count" class="text-xs bg-amber-100 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
                         </div>
                         <div id="result-right-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
                     </div>
@@ -414,122 +418,122 @@
 
     </main>
 
-    <footer id="main-footer" class="w-full py-2 px-4 border-t-2 border-amber-200 bg-white/90 text-center text-stone-500 font-bold text-sm flex-shrink-0">
-        快樂學國文・天天進步一點點 | 國小三年級國文知識大亂鬥 (共 100 題精選題庫)
+    <footer id="main-footer" class="w-full py-2 px-4 border-t border-teal-700/20 bg-white/90 text-center text-slate-500 font-bold text-sm flex-shrink-0">
+        腹有詩書氣自華・博學篤志展風采 | 國小六年級國文知識大亂鬥 (100 題精選題庫)
     </footer>
 
     <script>
-        // 國小三年級國文 100 題完整題庫
+        // 國小六年級國文 100 題完整題庫
         const fullQuizDatabase = [
-            // 一、字音與字形 (1-25)
-            { question: "1. 下列哪一個字的讀音和「教」室的「教」相同？", options: ["教書", "比較", "睡覺", "摔跤"], answer: 1 },
-            { question: "2. 「媽媽在市場買了一把空心菜。」句中「空」的讀音是？", options: ["ㄎㄨㄥ", "ㄎㄨㄥˋ", "ㄎㄨㄥˇ", "ㄍㄨㄥ"], answer: 0 },
-            { question: "3. 「這個題目真難，我得好好想一想。」句中「得」的讀音是？", options: ["ㄉㄜˊ", "ㄉㄟˇ", "ㄉㄜ", "ㄉㄧˊ"], answer: 1 },
-            { question: "4. 下列哪一個詞語的用字「完全正確」？", options: ["一望無際", "一望無季", "一忘無際", "一望無計"], answer: 0 },
-            { question: "5. 下列哪一個詞語的用字「完全正確」？", options: ["迫不及待", "迫不急待", "破不及待", "迫不及代"], answer: 0 },
-            { question: "6. 「哥哥的房間整理得十分□□。」空格中應該填入哪個詞語？", options: ["整齊", "整奇", "正齊", "整其"], answer: 0 },
-            { question: "7. 下列哪一個字的部首是「心」部？", options: ["思", "悲", "快", "以上皆是"], answer: 3 },
-            { question: "8. 「街」這個字的部首是什麼？", options: ["彳部", "行部", "土部", "圭部"], answer: 1 },
-            { question: "9. 「聞」這個字的部首是什麼？", options: ["門部", "耳部", "口部", "日部"], answer: 1 },
-            { question: "10. 下列哪一個詞語的「重」讀音是「ㄔㄨㄥˊ」？", options: ["重要", "體重", "重複", "沉重"], answer: 2 },
-            { question: "11. 下列哪一個詞語的「好」讀音是「ㄏㄠˋ」？", options: ["好人", "好奇", "好處", "美好"], answer: 1 },
-            { question: "12. 「他把這件事辦得非常妥當。」句中「當」的讀音是？", options: ["ㄉㄤ", "ㄉㄤˋ", "ㄉㄤˇ", "ㄊㄤ"], answer: 1 },
-            { question: "13. 下列哪一個字去掉部首後，讀音「不會」改變？", options: ["清", "媽", "跑", "花"], answer: 1 },
-            { question: "14. 下列哪一個詞語中有「錯別字」？", options: ["專心致志", "川流不息", "再接再勵", "興高采烈"], answer: 2 },
-            { question: "15. 下列哪一個詞語中有「錯別字」？", options: ["恍然大悟", "自言自語", "守株待兔", "按步就班"], answer: 3 },
-            { question: "16. 「這個西瓜又大又甜，真讓人垂涎三尺。」句中「涎」的讀音是？", options: ["ㄧㄢˊ", "ㄒㄧㄢˊ", "ㄧㄢˋ", "ㄉㄢˋ"], answer: 1 },
-            { question: "17. 下列哪一組字的部首「相同」？", options: ["晴、睛", "海、梅", "想、相", "聞、問"], answer: 2 },
-            { question: "18. 「他因為跑得太快，不小心跌倒了。」句中「跌」的部首是？", options: ["足部", "失部", "走部", "手部"], answer: 0 },
-            { question: "19. 下列哪一個詞語的「散」讀音是「ㄙㄢˇ」？", options: ["散步", "散文", "分散", "解散"], answer: 1 },
-            { question: "20. 下列哪一個詞語的「轉」讀音是「ㄓㄨㄢˇ」？", options: ["旋轉木馬", "轉彎", "團團轉", "轉圈圈"], answer: 1 },
-            { question: "21. 「我們要愛護大自然，不要隨意□□花草。」空格應填入？", options: ["採摘", "彩摘", "採滴", "采摘"], answer: 0 },
-            { question: "22. 「這座橋已經有百年的□□了。」空格應填入？", options: ["歷史", "歷使", "厲史", "立史"], answer: 0 },
-            { question: "23. 下列哪一個字的總筆畫數是「10 畫」？", options: ["家", "海", "起", "以上皆是"], answer: 3 },
-            { question: "24. 「樹」這個字的部首是什麼？", options: ["木部", "寸部", "豆部", "士部"], answer: 0 },
-            { question: "25. 「他總是在背後說別人的壞話。」句中「背」的讀音是？", options: ["ㄅㄟ", "ㄅㄟˋ", "ㄅㄟˇ", "ㄆㄟˋ"], answer: 1 },
+            // 一、字音字形與易錯字辨析 (1-25)
+            { question: "1. 下列哪一個「載」字的讀音，與「一年半載」的「載」相同？", options: ["千載難逢", "載歌載舞", "滿載而歸", "下載檔案"], answer: 0 },
+            { question: "2. 「這位老先生雖然年事已高，但身體依然十分硬朗。」句中「朗」的部首是？", options: ["月部", "良部", "肉部", "日部"], answer: 0 },
+            { question: "3. 下列哪一個詞語的用字「完全正確」？", options: ["再接再厲", "再接再勵", "在接再厲", "再接再利"], answer: 0 },
+            { question: "4. 下列哪一個詞語的用字「完全正確」？", options: ["不屈不撓", "不屈不饒", "不曲不撓", "不屈不繞"], answer: 0 },
+            { question: "5. 下列哪一個詞語中有「錯別字」？", options: ["按部就班", "川流不息", "走頭無路", "名副其實"], answer: 2 },
+            { question: "6. 下列哪一個詞語中有「錯別字」？", options: ["墨守成規", "世外桃源", "出類拔萃", "一愁莫展"], answer: 3 },
+            { question: "7. 「他因為一時的疏忽，釀成了無法彌補的大錯。」句中「釀」的讀音是？", options: ["ㄋㄧㄤˋ", "ㄖㄤˋ", "ㄌㄧㄤˋ", "ㄋㄧㄤˊ"], answer: 0 },
+            { question: "8. 下列哪一個詞語的「供」讀音是「ㄍㄨㄥˋ」？", options: ["提供", "供應", "供奉", "供不應求"], answer: 2 },
+            { question: "9. 下列哪一個詞語的「屏」讀音是「ㄅㄧㄥˇ」？", options: ["屏障", "屏氣凝神", "孔雀開屏", "畫屏"], answer: 1 },
+            { question: "10. 「這座古剎隱藏在深山之中，環境十分清幽。」句中「剎」的讀音是？", options: ["ㄔㄚˋ", "ㄕㄚ", "ㄕㄚˋ", "ㄔㄚ"], answer: 0 },
+            { question: "11. 下列哪一組字的讀音「完全相同」？", options: ["竣／峻", "綴／輟", "拭／試", "以上皆是"], answer: 3 },
+            { question: "12. 「面對突如其來的變故，他顯得有些手足無□□。」空格應填入哪個字？", options: ["措", "錯", "挫", "厝"], answer: 0 },
+            { question: "13. 「這篇文章寫得□□□□，讓人讀了感動不已。」空格應填入哪個詞語？", options: ["膾炙人口", "繪炙人口", "膾智人口", "會炙人口"], answer: 0 },
+            { question: "14. 下列哪一個字的部首「不是」肉部（月）？", options: ["勝", "朗", "肚", "胃"], answer: 1 },
+            { question: "15. 「在大家的□□之下，這項艱鉅的任務終於順利完成。」空格應填入？", options: ["督促", "督處", "都促", "督觸"], answer: 0 },
+            { question: "16. 下列哪一個詞語的「模」讀音是「ㄇㄨˊ」？", options: ["模仿", "模範", "模樣", "模型"], answer: 2 },
+            { question: "17. 下列哪一個詞語的「處」讀音是「ㄔㄨˇ」？", options: ["到處", "住處", "處事", "好處"], answer: 2 },
+            { question: "18. 「這棟建築物的設計□□□□，吸引了許多遊客駐足欣賞。」空格應填入？", options: ["別出心裁", "別出新裁", "別出心才", "別出心財"], answer: 0 },
+            { question: "19. 「雖然他們兩兄弟長得一模一樣，但個性卻□□□□。」空格應填入？", options: ["迥然不同", "迴然不同", "炯然不同", "窘然不同"], answer: 0 },
+            { question: "20. 下列哪一個詞語的「省」讀音是「ㄒㄧㄥˇ」？", options: ["節省", "省悟", "省吃儉用", "臺灣省"], answer: 1 },
+            { question: "21. 「他對這件事的來龍去脈瞭若指掌。」句中「脈」的讀音是？", options: ["ㄇㄞˋ", "ㄇㄛˋ", "ㄇㄟˋ", "ㄇㄞˊ"], answer: 0 },
+            { question: "22. 下列哪一個詞語中「沒有」錯別字？", options: ["迫不及待", "破釜沉舟", "精益求精", "以上皆是"], answer: 3 },
+            { question: "23. 「這場演講內容精闢，令在場聽眾獲益□□。」空格應填入？", options: ["匪淺", "非淺", "斐淺", "誹淺"], answer: 0 },
+            { question: "24. 「憑藉著過人的毅力，他終於□□了重重難關。」空格應填入？", options: ["克服", "刻服", "克復", "刻復"], answer: 0 },
+            { question: "25. 下列哪一個字的總筆畫數「最多」？", options: ["龜", "龍", "齊", "鼻"], answer: 0 },
 
-            // 二、詞語辨析與近反義詞 (26-50)
-            { question: "26. 「小心翼翼」的意思是什麼？", options: ["非常粗心大意", "非常謹慎小心", "飛得很快的樣子", "生氣的樣子"], answer: 1 },
-            { question: "27. 「五顏六色」和下列哪一個詞語的意思最接近？", options: ["五光十色", "黑白分明", "單調乏味", "一乾二淨"], answer: 0 },
-            { question: "28. 「驕傲」的反義詞是什麼？", options: ["自滿", "謙虛", "得意", "神氣"], answer: 1 },
-            { question: "29. 「炎熱」的反義詞是什麼？", options: ["溫暖", "寒冷", "酷熱", "悶熱"], answer: 1 },
-            { question: "30. 「一隻、一條、一匹、一頭」，哪一個量詞最適合用來形容「馬」？", options: ["一隻", "一條", "一匹", "一頭"], answer: 2 },
-            { question: "31. 下列哪一個量詞的使用「不恰當」？", options: ["一輪明月", "一陣微風", "一顆大樹", "一艘輪船"], answer: 2 },
-            { question: "32. 「他每次考試都名列前茅，真令人□□。」空格中最適合填入？", options: ["羨慕", "嫉妒", "討厭", "傷心"], answer: 0 },
-            { question: "33. 「經過一番努力，他□□完成了這幅拼圖。」空格中最適合填入？", options: ["忽然", "終於", "果然", "竟然"], answer: 1 },
-            { question: "34. 下列哪一個詞語是用來形容「聲音」的？", options: ["綠油油", "靜悄悄", "香噴噴", "亮晶晶"], answer: 1 },
-            { question: "35. 「恍然大悟」的意思是指？", options: ["突然間明白過來", "迷迷糊糊的樣子", "非常害怕的樣子", "忘記所有事情"], answer: 0 },
-            { question: "36. 「雖然下著大雨，□□他還是準時到學校上課。」空格應填入？", options: ["所以", "但是", "因為", "而且"], answer: 1 },
-            { question: "37. 「這道數學題目太難了，我□□想了好久都想不出來。」空格應填入？", options: ["冥思苦想", "異想天開", "胡思亂想", "想入非非"], answer: 0 },
-            { question: "38. 「熱鬧」的近義詞是什麼？", options: ["冷清", "喧鬧", "安靜", "寂寞"], answer: 1 },
-            { question: "39. 「保護」的反義詞是什麼？", options: ["愛護", "守護", "破壞", "照顧"], answer: 2 },
-            { question: "40. 下列哪一個詞語「不是」形容時間過得很快？", options: ["光陰似箭", "日月如梭", "度日如年", "轉眼之間"], answer: 2 },
-            { question: "41. 「他在台上演講時□□□□，一點也不緊張。」空格最適合填入？", options: ["滔滔不絕", "支支吾吾", "結結巴巴", "啞口無言"], answer: 0 },
-            { question: "42. 「烏雲密布，天空暗了下來，□□要下大雨了。」空格最適合填入？", options: ["看來", "原來", "從來", "向來"], answer: 0 },
-            { question: "43. 「粗心大意」的反義詞是？", options: ["馬馬虎虎", "一絲不苟", "丟三落四", "漫不經心"], answer: 1 },
-            { question: "44. 「妹妹收到生日禮物時，高興得□□□□。」空格最適合填入？", options: ["手舞足蹈", "垂頭喪氣", "咬牙切齒", "愁眉苦臉"], answer: 0 },
-            { question: "45. 下列哪一組詞語的關係與「白天—黑夜」相同？", options: ["高興—快樂", "美麗—漂亮", "成功—失敗", "勇敢—無畏"], answer: 2 },
-            { question: "46. 「這座花園裡種滿了花朵，走進去就能聞到一陣陣□□。」空格應填入？", options: ["清香", "清脆", "清澈", "清楚"], answer: 0 },
-            { question: "47. 「溪水非常□□，連水底的小魚都看得一清二楚。」空格應填入？", options: ["清澈", "清潔", "清涼", "清新"], answer: 0 },
-            { question: "48. 「不管遇到什麼困難，我們都要□□面對。」空格最適合填入？", options: ["勇敢", "勇氣", "英勇", "勇猛"], answer: 0 },
-            { question: "49. 「這件衣服既便宜□□好看，媽媽立刻買了下來。」空格應填入？", options: ["又", "也", "還", "更"], answer: 0 },
-            { question: "50. 「弟弟把玩具弄壞了，只能□□地看著爸爸。」空格最適合填入？", options: ["無可奈何", "理直氣壯", "得意洋洋", "神采飛揚"], answer: 0 },
+            // 二、詞語辨析與關聯詞應用 (26-45)
+            { question: "26. 「居安思危」的意思是什麼？", options: ["處在安樂環境中，要想到可能發生的危險", "住在安全的地方不用擔心", "危險的時候要趕快找安全的地方", "每天都在擔心會發生危險"], answer: 0 },
+            { question: "27. 「鑑往知來」與下列哪一個詞語的意思最相近？", options: ["溫故知新", "喜新厭舊", "數典忘祖", "厚古薄今"], answer: 0 },
+            { question: "28. 「他這個人向來□□□□，從不輕易向困難低頭。」空格最適合填入？", options: ["剛毅木訥", "堅忍不拔", "優柔寡斷", "隨波逐流"], answer: 1 },
+            { question: "29. 「這件事□□他親自出馬，□□無法順利解決。」空格應填入哪組關聯詞？", options: ["除非……否則……", "雖然……但是……", "不但……而且……", "既然……就……"], answer: 0 },
+            { question: "30. 「□□遇到多大的挫折，我們□□不能放棄希望。」空格應填入哪組關聯詞？", options: ["無論……都……", "因為……所以……", "只有……才……", "與其……不如……"], answer: 0 },
+            { question: "31. 「杞人憂天」是用來比喻什麼樣的人？", options: ["為不必要的事情而擔憂", "非常關心天文氣象", "有遠見、懂得未雨綢繆", "喜歡抱怨老天爺"], answer: 0 },
+            { question: "32. 「推陳出新」的反義詞是下列哪一個？", options: ["墨守成規", "革故鼎新", "別開生面", "日新月異"], answer: 0 },
+            { question: "33. 「這部電影情節扣人心弦，結局更是出人意表。」句中「出人意表」的意思是？", options: ["超出人們的意料之外", "寫在意見表上面", "大家都已經猜到了", "表現得非常不好"], answer: 0 },
+            { question: "34. 下列哪一個詞語「不能」用來讚美別人的文章或書法？", options: ["字字珠璣", "入木三分", "文不加點", "塗鴉之作"], answer: 3 },
+            { question: "35. 「他雖然身處逆境，卻依然能□□□□，保持樂觀。」空格最適合填入？", options: ["泰然自若", "驚慌失措", "怨天尤人", "自暴自棄"], answer: 0 },
+            { question: "36. 「門庭若市」的反義詞是下列哪一個？", options: ["門可羅雀", "車水馬龍", "水洩不通", "摩肩接踵"], answer: 0 },
+            { question: "37. 「這座博物館收藏了許多□□的文物，價值連城。」空格最適合填入？", options: ["稀世珍寶", "一文不值", "粗製濫造", "司空見慣"], answer: 0 },
+            { question: "38. 「他做事總是□□□□，只求表面好看，不重實際效果。」空格應填入？", options: ["華而不實", "腳踏實地", "實事求是", "精雕細琢"], answer: 0 },
+            { question: "39. 「與其坐在這裡空想，□□立刻起身行動。」空格應填入？", options: ["不如", "而且", "所以", "況且"], answer: 0 },
+            { question: "40. 「□□這項計畫風險很高，□□為了突破現狀，我們決定放手一搏。」空格應填入？", options: ["儘管……還是……", "因為……所以……", "只要……就……", "不但……而且……"], answer: 0 },
+            { question: "41. 「膾炙人口」原本是指美味的食物人人愛吃，後來引申為？", options: ["詩文或事物受人歡迎、廣為流傳", "廚師的手藝非常高超", "大家都在討論美食", "人口數量非常多"], answer: 0 },
+            { question: "42. 下列哪一個成語是用來形容「時間過得極快」？", options: ["白駒過隙", "度日如年", "曠日廢時", "遙遙無期"], answer: 0 },
+            { question: "43. 「他對古典音樂有著極高的□□能力。」空格最適合填入？", options: ["鑑賞", "監督", "借鏡", "鑑別"], answer: 0 },
+            { question: "44. 「這場比賽雙方勢均力敵，直到最後一秒才分出勝負。」句中「勢均力敵」的意思是？", options: ["雙方力量相當，不分上下", "其中一方實力強大", "兩邊都是敵人", "比賽非常無聊"], answer: 0 },
+            { question: "45. 「他因為一時貪心，結果□□□□，連原本擁有的都失去了。」空格應填入？", options: ["得不償失", "一舉兩得", "滿載而歸", "名利雙收"], answer: 0 },
 
-            // 三、成語應用與典故 (51-75)
-            { question: "51. 比喻「做多餘的事，反而弄巧成拙」的成語是？", options: ["畫蛇添足", "畫龍點睛", "守株待兔", "亡羊補牢"], answer: 0 },
-            { question: "52. 比喻「不主動努力，只靠運氣想得到收穫」的成語是？", options: ["愚公移山", "守株待兔", "精衛填海", "聞雞起舞"], answer: 1 },
-            { question: "53. 比喻「見識狹小，自以為是」的成語是？", options: ["井底之蛙", "如魚得水", "狐假虎威", "對牛彈琴"], answer: 0 },
-            { question: "54. 比喻「假借別人的威勢來欺壓人」的成語是？", options: ["虎頭蛇尾", "狐假虎威", "龍飛鳳舞", "雞犬不寧"], answer: 1 },
-            { question: "55. 「亡羊補牢」這個成語告訴我們什麼道理？", options: ["羊不見了就不用管了", "犯錯後及時改正還來得及", "要買很多隻羊", "牢房要蓋得很堅固"], answer: 1 },
-            { question: "56. 形容「人很多，非常擁擠」的成語是？", options: ["人山人海", "空無一人", "門可羅雀", "寥寥無幾"], answer: 0 },
-            { question: "57. 形容「讀書非常勤奮努力」的成語是？", options: ["懸梁刺股", "三心二意", "一曝十寒", "半途而廢"], answer: 0 },
-            { question: "58. 「對牛彈琴」是用來比喻什麼？", options: ["牛很喜歡聽音樂", "對不懂道理的人講道理，白費力氣", "彈琴的技術很好", "動物也有感情"], answer: 1 },
-            { question: "59. 形容「天氣非常寒冷」的成語是？", options: ["冰天雪地", "春暖花開", "烈日當空", "秋高氣爽"], answer: 0 },
-            { question: "60. 「一舉兩得」的意思是什麼？", options: ["做一件事同時得到兩種好處", "舉起兩樣東西", "考了兩次一百分", "做兩件事只得到一個好處"], answer: 0 },
-            { question: "61. 比喻「自欺欺人」的成語是？", options: ["掩耳盜鈴", "自相矛盾", "刻舟求劍", "杯弓蛇影"], answer: 0 },
-            { question: "62. 「三人行，必有我師」這句話勉勵我們要？", options: ["謙虛向別人學習", "出門一定要三個人", "每個人都要當老師", "不要跟別人說話"], answer: 0 },
-            { question: "63. 形容「做事情沒有恆心，常常中斷」的成語是？", options: ["半途而廢", "持之以恆", "堅持不懈", "有始有終"], answer: 0 },
-            { question: "64. 形容「說話算話，非常守信用」的成語是？", options: ["一言九鼎", "信口開河", "胡說八道", "花言巧語"], answer: 0 },
-            { question: "65. 「杯弓蛇影」用來形容人怎麼樣？", options: ["疑神疑鬼，自己嚇自己", "很喜歡喝茶", "畫畫畫得很像", "非常勇敢不怕蛇"], answer: 0 },
-            { question: "66. 形容「兄弟姐妹之間感情非常好」的成語是？", options: ["手足情深", "水火不容", "形同陌路", "針鋒相對"], answer: 0 },
-            { question: "67. 「雪中送炭」的意思是？", options: ["在別人困難時給予及時的幫助", "冬天的時候送木炭去賣", "在雪地裡烤肉", "別人在吃飯時去打擾"], answer: 0 },
-            { question: "68. 形容「非常驚訝，說不出話來」的成語是？", options: ["目瞪口呆", "眉開眼笑", "心花怒放", "泰然自若"], answer: 0 },
-            { question: "69. 「水滴石穿」告訴我們什麼道理？", options: ["只要有恆心，再難的事也能成功", "水滴的力量比石頭大", "石頭很容易破掉", "下雨天不要出門"], answer: 0 },
-            { question: "70. 形容「環境非常安靜，連一點聲音都沒有」的成語是？", options: ["鴉雀無聲", "人聲鼎沸", "震耳欲聾", "鑼鼓喧天"], answer: 0 },
-            { question: "71. 「狐假虎威」這個故事中，真正被百獸害怕的是誰？", options: ["老虎", "狐狸", "獅子", "大象"], answer: 0 },
-            { question: "72. 形容「寫字非常漂亮」的成語是？", options: ["龍飛鳳舞", "鬼畫符", "塗鴉之作", "歪七扭八"], answer: 0 },
-            { question: "73. 「百發百中」通常用來稱讚一個人的什麼本領？", options: ["射箭或射擊非常準確", "跑得非常快", "游泳游得很好", "唱歌很好聽"], answer: 0 },
-            { question: "74. 形容「春天景色非常美麗」的成語是？", options: ["鳥語花香", "大雪紛飛", "落葉歸根", "寒風刺骨"], answer: 0 },
-            { question: "75. 「助人為快樂之本」的意思是？", options: ["幫助別人是快樂的源頭", "只要快樂就能幫助別人", "買書本會很快樂", "別人幫助我才會快樂"], answer: 0 },
+            // 三、成語典故與歷史人物 (46-65)
+            { question: "46. 「破釜沉舟」這個成語與哪一位歷史人物有關？", options: ["項羽", "劉邦", "韓信", "曹操"], answer: 0 },
+            { question: "47. 「三顧茅廬」是敘述劉備三次拜訪哪一位賢才的故事？", options: ["諸葛亮", "關羽", "張飛", "趙雲"], answer: 0 },
+            { question: "48. 「臥薪嘗膽」這個成語的主角是春秋時期的哪一位君主？", options: ["越王勾踐", "吳王夫差", "齊桓公", "晉文公"], answer: 0 },
+            { question: "49. 「紙上談兵」比喻空談理論而不能解決實際問題，這個典故與戰國時期哪位將領有關？", options: ["趙括", "廉頗", "白起", "王翦"], answer: 0 },
+            { question: "50. 「負荊請罪」的故事中，主動背著荊條向廉頗賠罪的是誰？", options: ["藺相如", "蘇秦", "張儀", "毛遂"], answer: 0 },
+            { question: "51. 「聞雞起舞」用來勉勵人及時奮發努力，這個故事的主角是晉朝的哪一位人物？", options: ["祖逖", "陶淵明", "王羲之", "謝安"], answer: 0 },
+            { question: "52. 「鑿壁偷光」形容家貧卻勤奮好學，這個典故與西漢的哪一位學者有關？", options: ["匡衡", "司馬遷", "班固", "董仲舒"], answer: 0 },
+            { question: "53. 「程門立雪」是用來形容什麼樣的態度？", options: ["尊師重道，虔誠求學", "天氣寒冷，在雪地裡罰站", "站著看雪景", "等待朋友非常有耐心"], answer: 0 },
+            { question: "54. 「毛遂自薦」的意思是什麼？", options: ["自己推薦自己，勇於承擔責任", "推薦好朋友去當官", "把機會讓給別人", "謙虛推辭別人的邀請"], answer: 0 },
+            { question: "55. 「東施效顰」比喻不顧自身條件，盲目模仿別人，結果反而更醜。這裡的「西施」是哪一國的美女？", options: ["越國", "吳國", "齊國", "楚國"], answer: 0 },
+            { question: "56. 「塞翁失馬」這個寓言故事告訴我們什麼道理？", options: ["福禍相依，一時的得失不必太過計較", "養馬是一件很危險的事", "老翁的運氣非常不好", "馬跑掉了就永遠找不回來"], answer: 0 },
+            { question: "57. 「名落孫山」用來形容考試沒有考上，故事中的「孫山」是？", options: ["考上最後一名的考生姓名", "一座山的名字", "主考官的名字", "考場的地名"], answer: 0 },
+            { question: "58. 「四面楚歌」比喻陷入孤立無援、四面受敵的窘境，這發生在楚漢相爭的哪一場戰役？", options: ["垓下之戰", "赤壁之戰", "官渡之戰", "淝水之戰"], answer: 0 },
+            { question: "59. 「洛陽紙貴」用來形容什麼現象？", options: ["著作寫得極好，風行一時，人人爭相傳抄", "紙張原料短缺導致漲價", "洛陽城裡只有一家造紙廠", "大家都很浪費紙張"], answer: 0 },
+            { question: "60. 「指鹿為馬」比喻故意顛倒黑白、混淆是非，這是歷史上哪一位奸臣所為？", options: ["趙高", "秦檜", "嚴嵩", "魏忠賢"], answer: 0 },
+            { question: "61. 「愚公移山」這個寓言故事主要是讚揚什麼精神？", options: ["只要有毅力，堅持不懈，就能克服困難", "愚公非常聰明，懂得使用炸藥", "搬家比移山更辛苦", "山神非常害怕人類"], answer: 0 },
+            { question: "62. 「一字千金」原指戰國時期呂不韋編寫《呂氏春秋》時懸賞改字，後來用來形容？", options: ["詩文精妙，價值極高", "黃金的價格非常昂貴", "寫一個字要花一千塊", "書法家的字跡很值錢"], answer: 0 },
+            { question: "63. 「草木皆兵」形容人在極度驚恐時，疑神疑鬼的樣子，此典故出自哪一場戰役？", options: ["淝水之戰", "赤壁之戰", "長平之戰", "巨鹿之戰"], answer: 0 },
+            { question: "64. 「入木三分」原本是稱讚哪一位書法家的筆力雄健？", options: ["王羲之", "顏真卿", "柳公權", "歐陽詢"], answer: 0 },
+            { question: "65. 「班門弄斧」比喻在行家面前賣弄本領，這裡的「班」指的是古代哪位巧匠？", options: ["魯班", "班超", "班固", "班昭"], answer: 0 },
 
-            // 四、修辭法、標點符號與句型 (76-90)
-            { question: "76. 「彎彎的月亮像一條小船。」這句話使用了哪一種修辭法？", options: ["譬喻法", "擬人法", "排比法", "誇飾法"], answer: 0 },
-            { question: "77. 「微風輕輕地撫摸著我的臉龐。」這句話使用了哪一種修辭法？", options: ["擬人法", "譬喻法", "設問法", "映襯法"], answer: 0 },
-            { question: "78. 「太陽公公露出了笑臉，向大地說早安。」這句話把太陽當作人來寫，叫做？", options: ["擬人法", "譬喻法", "頂真法", "對偶法"], answer: 0 },
-            { question: "79. 下列哪一個句子是「設問句」（有問有答或提出問題）？", options: ["今天的天氣真好啊！", "你知道為什麼天空是藍色的嗎？", "我們一起去公園玩吧！", "桌上有三本故事書。"], answer: 1 },
-            { question: "80. 書信或文章中，用來標示「書名或篇名」的標點符號是？", options: ["引號「」", "書名號《》", "驚嘆號！", "頓號、"], answer: 1 },
-            { question: "81. 句子中用來表示「並列詞語之間的停頓」（例如：蘋果、香蕉、橘子），要用什麼符號？", options: ["逗號，", "頓號、", "分號；", "句號。"], answer: 1 },
-            { question: "82. 「哇！這座城堡真是太壯觀了！」句尾應該使用哪個標點符號？", options: ["句號。", "問號？", "驚嘆號！", "頓號、"], answer: 2 },
-            { question: "83. 下列哪一個句子「沒有」語病，最通順？", options: ["我把功課寫完了已經。", "因為今天下雨，所以運動會延期。", "他穿著一件紅色的衣服和帽子。", "我非常喜歡吃蘋果和運動。"], answer: 1 },
-            { question: "84. 「花園裡有紅的花，有黃的花，還有紫的花。」這句話運用了哪種修辭？", options: ["排比法", "誇飾法", "轉化法", "倒反法"], answer: 0 },
-            { question: "85. 引述別人說的話時，前後應該加上什麼標點符號？", options: ["引號「」", "括號（）", "書名號《》", "破折號──"], answer: 0 },
-            { question: "86. 「他餓得可以吞下一頭大象。」這句話使用了哪一種修辭法？", options: ["誇飾法", "擬人法", "設問法", "引用法"], answer: 0 },
-            { question: "87. 「不但……而且……」是屬於哪一種關係的複句？", options: ["遞進關係", "轉折關係", "因果關係", "假設關係"], answer: 0 },
-            { question: "88. 下列哪一個詞語是「動詞」？", options: ["跑步", "快樂", "蘋果", "漂亮"], answer: 0 },
-            { question: "89. 下列哪一個詞語是「形容詞」？", options: ["溫柔", "跳舞", "書包", "學校"], answer: 0 },
-            { question: "90. 「只要有恆心，鐵杵也能磨成繡花針。」這句話屬於哪種複句？", options: ["條件關係", "轉折關係", "並列關係", "選擇關係"], answer: 0 },
+            // 四、進階修辭法與文法結構 (66-85)
+            { question: "66. 「朱門酒肉臭，路有凍死骨。」這句詩運用了哪一種修辭法？", options: ["映襯法", "譬喻法", "頂真法", "設問法"], answer: 0 },
+            { question: "67. 「何以解憂？唯有杜康。」句中以「杜康」代稱「酒」，這是哪一種修辭法？", options: ["借代法", "擬人法", "誇飾法", "排比法"], answer: 0 },
+            { question: "68. 「知之者不如好之者，好之者不如樂之者。」這句話運用了哪一種修辭法？", options: ["頂真法", "雙關法", "倒反法", "回文法"], answer: 0 },
+            { question: "69. 「白髮三千丈，緣愁似個長。」這句詩運用了哪一種修辭法？", options: ["誇飾法", "擬人法", "借代法", "設問法"], answer: 0 },
+            { question: "70. 「東邊日出西邊雨，道是無晴卻有晴。」句中以「晴」暗指「情」，這叫作什麼修辭？", options: ["雙關法", "映襯法", "轉化法", "頂真法"], answer: 0 },
+            { question: "71. 「時間就像海綿裡的水，只要願擠，總還是有的。」這句話運用了哪種修辭？", options: ["譬喻法（明喻）", "擬人法", "借代法", "排比法"], answer: 0 },
+            { question: "72. 「這件案子已經水落石出了。」句中「水落石出」在這裡屬於哪種詞性功能？", options: ["謂語（形容事情真相大白）", "主語", "連接詞", "介詞"], answer: 0 },
+            { question: "73. 「海記憶體知己，天涯若比鄰。」這兩句詩字數相等、詞性相對，運用了哪種修辭？", options: ["對偶法", "頂真法", "設問法", "回文法"], answer: 0 },
+            { question: "74. 「不經一番寒徹骨，焉得梅花撲鼻香？」這句話屬於哪一種問句？", options: ["激問（答案在問題反面）", "疑問（真的不知道答案）", "提問（自問自答）", "祈使句"], answer: 0 },
+            { question: "75. 「富貴不能淫，貧賤不能移，威武不能屈。」這三句結構相似、語氣連貫，使用了？", options: ["排比法", "頂真法", "借代法", "雙關法"], answer: 0 },
+            { question: "76. 「春天像剛落地的娃娃，從頭到腳都是新的。」這句話同時運用了哪兩種修辭？", options: ["譬喻與擬人", "誇飾與對偶", "借代與雙關", "頂真與設問"], answer: 0 },
+            { question: "77. 「謙受益，滿招損。」這句話運用了哪一種修辭法，使道理更加鮮明？", options: ["映襯法（對比）", "頂真法", "誇飾法", "借代法"], answer: 0 },
+            { question: "78. 下列哪一個句子「沒有」使用借代修辭？", options: ["臣本布衣，躬耕於南陽（布衣代指平民）", "化干戈為玉帛（干戈代指戰爭）", "月光如流水一般，靜靜地瀉在這一片葉子和花上", "巾幗不讓鬚眉（巾幗代指女性）"], answer: 2 },
+            { question: "79. 「人人為我，我為人人。」這種上下句詞彙次序相反的修辭法稱為？", options: ["回文法", "頂真法", "排比法", "借代法"], answer: 0 },
+            { question: "80. 下列哪一個句子中的「之」字，當作代名詞「他／它」使用？", options: ["學而時習之", "送孟浩然之廣陵", "赤子之心", "置之度外（皆為代詞，選最典型：學而時習之）"], answer: 0 },
+            { question: "81. 「他這個人真是『聰明』，連這麼簡單的題目都會算錯。」句中的「聰明」運用了哪種修辭？", options: ["倒反法（說反話）", "誇飾法", "譬喻法", "借代法"], answer: 0 },
+            { question: "82. 下列哪一個選項是「雙重否定句」（表達肯定的意思）？", options: ["這件事非他出面解決不可。", "這件事他根本不想解決。", "他難道不想解決這件事嗎？", "他已經把這件事解決了。"], answer: 0 },
+            { question: "83. 「風聲雨聲讀書聲，聲聲入耳；家事國事天下事，事事關心。」這副名聯運用的修辭有？", options: ["對偶與頂真", "譬喻與誇飾", "雙關與借代", "設問與倒反"], answer: 0 },
+            { question: "84. 下列哪一個句子是「病句」（語意矛盾或不通順）？", options: ["全班同學幾乎都到齊了，只差小明一個人。", "我斷定他今天大概不會來了。", "閱讀能開闊我們的視野，豐富我們的精神世界。", "經過老師的指導，他的寫作能力進步了許多。"], answer: 1 },
+            { question: "85. 「破折號（──）」在文章中「不具備」下列哪一種功用？", options: ["表示語意的轉折", "表示聲音的延長", "表示並列詞語的停頓", "表示補充說明"], answer: 2 },
 
-            // 五、國學常識與閱讀生活應用 (91-100)
-            { question: "91. 「床前明月光，疑是地上霜。」這首著名的唐詩〈靜夜思〉的作者是誰？", options: ["李白", "杜甫", "白居易", "王維"], answer: 0 },
-            { question: "92. 「春眠不覺曉，處處聞啼鳥。」這首詩〈春曉〉描寫的是哪一個季節？", options: ["春天", "夏天", "秋天", "冬天"], answer: 0 },
-            { question: "93. 「誰知盤中飧，粒粒皆辛苦。」這首〈憫農詩〉告訴我們要？", options: ["珍惜食物，不要浪費", "多吃一點白飯", "去田裡幫忙種田", "盤子要洗乾淨"], answer: 0 },
-            { question: "94. 農曆五月初五是「端午節」，下列哪一項不是端午節的習俗？", options: ["吃粽子", "划龍舟", "賞月吃月餅", "掛艾草、菖蒲"], answer: 2 },
-            { question: "95. 農曆八月十五日是什麼傳統節日？", options: ["中秋節", "元宵節", "重陽節", "清明節"], answer: 0 },
-            { question: "96. 寫信給長輩（例如爺爺、老師）時，信末的祝福語最適合用哪一個？", options: ["敬祝 身體健康", "祝你 學業進步", "祝你 快高長大", "祝你 考試一百分"], answer: 0 },
-            { question: "97. 查字典時，如果知道字的讀音，不知道部首，應該用哪一種查字法最快？", options: ["注音符號檢字法", "部首檢字法", "總筆畫檢字法", "難檢字表"], answer: 0 },
-            { question: "98. 「文房四寶」指的是哪四樣書寫工具？", options: ["筆、墨、紙、硯", "琴、棋、書、畫", "鉛筆、橡皮擦、尺、墊板", "書包、課本、作業、鉛筆盒"], answer: 0 },
-            { question: "99. 中國古代發明的「造紙術」是由哪一位歷史人物改進的？", options: ["蔡倫", "畢昇", "張衡", "祖沖之"], answer: 0 },
-            { question: "100. 閱讀文章時，如果遇到不懂的詞語，下列哪一種做法最正確？", options: ["查字典或從前後文推測意思", "直接跳過不看", "把書本合起來不讀了", "隨便亂猜一個意思"], answer: 0 }
+            // 五、古典詩詞、文言文與國學常識 (86-100)
+            { question: "86. 唐代詩人中，有「詩仙」與「詩聖」之稱的分別是哪兩位？", options: ["李白、杜甫", "王維、孟浩然", "白居易、李商隱", "蘇軾、辛棄疾"], answer: 0 },
+            { question: "87. 「欲窮千里目，更上一層樓。」這兩句詩出自王之渙的〈登鸛雀樓〉，它蘊含了什麼哲理？", options: ["站得高才能看得遠，勉勵人不斷進取", "樓梯爬得越高越累", "千里眼可以看到很遠的地方", "鸛雀樓是全中國最高的建築"], answer: 0 },
+            { question: "88. 「故人西辭黃鶴樓，煙花三月下揚州。」這首詩描寫的是哪一個季節的離別之情？", options: ["春季", "夏季", "秋季", "冬季"], answer: 0 },
+            { question: "89. 「月落烏啼霜滿天，江楓漁火對愁眠。」這首〈楓橋夜泊〉描寫的是哪一個季節的夜晚？", options: ["秋季", "春季", "夏季", "冬季"], answer: 0 },
+            { question: "90. 「爆竹聲中一歲除，春風送暖入屠蘇。」這首〈元日〉描寫的是哪一個傳統節日？", options: ["農曆春節（過年）", "元宵節", "端午節", "中秋節"], answer: 0 },
+            { question: "91. 「遙知兄弟登高處，遍插茱萸少一人。」這首詩與哪一個傳統節日有關？", options: ["重陽節", "清明節", "七夕", "中元節"], answer: 0 },
+            { question: "92. 孔子的言行主要由他的弟子及再傳弟子記錄在哪一部經典中？", options: ["《論語》", "《孟子》", "《史記》", "《詩經》"], answer: 0 },
+            { question: "93. 下列哪一部作品「不屬於」中國古典四大名著？", options: ["《聊齋誌異》", "《西遊記》", "《三國演義》", "《水滸傳》"], answer: 0 },
+            { question: "94. 中國第一部紀傳體通史《史記》，是由西漢哪一位史學家所撰寫？", options: ["司馬遷", "司馬光", "班固", "陳壽"], answer: 0 },
+            { question: "95. 寫書信給「老師」時，信封上的稱謂與啟封詞應該如何書寫最恰當？", options: ["王老師 鈞啟", "王老師 收", "王老師 安啟", "王老師 敬啟"], answer: 0 },
+            { question: "96. 祝賀朋友的新店開張，送花籃時卡片上的題辭最適合寫哪一個？", options: ["駿業宏開", "杏林春暖", "桃李滿門", "弄璋之喜"], answer: 0 },
+            { question: "97. 「杏林春暖」這個題辭通常是用來讚美哪一種職業的人？", options: ["醫生", "老師", "法官", "建築師"], answer: 0 },
+            { question: "98. 「桃李滿天下」是用來讚美哪一種職業的成就？", options: ["教師", "果農", "商人", "將軍"], answer: 0 },
+            { question: "99. 古人常以「歲寒三友」比喻高潔堅貞的品格，請問歲寒三友指的是哪三種植物？", options: ["松、竹、梅", "梅、蘭、竹", "菊、荷、蘭", "松、柏、柳"], answer: 0 },
+            { question: "100. 《論語》中「己所不欲，勿施於人」這句名言，主要是在教導我們什麼待人處事的道理？", options: ["推己及人，將心比心", "自己不想要的東西要趕快送人", "不要隨便接受別人的禮物", "做人要有自己的主見"], answer: 0 }
         ];
 
         function shuffleArray(array) {
@@ -605,23 +609,23 @@
             osc.stop(audioCtx.currentTime + duration);
         }
 
-        // 活潑輕快的校園猜謎背景音樂 (初賽)
+        // 典雅明快的書院競技背景樂 (初賽)
         function playStage1Bgm() {
             initAudio();
             stopBgm();
             currentBgmType = 'stage1';
 
             const N = { 
-                C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880.00, G4: 392.00
+                D5: 587.33, E5: 659.25, G5: 783.99, A5: 880.00, B5: 987.77, D4: 293.66
             };
-            const bpm = 150;
+            const bpm = 156;
             const beat = 60 / bpm;
 
             const sequence = [
-                { f: N.C5, d: 0.5 }, { f: N.E5, d: 0.5 }, { f: N.G5, d: 0.5 }, { f: N.E5, d: 0.5 },
-                { f: N.A5, d: 0.5 }, { f: N.G5, d: 0.5 }, { f: N.E5, d: 0.5 }, { f: N.D5, d: 0.5 },
-                { f: N.C5, d: 0.5 }, { f: N.D5, d: 0.5 }, { f: N.E5, d: 0.5 }, { f: N.C5, d: 0.5 },
-                { f: N.G4, d: 1.0 }, { f: N.G5, d: 1.0 }
+                { f: N.D5, d: 0.5 }, { f: N.E5, d: 0.5 }, { f: N.G5, d: 0.5 }, { f: N.A5, d: 0.5 },
+                { f: N.B5, d: 0.5 }, { f: N.A5, d: 0.5 }, { f: N.G5, d: 0.5 }, { f: N.E5, d: 0.5 },
+                { f: N.D5, d: 0.5 }, { f: N.G5, d: 0.5 }, { f: N.A5, d: 0.5 }, { f: N.G5, d: 0.5 },
+                { f: N.D4, d: 1.0 }, { f: N.D5, d: 1.0 }
             ];
 
             let step = 0;
@@ -635,15 +639,15 @@
             loop();
         }
 
-        // 緊張刺激的總決賽背景音樂 (決賽)
+        // 緊湊刺激的殿試對決樂 (決賽)
         function playStage2Bgm() {
             initAudio();
             stopBgm();
             currentBgmType = 'stage2';
-            const beat = 60 / 135;
+            const beat = 60 / 138;
             const sequence = [
-                { f: 293.66, d: 0.25 }, { f: 311.13, d: 0.25 }, { f: 329.63, d: 0.25 },
-                { f: 261.63, d: 0.25 }, { f: 277.18, d: 0.25 }, { f: 293.66, d: 0.25 }
+                { f: 293.66, d: 0.25 }, { f: 329.63, d: 0.25 }, { f: 349.23, d: 0.25 },
+                { f: 261.63, d: 0.25 }, { f: 293.66, d: 0.25 }, { f: 329.63, d: 0.25 }
             ];
 
             let step = 0;
@@ -762,20 +766,20 @@
                 hostConn = peer.connect(hostId);
 
                 hostConn.on('open', () => {
-                    document.getElementById('player-mobile-name').innerText = "已連線到大螢幕囉！";
+                    document.getElementById('player-mobile-name').innerText = "已成功連線至大螢幕";
                 });
 
                 hostConn.on('data', (data) => {
                     if (data.type === 'GAME_START') {
-                        document.getElementById('mobile-status-text').innerText = '🎮 挑戰開始，請看大螢幕準備搶答！';
+                        document.getElementById('mobile-status-text').innerText = '🎮 挑戰開始，請專注看大螢幕搶答！';
                         if (data.team) {
                             const badge = document.getElementById('mobile-team-badge');
                             if (data.team === 'red') {
-                                badge.innerText = '🔴 紅隊小勇士';
-                                badge.className = 'text-xs font-black px-3 py-1 rounded-full w-max mx-auto border-2 bg-rose-100 text-rose-800 border-rose-400 mt-1';
+                                badge.innerText = '🔴 紅旗戰隊';
+                                badge.className = 'text-xs font-black px-3 py-1 rounded-full w-max mx-auto border-2 bg-rose-50 text-rose-800 border-rose-400 mt-1';
                             } else {
-                                badge.innerText = '⚪ 白隊小勇士';
-                                badge.className = 'text-xs font-black px-3 py-1 rounded-full w-max mx-auto border-2 bg-sky-100 text-sky-800 border-sky-400 mt-1';
+                                badge.innerText = '⚪ 白旗戰隊';
+                                badge.className = 'text-xs font-black px-3 py-1 rounded-full w-max mx-auto border-2 bg-indigo-50 text-indigo-800 border-indigo-400 mt-1';
                             }
                             badge.classList.remove('hidden');
                         }
@@ -793,7 +797,7 @@
                             resetMobileButtons();
                         } else {
                             document.getElementById('mobile-answers-grid').classList.add('hidden');
-                            document.getElementById('mobile-status-text').innerText = '👀 你現在是啦啦隊，請看大螢幕幫同學加油！';
+                            document.getElementById('mobile-status-text').innerText = '👀 您目前為觀賽席，請在大螢幕關注決賽戰況！';
                         }
                     } else if (data.type === 'STAGE2_INTERMISSION') {
                         document.getElementById('mobile-answers-grid').classList.add('hidden');
@@ -802,7 +806,7 @@
                         if (!data.isQualified) {
                             showMobileVoteSection(data.qualifiedPlayers);
                         } else {
-                            document.getElementById('mobile-status-text').innerText = '🏆 太厲害了！你晉級總決賽囉！';
+                            document.getElementById('mobile-status-text').innerText = '🏆 恭喜晉級總決賽！請準備迎接最終考驗！';
                         }
                     } else if (data.type === 'FINAL_RESULT') {
                         showMobileFinalResult(data);
@@ -821,11 +825,11 @@
 
             qualifiedPlayers.forEach(qp => {
                 const btn = document.createElement('button');
-                btn.className = 'w-full h-14 py-2 px-4 bg-amber-50 hover:bg-amber-100 active:bg-amber-200 border-2 border-amber-400 rounded-2xl text-stone-800 font-bold flex justify-between items-center transition shadow-sm flex-shrink-0';
+                btn.className = 'w-full h-14 py-2 px-4 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 border-2 border-amber-400 rounded-2xl text-slate-800 font-bold flex justify-between items-center transition shadow-sm flex-shrink-0';
                 btn.innerHTML = `
                     <span class="text-lg font-black truncate max-w-[60%] text-left">${qp.name}</span>
-                    <span class="h-9 px-3 bg-orange-500 text-white font-black rounded-xl shadow flex items-center justify-center gap-1 flex-shrink-0 text-sm">
-                        <span class="text-base">👑</span> 加油
+                    <span class="h-9 px-3 bg-amber-600 text-white font-black rounded-xl shadow flex items-center justify-center gap-1 flex-shrink-0 text-sm">
+                        <span class="text-base">👑</span> 應援
                     </span>
                 `;
                 btn.onclick = () => {
@@ -869,13 +873,13 @@
                 const winnerTextEl = document.getElementById('mobile-team-winner-text');
 
                 if (data.winningTeam === 'draw') {
-                    winnerTextEl.innerText = '🤝 紅白兩隊平手！';
-                    winnerTextEl.className = 'text-3xl font-black text-orange-600';
+                    winnerTextEl.innerText = '🤝 紅白兩隊平分秋色！';
+                    winnerTextEl.className = 'text-3xl font-black text-amber-700';
                     iconEl.innerText = '🤝';
                 } else {
                     const teamName = data.winningTeam === 'red' ? '🔴 紅隊' : '⚪ 白隊';
-                    winnerTextEl.innerText = `${teamName} 獲得勝利！`;
-                    winnerTextEl.className = data.winningTeam === 'red' ? 'text-3xl font-black text-rose-600' : 'text-3xl font-black text-sky-600';
+                    winnerTextEl.innerText = `${teamName} 榮獲勝利！`;
+                    winnerTextEl.className = data.winningTeam === 'red' ? 'text-3xl font-black text-rose-700' : 'text-3xl font-black text-indigo-800';
                     iconEl.innerText = isMyTeamWinner ? '🏆' : '👏';
                 }
 
@@ -883,24 +887,24 @@
                 document.getElementById('mobile-team-user-score').innerText = data.userScore;
                 document.getElementById('mobile-team-user-ratio').innerText = `${data.userRatio}%`;
 
-                statusEl.innerText = isMyTeamWinner ? '🎉 恭喜你們隊伍贏得冠軍！' : '謝謝你的努力，表現超級棒！';
+                statusEl.innerText = isMyTeamWinner ? '🎉 恭喜您的隊伍勇奪冠軍！' : '感謝您的全力以赴，表現十分精彩！';
             } else {
                 document.getElementById('mobile-result-rank').innerText = `第 ${data.rank} 名`;
-                document.getElementById('mobile-result-total').innerText = `全班共 ${data.totalPlayers} 人`;
+                document.getElementById('mobile-result-total').innerText = `共 ${data.totalPlayers} 人`;
                 document.getElementById('mobile-result-score').innerText = data.score;
 
                 if (data.rank === 1) {
                     iconEl.innerText = '🥇';
-                    statusEl.innerText = '🎉 太神啦！你是國文小狀元！';
+                    statusEl.innerText = '🎉 恭喜獨占鰲頭，榮登國文狀元！';
                 } else if (data.rank === 2) {
                     iconEl.innerText = '🥈';
-                    statusEl.innerText = '✨ 恭喜獲得第二名榜眼！';
+                    statusEl.innerText = '✨ 恭喜榮獲榜眼殊榮！';
                 } else if (data.rank === 3) {
                     iconEl.innerText = '🥉';
-                    statusEl.innerText = '👏 恭喜獲得第三名探花！';
+                    statusEl.innerText = '👏 恭喜榮獲探花佳績！';
                 } else {
                     iconEl.innerText = '🏅';
-                    statusEl.innerText = `繼續加油，你已經很棒了喔！`;
+                    statusEl.innerText = `博學多聞，表現相當出色！`;
                 }
             }
         }
@@ -918,7 +922,7 @@
 
         document.getElementById('btn-mobile-join').addEventListener('click', () => {
             const name = document.getElementById('mobile-name-input').value.trim();
-            if (!name) return alert('請輸入你的座號或名字喔！');
+            if (!name) return alert('請輸入座號或姓名！');
 
             if (hostConn && hostConn.open) {
                 hostConn.send({ 
@@ -927,11 +931,11 @@
                     playerId: myPlayerId
                 });
 
-                document.getElementById('player-mobile-name').innerText = `參賽者：${name}`;
+                document.getElementById('player-mobile-name').innerText = `應試者：${name}`;
                 document.getElementById('mobile-join-form').classList.add('hidden');
                 document.getElementById('mobile-answers-grid').classList.remove('hidden');
                 document.getElementById('mobile-answers-grid').classList.add('grid');
-                document.getElementById('mobile-status-text').innerText = '報到成功！等待老師按開始...';
+                document.getElementById('mobile-status-text').innerText = '報到成功！等待老師開啟賽局...';
             }
         });
 
@@ -941,7 +945,7 @@
             if (hostConn && hostConn.open) {
                 hasSubmittedCurrentAnswer = true;
                 hostConn.send({ type: 'SUBMIT_ANSWER', playerId: myPlayerId, choice: choiceIdx });
-                document.getElementById('mobile-status-text').innerText = '✓ 答案已送出！看看大螢幕對不對';
+                document.getElementById('mobile-status-text').innerText = '✓ 答案已送出！等待本題結算';
 
                 for (let i = 0; i < 4; i++) {
                     const btn = document.getElementById(`mobile-btn-${i}`);
@@ -988,8 +992,8 @@
 
             if (players.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full text-amber-700/70 bg-amber-50/80 text-center py-8 font-bold border-2 border-dashed border-amber-300 rounded-2xl text-lg">
-                        還沒看到小朋友進來喔～快掃描左邊的條碼吧！
+                    <div class="col-span-full text-slate-500 bg-slate-50 text-center py-8 font-bold border-2 border-dashed border-slate-300 rounded-2xl text-lg">
+                        尚未有同學報到，請掃描左側條碼加入競技！
                     </div>
                 `;
                 if (rulesBox) rulesBox.classList.remove('hidden');
@@ -997,16 +1001,16 @@
                 if (rulesBox) rulesBox.classList.add('hidden');
                 players.forEach(p => {
                     const item = document.createElement('div');
-                    item.className = 'flex justify-between items-center bg-amber-50 p-2.5 rounded-2xl border-2 border-amber-300 text-sm shadow-sm';
+                    item.className = 'flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-300 text-sm shadow-sm';
 
                     item.innerHTML = `
                         <div class="flex items-center gap-2 truncate">
-                            <span class="text-xl">${p.isAI ? '🦉' : '🎒'}</span>
-                            <span class="font-black text-stone-800 truncate">${p.displayName || p.name}</span>
+                            <span class="text-xl">${p.isAI ? '📜' : '🎓'}</span>
+                            <span class="font-black text-slate-800 truncate">${p.displayName || p.name}</span>
                         </div>
                         <div class="flex items-center flex-shrink-0">
-                            <span class="text-[11px] ${p.isAI ? 'bg-purple-100 text-purple-800 border border-purple-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'} px-2 py-0.5 rounded-full font-black">
-                                ${p.isAI ? '小夥伴' : '已報到'}
+                            <span class="text-[11px] ${p.isAI ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-teal-100 text-teal-900 border border-teal-300'} px-2 py-0.5 rounded-full font-black">
+                                ${p.isAI ? 'AI' : '已報到'}
                             </span>
                         </div>
                     `;
@@ -1031,19 +1035,19 @@
             const aiToAddCount = parseInt(document.getElementById('select-ai-count').value, 10);
             gameMode = document.getElementById('select-game-mode').value;
 
-            // 可愛動物學院 AI 小夥伴
+            // 書院風格 AI 陪練角色
             const aiProfilesPool = shuffleArray([
-                { baseName: '博士貓頭鷹', icon: '🦉', min: 85, max: 95 },
-                { baseName: '慢活小烏龜', icon: '🐢', min: 35, max: 60 },
-                { baseName: '機靈小狐狸', icon: '🦊', min: 65, max: 85 },
-                { baseName: '跳跳小白兔', icon: '🐰', min: 55, max: 80 }
+                { baseName: '翰林大學士', icon: '📜', min: 85, max: 96 },
+                { baseName: '藏書閣書僮', icon: '🏮', min: 40, max: 65 },
+                { baseName: '詩仙小李白', icon: '🖋️', min: 70, max: 88 },
+                { baseName: '博學小書生', icon: '📖', min: 55, max: 80 }
             ]);
 
             if (aiToAddCount > 0) {
                 for (let i = 0; i < aiToAddCount; i++) {
                     const profile = aiProfilesPool.pop();
                     const intensity = getRandomInt(profile.min, profile.max);
-                    const fullName = `${profile.icon} ${profile.baseName}(Lv.${intensity})`;
+                    const fullName = `${profile.icon} ${profile.baseName}(${intensity}%)`;
 
                     players.push({
                         id: 'ai_' + Date.now() + '_' + i,
@@ -1082,12 +1086,12 @@
 
                 if (redList.length !== whiteList.length) {
                     const targetTeam = redList.length < whiteList.length ? 'red' : 'white';
-                    const fallbackProfile = aiProfilesPool.length > 0 ? aiProfilesPool.pop() : { baseName: '熱心小熊', icon: '🐻', min: 60, max: 80 };
+                    const fallbackProfile = aiProfilesPool.length > 0 ? aiProfilesPool.pop() : { baseName: '書院助教', icon: '🎓', min: 65, max: 85 };
                     const intensity = getRandomInt(fallbackProfile.min, fallbackProfile.max);
 
                     players.push({
                         id: 'ai_balance_' + Date.now(),
-                        name: `${fallbackProfile.icon} ${fallbackProfile.baseName}(Lv.${intensity})`,
+                        name: `${fallbackProfile.icon} ${fallbackProfile.baseName}(${intensity}%)`,
                         displayName: `${fallbackProfile.icon} ${fallbackProfile.baseName}`,
                         conn: null,
                         team: targetTeam,
@@ -1199,12 +1203,12 @@
                 });
             });
 
-            document.getElementById('question-number').innerText = `第 ${String(index + 1).padStart(2, '0')} / ${quizDatabase.length} 題`;
+            document.getElementById('question-number').innerText = `QUESTION ${String(index + 1).padStart(2, '0')}/${quizDatabase.length}`;
             
             const cleanQuestion = qData.question.replace(/^\d+\.\s*/, '');
             document.getElementById('question-text').innerText = cleanQuestion;
 
-            document.getElementById('timer-text').innerText = `⏱️ 倒數 ${maxTime} 秒`;
+            document.getElementById('timer-text').innerText = `⏱️ 倒數 ${maxTime}s`;
             document.getElementById('timer-bar').style.width = '100%';
             document.getElementById('round-status-hint').innerText = '等待第一位同學搶答...';
 
@@ -1218,25 +1222,25 @@
             container.innerHTML = '';
             const labels = ['A', 'B', 'C', 'D'];
             const colorClasses = [
-                'bg-sky-50 border-sky-400 text-sky-950',
-                'bg-emerald-50 border-emerald-400 text-emerald-950',
-                'bg-amber-50 border-amber-400 text-amber-950',
-                'bg-rose-50 border-rose-400 text-rose-950'
+                'bg-indigo-50/80 border-indigo-400 text-indigo-950',
+                'bg-teal-50/80 border-teal-500 text-teal-950',
+                'bg-amber-50/80 border-amber-500 text-amber-950',
+                'bg-rose-50/80 border-rose-400 text-rose-950'
             ];
             const badgeColors = [
-                'bg-sky-500 text-white border-2 border-sky-700',
-                'bg-emerald-500 text-white border-2 border-emerald-700',
-                'bg-amber-400 text-white border-2 border-amber-600',
-                'bg-rose-500 text-white border-2 border-rose-700'
+                'bg-indigo-700 text-white',
+                'bg-teal-700 text-white',
+                'bg-amber-600 text-white',
+                'bg-rose-700 text-white'
             ];
 
             options.forEach((optText, i) => {
                 const btn = document.createElement('div');
                 btn.id = `option-item-${i}`;
-                btn.className = `option-btn w-full p-4 md:p-5 rounded-2xl border-4 ${colorClasses[i]} flex items-center gap-5 pointer-events-none transition-all duration-300 shadow-md`;
+                btn.className = `option-btn w-full p-4 md:p-5 rounded-2xl border-2 ${colorClasses[i]} flex items-center gap-5 pointer-events-none transition-all duration-300 shadow-sm`;
                 btn.innerHTML = `
                     <span class="w-14 h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center justify-center rounded-2xl ${badgeColors[i]} font-black text-3xl md:text-4xl shadow-sm">${labels[i]}</span>
-                    <span class="text-stone-800 text-2xl md:text-3xl lg:text-4xl font-black leading-snug text-left flex-grow truncate">${optText}</span>
+                    <span class="text-slate-800 text-2xl md:text-3xl lg:text-4xl font-black leading-snug text-left flex-grow truncate">${optText}</span>
                 `;
                 container.appendChild(btn);
             });
@@ -1260,15 +1264,15 @@
             
             sortedPlayers.forEach((p, rank) => {
                 const card = document.createElement('div');
-                let borderClass = 'border-amber-200 bg-amber-50/60';
-                let statusBadge = '<span class="text-xs md:text-sm text-stone-400 font-bold">思考中</span>';
+                let borderClass = 'border-slate-200 bg-slate-50/80';
+                let statusBadge = '<span class="text-xs md:text-sm text-slate-400 font-bold">思考中</span>';
 
                 if (!p.isQualified && stage === 2) {
-                    borderClass = 'border-stone-200 bg-stone-100 opacity-50';
-                    statusBadge = '<span class="text-xs md:text-sm text-stone-500 font-black">啦啦隊</span>';
+                    borderClass = 'border-slate-200 bg-slate-100 opacity-45';
+                    statusBadge = '<span class="text-xs md:text-sm text-rose-600 font-black">觀賽</span>';
                 } else if (p.answered) {
-                    borderClass = 'border-emerald-400 bg-emerald-50 shadow-sm';
-                    statusBadge = '<span class="text-xs md:text-sm text-emerald-700 font-black">✓ 已送出</span>';
+                    borderClass = 'border-teal-500 bg-teal-50 shadow-sm';
+                    statusBadge = '<span class="text-xs md:text-sm text-teal-800 font-black">✓ 已作答</span>';
                 }
 
                 const streakBonus = p.streak >= 1 ? ` 🔥${p.streak}連勝(+${p.streak}分)` : '';
@@ -1282,16 +1286,16 @@
                 card.className = `p-2.5 md:p-3 rounded-2xl border-2 ${borderClass} flex items-center justify-between transition-all duration-200 flex-shrink-0`;
                 card.innerHTML = `
                     <div class="flex items-center gap-2.5 truncate max-w-[65%]">
-                        <span class="font-black text-orange-600 text-lg md:text-xl min-w-[30px] text-center">#${rank + 1}</span>
+                        <span class="font-black text-indigo-800 text-lg md:text-xl min-w-[30px] text-center">#${rank + 1}</span>
                         <div class="flex flex-col truncate">
-                            <span class="font-black text-stone-800 text-lg md:text-xl truncate tracking-wide leading-tight flex items-center">
+                            <span class="font-black text-slate-800 text-lg md:text-xl truncate tracking-wide leading-tight flex items-center">
                                 ${teamFlag}${displayName}
                             </span>
-                            <span class="text-xs font-black text-rose-500 leading-tight">${streakBonus ? streakBonus : '&nbsp;'}</span>
+                            <span class="text-xs font-black text-amber-700 leading-tight">${streakBonus ? streakBonus : '&nbsp;'}</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-2.5 flex-shrink-0">
-                        <span class="text-emerald-700 font-black text-xl md:text-2xl">${p.score}</span>
+                        <span class="text-teal-800 font-black text-xl md:text-2xl">${p.score}</span>
                         ${statusBadge}
                     </div>
                 `;
@@ -1304,8 +1308,8 @@
                 const intensity = (ai.aiSpec && ai.aiSpec.intensity) ? ai.aiSpec.intensity : 70;
                 const isCorrect = (Math.random() * 100) < intensity;
 
-                const minDelay = 800 + (100 - intensity) * 20;
-                const maxDelay = 2000 + (100 - intensity) * 30;
+                const minDelay = 700 + (100 - intensity) * 20;
+                const maxDelay = 1800 + (100 - intensity) * 30;
                 let delay = getRandomInt(minDelay, maxDelay);
 
                 const timerId = setTimeout(() => {
@@ -1327,7 +1331,7 @@
 
         function startCountdownTimer() {
             timerStarted = true;
-            document.getElementById('round-status-hint').innerText = '倒數計時開始，快作答！';
+            document.getElementById('round-status-hint').innerText = '倒數計時中，請把握時間！';
 
             const startTime = Date.now();
             const duration = maxTime * 1000;
@@ -1337,7 +1341,7 @@
                 const remainingMs = Math.max(0, duration - elapsed);
                 timeLeft = Math.ceil(remainingMs / 1000);
 
-                document.getElementById('timer-text').innerText = `⏱️ 倒數 ${timeLeft} 秒`;
+                document.getElementById('timer-text').innerText = `⏱️ 倒數 ${timeLeft}s`;
                 document.getElementById('timer-bar').style.width = `${(remainingMs / duration) * 100}%`;
 
                 if (remainingMs <= 0) {
@@ -1365,10 +1369,10 @@
                 const btn = document.getElementById(`option-item-${idx}`);
                 if (btn) {
                     if (idx === correctAns) {
-                        btn.classList.remove('bg-sky-50', 'bg-emerald-50', 'bg-amber-50', 'bg-rose-50');
-                        btn.classList.add('bg-emerald-200', 'border-emerald-600', 'scale-[1.02]', 'shadow-xl', 'z-10');
+                        btn.classList.remove('bg-indigo-50/80', 'bg-teal-50/80', 'bg-amber-50/80', 'bg-rose-50/80');
+                        btn.classList.add('bg-emerald-100', 'border-emerald-600', 'border-4', 'scale-[1.02]', 'shadow-xl', 'z-10');
                     } else {
-                        btn.classList.add('opacity-30', 'grayscale', 'scale-95');
+                        btn.classList.add('opacity-25', 'grayscale', 'scale-95');
                     }
                 }
             }
@@ -1403,7 +1407,7 @@
                 } else {
                     startQuestionFlow(currentQuestionIndex);
                 }
-            }, 1800);
+            }, 1600);
         }
 
         function showIntermission() {
@@ -1452,15 +1456,15 @@
                 const crownCount = p.votes || 0;
 
                 qualifiedList.innerHTML += `
-                    <div class="w-full bg-white border-4 border-amber-400 px-5 py-3.5 rounded-2xl flex items-center justify-between shadow-md transform hover:scale-[1.01] transition">
+                    <div class="w-full bg-[#FAF8F3] border-2 border-amber-500 px-5 py-3.5 rounded-2xl flex items-center justify-between shadow-sm transform hover:scale-[1.01] transition">
                         <div class="flex items-center gap-3.5 truncate">
-                            <span class="text-3xl flex-shrink-0">${p.isAI ? '🦉' : '🎓'}</span>
-                            <span class="font-black text-stone-800 text-xl md:text-2xl truncate">${p.name}</span>
+                            <span class="text-3xl flex-shrink-0">${p.isAI ? '📜' : '🎓'}</span>
+                            <span class="font-black text-slate-900 text-xl md:text-2xl truncate">${p.name}</span>
                         </div>
                         
                         <div class="flex items-center gap-4 flex-shrink-0">
-                            <div class="text-emerald-700 font-black text-xl md:text-2xl">${p.score} 分</div>
-                            <div class="py-1 px-3.5 bg-amber-100 border-2 border-amber-400 rounded-full text-amber-800 font-black text-lg md:text-xl flex items-center gap-1.5 shadow-sm">
+                            <div class="text-teal-800 font-black text-xl md:text-2xl">${p.score} 分</div>
+                            <div class="py-1 px-3.5 bg-amber-100 border border-amber-400 rounded-full text-amber-900 font-black text-lg md:text-xl flex items-center gap-1.5">
                                 <span>👑</span>
                                 <span>X ${crownCount}</span>
                             </div>
@@ -1476,7 +1480,7 @@
             playerGroup.forEach((p, idx) => {
                 const rankNum = startIndex + idx;
                 const item = document.createElement('div');
-                item.className = 'flex flex-col p-2.5 bg-white rounded-xl border-2 border-amber-200 text-sm gap-1 shadow-sm';
+                item.className = 'flex flex-col p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm gap-1';
                 
                 let teamFlag = '';
                 if (gameMode === 'team') {
@@ -1485,11 +1489,11 @@
 
                 item.innerHTML = `
                     <div class="flex items-center gap-2 truncate w-full">
-                        <span class="font-black text-orange-600 text-xs w-6 flex-shrink-0">#${rankNum}</span>
-                        <span class="font-black ${p.isQualified ? 'text-emerald-700' : 'text-stone-700'} truncate">${teamFlag}${p.name}</span>
+                        <span class="font-black text-indigo-800 text-xs w-6 flex-shrink-0">#${rankNum}</span>
+                        <span class="font-black ${p.isQualified ? 'text-teal-800' : 'text-slate-700'} truncate">${teamFlag}${p.name}</span>
                     </div>
                     <div class="text-right w-full pl-8">
-                        <span class="font-black text-stone-600">${p.score} 分</span>
+                        <span class="font-black text-slate-600">${p.score} 分</span>
                     </div>
                 `;
                 container.appendChild(item);
@@ -1557,44 +1561,44 @@
                 const redRatio = ((redTotalScore / totalScoreAll) * 100).toFixed(1);
                 const whiteRatio = ((whiteTotalScore / totalScoreAll) * 100).toFixed(1);
 
-                let winnerBadge = '🤝 紅白兩隊實力相當 平手！';
-                let winnerColor = 'text-orange-600';
+                let winnerBadge = '🤝 雙方勢均力敵 平手！';
+                let winnerColor = 'text-amber-800';
                 if (winningTeam === 'red') {
-                    winnerBadge = '🏆 🔴 紅隊 榮獲團體總冠軍！';
-                    winnerColor = 'text-rose-600';
+                    winnerBadge = '🏆 🔴 紅旗戰隊 榮獲團體總冠軍！';
+                    winnerColor = 'text-rose-700';
                 } else if (winningTeam === 'white') {
-                    winnerBadge = '🏆 ⚪ 白隊 榮獲團體總冠軍！';
-                    winnerColor = 'text-sky-600';
+                    winnerBadge = '🏆 ⚪ 白旗戰隊 榮獲團體總冠軍！';
+                    winnerColor = 'text-indigo-800';
                 }
 
                 centerContainer.innerHTML = `
-                    <span class="text-amber-700 font-black tracking-widest text-sm mb-2 bg-white px-3 py-1 rounded-full border border-amber-300">TEAM CHAMPIONSHIP</span>
-                    <h3 class="text-3xl md:text-4xl font-black ${winnerColor} mb-6 tracking-wide">${winnerBadge}</h3>
+                    <span class="text-amber-800 font-black tracking-widest text-sm mb-2 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">TEAM CHAMPIONSHIP</span>
+                    <h3 class="serif-title text-3xl md:text-4xl font-black ${winnerColor} mb-6 tracking-wide">${winnerBadge}</h3>
 
                     <div class="w-full grid grid-cols-2 gap-4 my-auto">
-                        <div class="bg-rose-100 border-4 border-rose-400 rounded-3xl p-5 flex flex-col items-center justify-center shadow-md">
-                            <span class="text-xl font-black text-rose-800">🔴 紅隊總分</span>
+                        <div class="bg-rose-50 border-2 border-rose-500 rounded-3xl p-5 flex flex-col items-center justify-center shadow-sm">
+                            <span class="text-xl font-black text-rose-800">🔴 紅旗戰隊總分</span>
                             <span class="text-4xl md:text-5xl font-black text-rose-950 my-2">${redTotalScore}</span>
-                            <span class="text-lg font-black text-rose-700 bg-white px-3 py-1 rounded-full border border-rose-300">佔比 ${redRatio}%</span>
+                            <span class="text-lg font-black text-rose-800 bg-white px-3 py-1 rounded-full border border-rose-300">佔比 ${redRatio}%</span>
                         </div>
 
-                        <div class="bg-sky-100 border-4 border-sky-400 rounded-3xl p-5 flex flex-col items-center justify-center shadow-md">
-                            <span class="text-xl font-black text-sky-800">⚪ 白隊總分</span>
-                            <span class="text-4xl md:text-5xl font-black text-sky-950 my-2">${whiteTotalScore}</span>
-                            <span class="text-lg font-black text-sky-700 bg-white px-3 py-1 rounded-full border border-sky-300">佔比 ${whiteRatio}%</span>
+                        <div class="bg-indigo-50 border-2 border-indigo-500 rounded-3xl p-5 flex flex-col items-center justify-center shadow-sm">
+                            <span class="text-xl font-black text-indigo-800">⚪ 白旗戰隊總分</span>
+                            <span class="text-4xl md:text-5xl font-black text-indigo-950 my-2">${whiteTotalScore}</span>
+                            <span class="text-lg font-black text-indigo-800 bg-white px-3 py-1 rounded-full border border-indigo-300">佔比 ${whiteRatio}%</span>
                         </div>
                     </div>
                 `;
             } else {
                 centerContainer.innerHTML = `
-                    <span class="text-amber-800 font-black tracking-widest text-sm mb-3 bg-white px-4 py-1 rounded-full border border-amber-300">TOP 3 WINNERS</span>
+                    <span class="text-amber-800 font-black tracking-widest text-sm mb-3 bg-amber-100 px-4 py-1 rounded-full border border-amber-300">TOP 3 WINNERS</span>
                     <div id="top3-container" class="w-full flex flex-col items-center space-y-4 my-auto"></div>
                 `;
 
                 const top3Container = document.getElementById('top3-container');
                 const top3 = allSortedPlayers.slice(0, 3);
-                const medals = ['🥇 第一名 國文小狀元', '🥈 第二名 榜眼', '🥉 第三名 探花'];
-                const colors = ['border-amber-400 bg-white shadow-xl', 'border-slate-300 bg-white shadow-md', 'border-orange-300 bg-white shadow-md'];
+                const medals = ['🥇 第一名 國文狀元', '🥈 第二名 榜眼', '🥉 第三名 探花'];
+                const colors = ['border-amber-500 bg-[#FAF8F3] shadow-lg', 'border-slate-300 bg-slate-50 shadow-sm', 'border-amber-700/40 bg-orange-50/40 shadow-sm'];
 
                 top3.forEach((p, idx) => {
                     const card = document.createElement('div');
@@ -1603,33 +1607,33 @@
                     if (idx === 0) {
                         card.className = `w-full max-w-md p-5 rounded-3xl border-4 ${colors[idx]} flex flex-col items-center justify-center my-1`;
                         card.innerHTML = `
-                            <span class="text-sm font-black text-amber-900 bg-amber-200 px-4 py-1 rounded-full border border-amber-400 mb-1">👑 國文小狀元王座 👑</span>
+                            <span class="text-sm font-black text-amber-900 bg-amber-200 px-4 py-1 rounded-full border border-amber-400 mb-1">👑 國文狀元王座 👑</span>
                             <div class="text-5xl my-1">🥇</div>
-                            <div class="text-3xl font-black text-stone-800 tracking-wide text-center">${p.name}</div>
+                            <div class="serif-title text-3xl font-black text-slate-900 tracking-wide text-center">${p.name}</div>
                             
-                            <div class="my-2 py-1 px-4 bg-amber-100 border-2 border-amber-400 rounded-full text-amber-800 font-black text-xl flex items-center gap-1.5">
+                            <div class="my-2 py-1 px-4 bg-amber-100 border border-amber-400 rounded-full text-amber-900 font-black text-xl flex items-center gap-1.5">
                                 <span>👑</span>
-                                <span>X ${crownCount} 加油應援</span>
+                                <span>X ${crownCount} 應援</span>
                             </div>
 
-                            <div class="text-2xl font-black text-emerald-700 mt-1">${p.score} 分</div>
+                            <div class="text-2xl font-black text-teal-800 mt-1">${p.score} 分</div>
                         `;
                     } else {
-                        card.className = `w-full max-w-md p-4 rounded-2xl border-4 ${colors[idx]} flex justify-between items-center px-6`;
+                        card.className = `w-full max-w-md p-4 rounded-2xl border-2 ${colors[idx]} flex justify-between items-center px-6`;
                         card.innerHTML = `
                             <div class="flex items-center gap-4">
                                 <span class="text-3xl">${idx === 1 ? '🥈' : '🥉'}</span>
                                 <div class="text-left">
-                                    <span class="text-xs font-black text-stone-500">${medals[idx]}</span>
-                                    <div class="text-2xl font-black text-stone-800">${p.name}</div>
+                                    <span class="text-xs font-black text-slate-500">${medals[idx]}</span>
+                                    <div class="text-2xl font-black text-slate-900">${p.name}</div>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-amber-700 font-black text-base flex items-center gap-1 justify-end">
+                                <div class="text-amber-800 font-black text-base flex items-center gap-1 justify-end">
                                     <span>👑</span>
                                     <span>X ${crownCount}</span>
                                 </div>
-                                <div class="text-xl font-black text-emerald-700 mt-1">${p.score} 分</div>
+                                <div class="text-xl font-black text-teal-800 mt-1">${p.score} 分</div>
                             </div>
                         `;
                     }
@@ -1657,7 +1661,7 @@
                     origin: { x: randomInRange(0.1, 0.4), y: randomInRange(0.2, 0.5) },
                     ticks: 200,
                     gravity: 0.8,
-                    colors: ['#2ECC71', '#FF8C42', '#FFD166', '#3A86FF', '#FF5D8F']
+                    colors: ['#0F766E', '#3730A3', '#B45309', '#C81E1E', '#D97706']
                 });
 
                 confetti({
@@ -1667,7 +1671,7 @@
                     origin: { x: randomInRange(0.6, 0.9), y: randomInRange(0.2, 0.5) },
                     ticks: 200,
                     gravity: 0.8,
-                    colors: ['#2ECC71', '#FF8C42', '#FFD166', '#3A86FF', '#FF5D8F']
+                    colors: ['#0F766E', '#3730A3', '#B45309', '#C81E1E', '#D97706']
                 });
             }, 300);
         }
