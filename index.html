@@ -3,305 +3,1674 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>物資封箱辨識與出貨明細生成系統</title>
+    <title>國小三年級國文知識大亂鬥</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PeerJS & QRCode.js -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kid: {
+                            cream: '#FFFDF5',
+                            sand: '#FEF5E7',
+                            green: '#2ECC71',
+                            darkGreen: '#1E8449',
+                            orange: '#FF8C42',
+                            yellow: '#FFD166',
+                            blue: '#3A86FF',
+                            pink: '#FF5D8F',
+                            purple: '#8338EC',
+                            brown: '#5C4033'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap');
         body {
-            background-color: #f4f7f6;
-            margin: 0;
-            padding: 20px;
-            color: #333;
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FFFDF5;
+            background-image: radial-gradient(#F3E5AB 2px, transparent 2px);
+            background-size: 28px 28px;
+            color: #4A3B32;
+            user-select: none;
+            overflow: hidden;
         }
-        .container {
-            max-width: 1000px;
+
+        * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        *::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        #qrcode canvas, #qrcode img {
             margin: 0 auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: block;
+            max-width: 100%;
+            height: auto;
         }
-        h2 {
-            margin-top: 0;
-            color: #1a56b2;
-            border-bottom: 2px solid #eef2f5;
-            padding-bottom: 15px;
+
+        .kid-card {
+            box-shadow: 0 8px 0 rgba(92, 64, 51, 0.12);
         }
-        .upload-section {
-            border: 2px dashed #b4c6e7;
-            background: #f8faee;
-            padding: 30px;
-            text-align: center;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+
+        .kid-btn {
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+            transition: all 0.12s ease;
         }
-        .upload-section:hover {
-            border-color: #1a56b2;
-            background: #edf3fc;
-        }
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        button {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-primary {
-            background-color: #1a56b2;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #13428d;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-        .preview-img {
-            max-width: 250px;
-            max-height: 250px;
-            margin-top: 15px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-        }
-        .table-container {
-            margin-top: 25px;
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 15px;
-        }
-        th, td {
-            border: 1px solid #dcdcdc;
-            padding: 12px 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #0078d4;
-            color: white;
-            font-weight: 600;
-        }
-        tr:nth-child(even) {
-            background-color: #f9fbfd;
-        }
-        tr:hover {
-            background-color: #f1f5fa;
-        }
-        .text-left {
-            text-align: left;
-        }
-        .summary-bar {
-            margin-top: 15px;
-            padding: 12px 20px;
-            background: #eef4fc;
-            border-radius: 6px;
-            display: flex;
-            gap: 30px;
-            font-weight: bold;
-            color: #1a56b2;
+        .kid-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
-<body>
+<body class="h-screen w-screen flex flex-col justify-between overflow-hidden">
 
-<div class="container">
-    <h2>📦 物資封箱辨識與出貨明細生成系統</h2>
+    <!-- 頂部 Header -->
+    <header id="main-header" class="w-full px-6 py-3 border-b-4 border-amber-200 bg-white/90 backdrop-blur-md flex justify-between items-center z-10 flex-shrink-0 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <span class="text-4xl">📚</span>
+            <h1 class="text-2xl md:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-amber-500 to-orange-500">
+                國小三年級國文知識大亂鬥
+            </h1>
+        </div>
+        <div id="game-stage-badge" class="hidden px-4 py-1.5 rounded-full text-sm md:text-lg font-black bg-amber-100 border-2 border-amber-400 text-amber-800">
+            準備中
+        </div>
+    </header>
 
-    <!-- 上傳區 -->
-    <div class="upload-section" id="dropArea" onclick="document.getElementById('fileInput').click()">
-        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-        <p style="font-size: 16px; margin: 0 0 10px 0; color: #555;">點擊上傳物資照片，或將檔案拖曳至此處</p>
-        <span style="font-size: 13px; color: #888;">支援 JPG, PNG 格式</span>
-        <div id="imagePreviewContainer"></div>
-    </div>
+    <!-- 主要內容區域 -->
+    <main class="flex-grow flex items-center justify-center p-2 md:p-4 relative overflow-hidden">
 
-    <div class="btn-group">
-        <button class="btn-primary" onclick="startProcess()">辨識並生成明細表</button>
-        <button class="btn-secondary" onclick="loadSampleData()">載入範例圖測試</button>
-    </div>
+        <!-- 大螢幕 - 遊戲大廳 / 掃碼進入 -->
+        <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[90vh] bg-white/95 border-4 border-amber-300 rounded-3xl p-4 md:p-6 kid-card relative flex flex-col justify-between overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
+                
+                <!-- 左側：QR Code -->
+                <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b-2 md:border-b-0 md:border-r-2 border-dashed border-amber-200 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
+                    <div class="mb-2 px-5 py-1.5 bg-emerald-100 text-emerald-800 font-black rounded-full border-2 border-emerald-400 text-base md:text-lg">
+                        📱 拿出平板或手機掃描 QR Code 加入挑戰！
+                    </div>
+                    <div class="p-5 bg-gradient-to-br from-emerald-400 via-amber-300 to-orange-400 rounded-3xl shadow-xl my-auto transition-transform hover:scale-[1.02] duration-300 border-4 border-white">
+                        <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-amber-200 flex items-center justify-center shadow-inner"></div>
+                    </div>
+                </div>
 
-    <!-- 表格結果顯示區 -->
-    <div id="resultSection" style="display: none;">
-        <div class="summary-bar">
-            <span>項次小計：<span id="totalItems">0</span></span>
-            <span>總數量：<span id="totalQty">0</span></span>
+                <!-- 右側：玩家名單 & 設定選項 & 開始按鈕 -->
+                <div class="md:col-span-6 lg:col-span-5 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
+                    <div class="flex-grow flex flex-col overflow-hidden">
+                        <h2 class="text-2xl md:text-3xl font-black text-emerald-700 mb-3 flex items-center justify-between flex-shrink-0">
+                            <span class="flex items-center gap-2">🎒 報到小朋友名單</span>
+                            <span id="player-count-badge" class="text-xl bg-amber-100 text-amber-800 px-4 py-1.5 rounded-full font-black border-2 border-amber-400">0 人</span>
+                        </h2>
+
+                        <!-- 人員列表區塊 -->
+                        <div id="player-list-lobby" class="grid grid-cols-2 lg:grid-cols-3 gap-2.5 overflow-y-auto max-h-[220px] flex-grow content-start pr-1 mb-2">
+                            <div class="col-span-full text-amber-700/70 bg-amber-50/80 text-center py-8 font-bold border-2 border-dashed border-amber-300 rounded-2xl text-lg">
+                                還沒看到小朋友進來喔～快掃描左邊的條碼吧！
+                            </div>
+                        </div>
+
+                        <!-- 尚未有人員加入時顯示的 2 大規則提示 -->
+                        <div id="lobby-rules-box" class="w-full bg-amber-50 border-2 border-amber-200 rounded-2xl p-3 text-xs md:text-sm text-stone-700 space-y-2 mb-2">
+                            <div class="font-black text-orange-600 flex items-center gap-1.5 border-b border-amber-200 pb-1 text-base">
+                                📜 國文大冒險規則說明
+                            </div>
+                            <div class="space-y-1 text-stone-600 font-bold">
+                                <p><strong class="text-blue-600">1. 積分計算方式：</strong> 答對基本分 20 分！搶答越快加越多分（第1名+10分、第2名+9分...），連續答對還有「連勝加分」喔！</p>
+                                <p><strong class="text-emerald-600">2. 搶答倒數計時：</strong> 題目出現後，只要有人送出第一個答案，就會開始倒數計時（初賽 5 秒、決賽 3 秒）！</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 遊戲參數設定區塊 -->
+                    <div class="w-full flex-shrink-0 bg-emerald-50/90 border-2 border-emerald-200 rounded-2xl p-3 my-1">
+                        <h3 class="text-emerald-800 font-black text-sm mb-2 flex items-center gap-2">
+                            ⚙️ 老師設定區
+                        </h3>
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                            <div class="flex flex-col gap-1">
+                                <label for="select-game-mode" class="text-xs text-stone-600 font-black">比賽方式</label>
+                                <select id="select-game-mode" class="bg-white text-stone-800 font-bold p-2 rounded-xl border-2 border-emerald-300 outline-none focus:border-orange-400 cursor-pointer text-sm">
+                                    <option value="solo" selected>個人賽</option>
+                                    <option value="team">紅白對抗賽</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label for="select-stage1-count" class="text-xs text-stone-600 font-black">初賽題數</label>
+                                <select id="select-stage1-count" class="bg-white text-stone-800 font-bold p-2 rounded-xl border-2 border-emerald-300 outline-none focus:border-orange-400 cursor-pointer text-sm">
+                                    <option value="5" selected>5 題</option>
+                                    <option value="10">10 題</option>
+                                    <option value="15">15 題</option>
+                                    <option value="20">20 題</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label for="select-stage2-count" class="text-xs text-stone-600 font-black">決賽題數</label>
+                                <select id="select-stage2-count" class="bg-white text-stone-800 font-bold p-2 rounded-xl border-2 border-emerald-300 outline-none focus:border-orange-400 cursor-pointer text-sm">
+                                    <option value="3" selected>3 題</option>
+                                    <option value="5">5 題</option>
+                                    <option value="7">7 題</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label for="select-ai-count" class="text-xs text-stone-600 font-black">電腦小夥伴</label>
+                                <select id="select-ai-count" class="bg-white text-stone-800 font-bold p-2 rounded-xl border-2 border-emerald-300 outline-none focus:border-orange-400 cursor-pointer text-sm">
+                                    <option value="0" selected>0 位</option>
+                                    <option value="1">1 位</option>
+                                    <option value="2">2 位</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="lobby-start-box" class="w-full pt-1 flex-shrink-0">
+                        <button id="btn-start-game" class="kid-btn w-full py-3.5 text-2xl font-black text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl hover:brightness-105 border-2 border-emerald-700">
+                            🚀 開始國文大挑戰！
+                        </button>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 60px;">項次</th>
-                        <th style="width: 140px;">銷帳品號</th>
-                        <th>品牌品名規格(可自行修改補充)</th>
-                        <th style="width: 100px;">出貨數量</th>
-                        <th style="width: 70px;">單位</th>
-                        <th style="width: 80px;">庫別</th>
-                        <th style="width: 120px;">效期</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- 內容動態生成 -->
-                </tbody>
-            </table>
+        <!-- 手機端 - 玩家控制器/答題器 -->
+        <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-amber-50 p-4 flex-col justify-between overflow-hidden">
+            <div id="mobile-top-bar" class="text-center space-y-1 flex-shrink-0 bg-white p-3 rounded-2xl border-2 border-amber-300 shadow-sm">
+                <span class="text-3xl">✏️</span>
+                <h2 class="text-2xl font-black text-emerald-700">國文答題遙控器</h2>
+                <p id="player-mobile-name" class="text-orange-600 font-bold text-base">正在連線到大螢幕...</p>
+                <div id="mobile-team-badge" class="hidden text-sm font-black px-3 py-1 rounded-full w-max mx-auto border-2 shadow-sm"></div>
+                <div id="mobile-question-banner" class="hidden bg-amber-100 border-2 border-amber-400 py-1.5 px-4 rounded-xl text-amber-900 font-black text-lg mt-2">
+                    第 1 題
+                </div>
+            </div>
+
+            <div id="mobile-join-form" class="space-y-4 bg-white p-6 rounded-3xl border-4 border-amber-300 my-auto shadow-lg">
+                <label class="block text-center font-black text-stone-700 text-lg">請輸入你的座號或名字</label>
+                <input type="text" id="mobile-name-input" maxlength="8" placeholder="例如：3號王小明" 
+                    class="w-full bg-amber-50 border-2 border-amber-400 p-4 rounded-2xl text-center text-stone-800 text-xl font-black focus:border-emerald-500 outline-none">
+                
+                <button id="btn-mobile-join" class="kid-btn w-full py-4 bg-gradient-to-r from-orange-400 to-amber-500 text-white font-black text-xl rounded-2xl border-2 border-orange-600">
+                    🙋‍♂️ 我準備好了！
+                </button>
+            </div>
+
+            <!-- 答題器按鈕 -->
+            <div id="mobile-answers-grid" class="hidden grid-cols-2 gap-4 w-full h-full max-h-[60vh] my-auto items-stretch p-1">
+                <button id="mobile-btn-0" onclick="mobileSubmitAnswer(0)" class="mobile-answer-btn kid-btn w-full h-full bg-sky-500 active:bg-sky-600 rounded-3xl text-5xl font-black text-white flex items-center justify-center border-4 border-sky-700">A</button>
+                <button id="mobile-btn-1" onclick="mobileSubmitAnswer(1)" class="mobile-answer-btn kid-btn w-full h-full bg-emerald-500 active:bg-emerald-600 rounded-3xl text-5xl font-black text-white flex items-center justify-center border-4 border-emerald-700">B</button>
+                <button id="mobile-btn-2" onclick="mobileSubmitAnswer(2)" class="mobile-answer-btn kid-btn w-full h-full bg-amber-400 active:bg-amber-500 rounded-3xl text-5xl font-black text-white flex items-center justify-center border-4 border-amber-600">C</button>
+                <button id="mobile-btn-3" onclick="mobileSubmitAnswer(3)" class="mobile-answer-btn kid-btn w-full h-full bg-rose-500 active:bg-rose-600 rounded-3xl text-5xl font-black text-white flex items-center justify-center border-4 border-rose-700">D</button>
+            </div>
+
+            <!-- 手機端 - 決賽應援投票面板 -->
+            <div id="mobile-vote-section" class="hidden my-auto flex-col space-y-3 bg-white border-4 border-amber-400 p-4 rounded-3xl overflow-hidden shadow-lg">
+                <div class="text-center">
+                    <span class="text-4xl animate-bounce inline-block">👑</span>
+                    <h3 class="text-xl font-black text-orange-600">幫決賽同學加油打氣！</h3>
+                    <p class="text-xs text-stone-600 mt-0.5 font-bold">點選皇冠送出愛心應援，會出現在大螢幕上喔！</p>
+                </div>
+                <div id="mobile-vote-list" class="space-y-2.5 max-h-[45vh] overflow-y-auto pr-1"></div>
+                <div id="mobile-vote-status" class="text-center text-sm font-black text-emerald-700 hidden bg-emerald-100 border-2 border-emerald-400 p-2 rounded-xl">
+                    👑 成功送出加油皇冠囉！
+                </div>
+            </div>
+
+            <!-- 手機端 - 最終結算 -->
+            <div id="mobile-final-result" class="hidden my-auto flex-col items-center justify-center space-y-4 text-center bg-white border-4 border-amber-400 p-6 rounded-3xl shadow-xl w-full">
+                <span class="text-6xl" id="mobile-result-icon">🏆</span>
+                <h2 class="text-2xl font-black text-orange-600" id="mobile-result-title">挑戰成績單</h2>
+                
+                <div id="mobile-solo-result" class="flex flex-col items-center space-y-1 my-2">
+                    <div class="text-5xl font-black text-stone-800 tracking-wider" id="mobile-result-rank">第 - 名</div>
+                    <div class="text-lg font-bold text-stone-500" id="mobile-result-total">共 - 人</div>
+                    <div class="text-2xl font-black text-stone-700 pt-2">你的總分：<span id="mobile-result-score" class="text-emerald-600">0</span> 分</div>
+                </div>
+
+                <div id="mobile-team-result" class="hidden flex-col items-center space-y-2 w-full my-2 bg-amber-50 p-4 rounded-2xl border-2 border-amber-200">
+                    <div class="text-3xl font-black" id="mobile-team-winner-text">🚩 紅隊 獲勝！</div>
+                    <div class="text-lg font-bold text-stone-700">
+                        隊伍總分：<span id="mobile-team-total-score" class="text-orange-600 font-black">0</span> 分
+                    </div>
+                    <div class="w-full border-t-2 border-amber-200 my-2"></div>
+                    <div class="text-sm font-bold text-stone-500">你的個人表現</div>
+                    <div class="text-xl font-black text-stone-800">
+                        貢獻分數：<span id="mobile-team-user-score" class="text-emerald-600">0</span> 分
+                    </div>
+                    <div class="text-sm font-bold text-blue-600">
+                        隊伍得分佔比：<span id="mobile-team-user-ratio">0%</span>
+                    </div>
+                </div>
+
+                <div id="mobile-result-status" class="text-base font-black text-emerald-700 pt-2">你表現得超級棒！</div>
+            </div>
+
+            <div id="mobile-status-text" class="text-center text-stone-600 font-black py-1 text-sm flex-shrink-0">
+                連線成功！請輸入名字完成報到
+            </div>
         </div>
-    </div>
-</div>
 
-<script>
-// 品號與標準銷帳品號對照表 (不含手寫簡稱)
-const ITEM_MAPPING = {
-    "#01": { sales_code: "AA030001", name_spec: "白米-1000g以下", unit: "個" },
-    "#02": { sales_code: "AA030002", name_spec: "白米-1001～3499g", unit: "個" },
-    "#03": { sales_code: "AA030033", name_spec: "沖泡飲品-盒裝", unit: "個" },
-    "#04": { sales_code: "AA030004", name_spec: "麵條-500g以下", unit: "包" },
-    "#07": { sales_code: "AA030007", name_spec: "館條 大包立體麵", unit: "個" },
-    "#08": { sales_code: "AA030008", name_spec: "罐頭-125g以下", unit: "個" },
-    "#09": { sales_code: "AA030009", name_spec: "湯品/調理包", unit: "個" },
-    "#10": { sales_code: "AA030010", name_spec: "罐頭-126~250g", unit: "個" },
-    "#12": { sales_code: "AA030012", name_spec: "魚/素/肉鬆/乾貨", unit: "個" },
-    "#13": { sales_code: "AA030013", name_spec: "油/醬味料", unit: "個" },
-    "#15": { sales_code: "AA030015", name_spec: "餅乾-201～499g", unit: "個" },
-    "#17": { sales_code: "AA030017", name_spec: "飲料/保久乳/八寶粥", unit: "個" },
-    "#25": { sales_code: "AA030025", name_spec: "冬/米粉-轉出", unit: "包" },
-    "#32": { sales_code: "AA030032", name_spec: "沖泡飲品-罐裝601g以上", unit: "個" },
-    "#34": { sales_code: "AA030034", name_spec: "沖泡飲品-袋裝", unit: "個" },
-    "#35": { sales_code: "AA030035", name_spec: "沖泡飲品-散包", unit: "個" }
-};
+        <!-- 大螢幕 - 題目間隔 Splash -->
+        <div id="view-question-splash" class="hidden fixed inset-0 z-40 bg-amber-100/95 backdrop-blur-md flex flex-col items-center justify-center animate-fade-in">
+            <span class="text-3xl text-orange-600 font-black tracking-widest mb-3">✨ 準備接招 ✨</span>
+            <h1 id="splash-question-number" class="text-7xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-orange-500 to-rose-500 drop-shadow-sm">
+                第 1 題
+            </h1>
+        </div>
 
-// 測試用模擬資料（對應圖片數據，若連接真實 AI 後端，則接接收後端 JSON）
-const SAMPLE_RECOGNITION = [
-    { color: "pink", items: [ { raw: "#34", qty: 1, exp: "20270518" }, { raw: "#34", qty: 2, exp: "20270322" }, { raw: "#15", qty: 3, exp: "20270617" } ] },
-    { color: "pink", items: [ { raw: "#09", qty: 6, exp: "20270127" }, { raw: "#10", qty: 4, exp: "20270612" }, { raw: "#15", qty: 6, exp: "20271020" }, { raw: "#35", qty: 24, exp: "20270330" } ] },
-    { color: "pink", items: [ { raw: "#07", qty: 10, exp: "20271031" }, { raw: "#09", qty: 7, exp: "20270322" }, { raw: "#10", qty: 12, exp: "20270502" }, { raw: "#13", qty: 8, exp: "20270626" } ] },
-    { color: "white", items: [ { raw: "#32", qty: 6, exp: "20270709" } ] },
-    { color: "pink", items: [ { raw: "#13", qty: 1, exp: "20270312" } ] }
-];
+        <!-- 大螢幕 - 遊戲主畫面 -->
+        <div id="view-game" class="hidden w-full h-full max-h-[96vh] grid grid-cols-1 md:grid-cols-12 gap-4 overflow-hidden">
+            
+            <!-- 左側：排行榜 -->
+            <div class="md:col-span-4 lg:col-span-3 bg-white/95 border-4 border-amber-300 rounded-3xl p-3 kid-card flex flex-col justify-between overflow-hidden h-full">
+                <div class="overflow-hidden flex flex-col h-full">
+                    <h3 class="text-stone-800 text-xl md:text-2xl font-black mb-3 flex items-center justify-between flex-shrink-0 border-b-2 border-amber-200 pb-2">
+                        <span>🌟 積分英雄榜</span>
+                        <span id="game-total-players-badge" class="text-base bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border-2 border-emerald-400">0 人</span>
+                    </h3>
 
-let selectedFile = null;
+                    <!-- 團體賽得分看板 -->
+                    <div id="team-scoreboard" class="hidden grid-cols-2 gap-2 mb-3 flex-shrink-0">
+                        <div class="bg-rose-100 border-2 border-rose-400 p-2 rounded-2xl text-center">
+                            <span class="text-xs font-black text-rose-700 block">🔴 紅隊總分</span>
+                            <span id="team-red-score-display" class="text-2xl font-black text-rose-900">0</span>
+                        </div>
+                        <div class="bg-sky-100 border-2 border-sky-400 p-2 rounded-2xl text-center">
+                            <span class="text-xs font-black text-sky-700 block">⚪ 白隊總分</span>
+                            <span id="team-white-score-display" class="text-2xl font-black text-sky-900">0</span>
+                        </div>
+                    </div>
 
-// 選擇檔案預覽
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (file) {
-        selectedFile = file;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('imagePreviewContainer').innerHTML = 
-                `<img src="${e.target.result}" class="preview-img" alt="物資預覽">`;
+                    <div id="players-dashboard" class="flex flex-col space-y-2.5 overflow-y-auto flex-grow pr-1"></div>
+                </div>
+                <div class="mt-2 pt-2 border-t-2 border-amber-200 text-right flex-shrink-0">
+                    <span id="round-status-hint" class="text-emerald-700 font-black text-base">等待第一位同學搶答...</span>
+                </div>
+            </div>
+
+            <!-- 右側：中央答題區 -->
+            <div class="md:col-span-8 lg:col-span-9 bg-white/95 border-4 border-emerald-400 rounded-3xl p-6 md:p-8 kid-card flex flex-col justify-between overflow-hidden h-full">
+                <div class="w-full flex-shrink-0">
+                    <div class="w-full bg-amber-100 h-5 rounded-full mb-4 overflow-hidden border-2 border-amber-300">
+                        <div id="timer-bar" class="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 w-full transition-all duration-100 ease-linear"></div>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-3">
+                        <span id="question-number" class="text-emerald-700 bg-emerald-100 px-4 py-1 rounded-full border-2 border-emerald-300 font-black text-xl md:text-2xl tracking-wider">第 01 / 10 題</span>
+                        <span id="timer-text" class="text-3xl md:text-4xl font-black text-orange-600">⏱️ 準備作答</span>
+                    </div>
+
+                    <div class="w-full overflow-hidden py-3 px-4 mb-4 bg-amber-50/90 rounded-2xl border-2 border-amber-200">
+                        <h2 id="question-text" class="text-2xl md:text-3xl lg:text-4xl font-black text-stone-800 leading-snug tracking-wide">
+                            題目載入中...
+                        </h2>
+                    </div>
+                </div>
+
+                <div id="options-container" class="grid grid-cols-1 gap-3.5 w-full my-auto flex-grow justify-center"></div>
+            </div>
+        </div>
+
+        <!-- 第一階段晉級 / 進入決賽畫面 -->
+        <div id="view-intermission" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-stone-900/70 backdrop-blur-md p-6">
+            <div class="w-full max-w-7xl h-full max-h-[90vh] bg-FFFDF5 bg-white border-4 border-amber-400 rounded-3xl p-6 flex flex-col justify-between shadow-2xl overflow-hidden">
+                
+                <h2 class="text-3xl md:text-5xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-orange-500 to-rose-500 mb-2 flex-shrink-0">
+                    🎉 初賽成績結算與決賽名單 🎉
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
+                    
+                    <div class="md:col-span-3 bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex flex-col justify-between overflow-hidden">
+                        <div class="flex justify-between items-center mb-3 border-b-2 border-amber-200 pb-2 flex-shrink-0">
+                            <span class="font-black text-xl md:text-2xl text-stone-700">參賽名單</span>
+                            <span id="intermission-left-count" class="text-xs bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
+                        </div>
+                        <div id="intermission-left-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
+                    </div>
+
+                    <div class="md:col-span-6 bg-gradient-to-b from-amber-50 to-orange-50 border-4 border-orange-300 rounded-3xl p-6 flex flex-col items-center justify-start text-center overflow-hidden shadow-inner">
+                        <div class="w-full overflow-hidden flex flex-col items-center">
+                            <span class="text-orange-600 text-base font-black tracking-widest bg-white px-4 py-1 rounded-full border border-orange-300">FINALISTS</span>
+                            <h3 class="text-3xl md:text-4xl font-black text-stone-800 mt-2 mb-6">🏆 晉級決賽小高手 🏆</h3>
+                            <div id="qualified-players-list" class="w-full flex flex-col gap-3.5 overflow-y-auto max-h-[55vh] p-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-3 flex flex-col justify-between gap-3 overflow-hidden">
+                        <div class="bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex flex-col justify-between overflow-hidden flex-grow">
+                            <div class="flex justify-between items-center mb-3 border-b-2 border-amber-200 pb-2 flex-shrink-0">
+                                <span class="font-black text-xl md:text-2xl text-stone-700">參賽名單</span>
+                                <span id="intermission-right-count" class="text-xs bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
+                            </div>
+                            <div id="intermission-right-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
+                        </div>
+
+                        <div class="w-full flex-shrink-0">
+                            <button id="btn-start-stage2" class="kid-btn w-full py-4 text-2xl md:text-3xl font-black text-white bg-gradient-to-r from-orange-500 to-rose-500 rounded-2xl hover:brightness-105 border-2 border-orange-700">
+                                🔥 進入總決賽！
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 大螢幕 - 最後得獎頒獎畫面 -->
+        <div id="view-result" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-stone-900/70 backdrop-blur-md p-6">
+            <div class="w-full max-w-7xl h-full max-h-[90vh] bg-white border-4 border-amber-400 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden relative">
+                
+                <h2 class="text-3xl md:text-5xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 mb-2 flex-shrink-0">
+                    🏆 國文小博士頒獎典禮 🏆
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
+                    
+                    <div class="md:col-span-3 bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex flex-col justify-between overflow-hidden">
+                        <div class="flex justify-between items-center mb-3 border-b-2 border-amber-200 pb-2 flex-shrink-0">
+                            <span class="font-black text-xl md:text-2xl text-amber-800">全班排名 (左)</span>
+                            <span id="result-left-count" class="text-xs bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
+                        </div>
+                        <div id="result-left-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
+                    </div>
+
+                    <div class="md:col-span-6 bg-gradient-to-b from-amber-50 to-yellow-50 border-4 border-amber-300 rounded-3xl p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-inner">
+                        <div id="result-center-container" class="w-full flex flex-col items-center">
+                            <span class="text-amber-700 font-black tracking-widest text-sm mb-3">TOP 3 WINNERS</span>
+                            <div id="top3-container" class="w-full flex flex-col items-center space-y-4 my-auto"></div>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-3 bg-amber-50 rounded-2xl p-4 border-2 border-amber-200 flex flex-col justify-between overflow-hidden">
+                        <div class="flex justify-between items-center mb-3 border-b-2 border-amber-200 pb-2 flex-shrink-0">
+                            <span class="font-black text-xl md:text-2xl text-amber-800">全班排名 (右)</span>
+                            <span id="result-right-count" class="text-xs bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full font-black">0 人</span>
+                        </div>
+                        <div id="result-right-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer id="main-footer" class="w-full py-2 px-4 border-t-2 border-amber-200 bg-white/90 text-center text-stone-500 font-bold text-sm flex-shrink-0">
+        快樂學國文・天天進步一點點 | 國小三年級國文知識大亂鬥 (共 100 題精選題庫)
+    </footer>
+
+    <script>
+        // 國小三年級國文 100 題完整題庫
+        const fullQuizDatabase = [
+            // 一、字音與字形 (1-25)
+            { question: "1. 下列哪一個字的讀音和「教」室的「教」相同？", options: ["教書", "比較", "睡覺", "摔跤"], answer: 1 },
+            { question: "2. 「媽媽在市場買了一把空心菜。」句中「空」的讀音是？", options: ["ㄎㄨㄥ", "ㄎㄨㄥˋ", "ㄎㄨㄥˇ", "ㄍㄨㄥ"], answer: 0 },
+            { question: "3. 「這個題目真難，我得好好想一想。」句中「得」的讀音是？", options: ["ㄉㄜˊ", "ㄉㄟˇ", "ㄉㄜ", "ㄉㄧˊ"], answer: 1 },
+            { question: "4. 下列哪一個詞語的用字「完全正確」？", options: ["一望無際", "一望無季", "一忘無際", "一望無計"], answer: 0 },
+            { question: "5. 下列哪一個詞語的用字「完全正確」？", options: ["迫不及待", "迫不急待", "破不及待", "迫不及代"], answer: 0 },
+            { question: "6. 「哥哥的房間整理得十分□□。」空格中應該填入哪個詞語？", options: ["整齊", "整奇", "正齊", "整其"], answer: 0 },
+            { question: "7. 下列哪一個字的部首是「心」部？", options: ["思", "悲", "快", "以上皆是"], answer: 3 },
+            { question: "8. 「街」這個字的部首是什麼？", options: ["彳部", "行部", "土部", "圭部"], answer: 1 },
+            { question: "9. 「聞」這個字的部首是什麼？", options: ["門部", "耳部", "口部", "日部"], answer: 1 },
+            { question: "10. 下列哪一個詞語的「重」讀音是「ㄔㄨㄥˊ」？", options: ["重要", "體重", "重複", "沉重"], answer: 2 },
+            { question: "11. 下列哪一個詞語的「好」讀音是「ㄏㄠˋ」？", options: ["好人", "好奇", "好處", "美好"], answer: 1 },
+            { question: "12. 「他把這件事辦得非常妥當。」句中「當」的讀音是？", options: ["ㄉㄤ", "ㄉㄤˋ", "ㄉㄤˇ", "ㄊㄤ"], answer: 1 },
+            { question: "13. 下列哪一個字去掉部首後，讀音「不會」改變？", options: ["清", "媽", "跑", "花"], answer: 1 },
+            { question: "14. 下列哪一個詞語中有「錯別字」？", options: ["專心致志", "川流不息", "再接再勵", "興高采烈"], answer: 2 },
+            { question: "15. 下列哪一個詞語中有「錯別字」？", options: ["恍然大悟", "自言自語", "守株待兔", "按步就班"], answer: 3 },
+            { question: "16. 「這個西瓜又大又甜，真讓人垂涎三尺。」句中「涎」的讀音是？", options: ["ㄧㄢˊ", "ㄒㄧㄢˊ", "ㄧㄢˋ", "ㄉㄢˋ"], answer: 1 },
+            { question: "17. 下列哪一組字的部首「相同」？", options: ["晴、睛", "海、梅", "想、相", "聞、問"], answer: 2 },
+            { question: "18. 「他因為跑得太快，不小心跌倒了。」句中「跌」的部首是？", options: ["足部", "失部", "走部", "手部"], answer: 0 },
+            { question: "19. 下列哪一個詞語的「散」讀音是「ㄙㄢˇ」？", options: ["散步", "散文", "分散", "解散"], answer: 1 },
+            { question: "20. 下列哪一個詞語的「轉」讀音是「ㄓㄨㄢˇ」？", options: ["旋轉木馬", "轉彎", "團團轉", "轉圈圈"], answer: 1 },
+            { question: "21. 「我們要愛護大自然，不要隨意□□花草。」空格應填入？", options: ["採摘", "彩摘", "採滴", "采摘"], answer: 0 },
+            { question: "22. 「這座橋已經有百年的□□了。」空格應填入？", options: ["歷史", "歷使", "厲史", "立史"], answer: 0 },
+            { question: "23. 下列哪一個字的總筆畫數是「10 畫」？", options: ["家", "海", "起", "以上皆是"], answer: 3 },
+            { question: "24. 「樹」這個字的部首是什麼？", options: ["木部", "寸部", "豆部", "士部"], answer: 0 },
+            { question: "25. 「他總是在背後說別人的壞話。」句中「背」的讀音是？", options: ["ㄅㄟ", "ㄅㄟˋ", "ㄅㄟˇ", "ㄆㄟˋ"], answer: 1 },
+
+            // 二、詞語辨析與近反義詞 (26-50)
+            { question: "26. 「小心翼翼」的意思是什麼？", options: ["非常粗心大意", "非常謹慎小心", "飛得很快的樣子", "生氣的樣子"], answer: 1 },
+            { question: "27. 「五顏六色」和下列哪一個詞語的意思最接近？", options: ["五光十色", "黑白分明", "單調乏味", "一乾二淨"], answer: 0 },
+            { question: "28. 「驕傲」的反義詞是什麼？", options: ["自滿", "謙虛", "得意", "神氣"], answer: 1 },
+            { question: "29. 「炎熱」的反義詞是什麼？", options: ["溫暖", "寒冷", "酷熱", "悶熱"], answer: 1 },
+            { question: "30. 「一隻、一條、一匹、一頭」，哪一個量詞最適合用來形容「馬」？", options: ["一隻", "一條", "一匹", "一頭"], answer: 2 },
+            { question: "31. 下列哪一個量詞的使用「不恰當」？", options: ["一輪明月", "一陣微風", "一顆大樹", "一艘輪船"], answer: 2 },
+            { question: "32. 「他每次考試都名列前茅，真令人□□。」空格中最適合填入？", options: ["羨慕", "嫉妒", "討厭", "傷心"], answer: 0 },
+            { question: "33. 「經過一番努力，他□□完成了這幅拼圖。」空格中最適合填入？", options: ["忽然", "終於", "果然", "竟然"], answer: 1 },
+            { question: "34. 下列哪一個詞語是用來形容「聲音」的？", options: ["綠油油", "靜悄悄", "香噴噴", "亮晶晶"], answer: 1 },
+            { question: "35. 「恍然大悟」的意思是指？", options: ["突然間明白過來", "迷迷糊糊的樣子", "非常害怕的樣子", "忘記所有事情"], answer: 0 },
+            { question: "36. 「雖然下著大雨，□□他還是準時到學校上課。」空格應填入？", options: ["所以", "但是", "因為", "而且"], answer: 1 },
+            { question: "37. 「這道數學題目太難了，我□□想了好久都想不出來。」空格應填入？", options: ["冥思苦想", "異想天開", "胡思亂想", "想入非非"], answer: 0 },
+            { question: "38. 「熱鬧」的近義詞是什麼？", options: ["冷清", "喧鬧", "安靜", "寂寞"], answer: 1 },
+            { question: "39. 「保護」的反義詞是什麼？", options: ["愛護", "守護", "破壞", "照顧"], answer: 2 },
+            { question: "40. 下列哪一個詞語「不是」形容時間過得很快？", options: ["光陰似箭", "日月如梭", "度日如年", "轉眼之間"], answer: 2 },
+            { question: "41. 「他在台上演講時□□□□，一點也不緊張。」空格最適合填入？", options: ["滔滔不絕", "支支吾吾", "結結巴巴", "啞口無言"], answer: 0 },
+            { question: "42. 「烏雲密布，天空暗了下來，□□要下大雨了。」空格最適合填入？", options: ["看來", "原來", "從來", "向來"], answer: 0 },
+            { question: "43. 「粗心大意」的反義詞是？", options: ["馬馬虎虎", "一絲不苟", "丟三落四", "漫不經心"], answer: 1 },
+            { question: "44. 「妹妹收到生日禮物時，高興得□□□□。」空格最適合填入？", options: ["手舞足蹈", "垂頭喪氣", "咬牙切齒", "愁眉苦臉"], answer: 0 },
+            { question: "45. 下列哪一組詞語的關係與「白天—黑夜」相同？", options: ["高興—快樂", "美麗—漂亮", "成功—失敗", "勇敢—無畏"], answer: 2 },
+            { question: "46. 「這座花園裡種滿了花朵，走進去就能聞到一陣陣□□。」空格應填入？", options: ["清香", "清脆", "清澈", "清楚"], answer: 0 },
+            { question: "47. 「溪水非常□□，連水底的小魚都看得一清二楚。」空格應填入？", options: ["清澈", "清潔", "清涼", "清新"], answer: 0 },
+            { question: "48. 「不管遇到什麼困難，我們都要□□面對。」空格最適合填入？", options: ["勇敢", "勇氣", "英勇", "勇猛"], answer: 0 },
+            { question: "49. 「這件衣服既便宜□□好看，媽媽立刻買了下來。」空格應填入？", options: ["又", "也", "還", "更"], answer: 0 },
+            { question: "50. 「弟弟把玩具弄壞了，只能□□地看著爸爸。」空格最適合填入？", options: ["無可奈何", "理直氣壯", "得意洋洋", "神采飛揚"], answer: 0 },
+
+            // 三、成語應用與典故 (51-75)
+            { question: "51. 比喻「做多餘的事，反而弄巧成拙」的成語是？", options: ["畫蛇添足", "畫龍點睛", "守株待兔", "亡羊補牢"], answer: 0 },
+            { question: "52. 比喻「不主動努力，只靠運氣想得到收穫」的成語是？", options: ["愚公移山", "守株待兔", "精衛填海", "聞雞起舞"], answer: 1 },
+            { question: "53. 比喻「見識狹小，自以為是」的成語是？", options: ["井底之蛙", "如魚得水", "狐假虎威", "對牛彈琴"], answer: 0 },
+            { question: "54. 比喻「假借別人的威勢來欺壓人」的成語是？", options: ["虎頭蛇尾", "狐假虎威", "龍飛鳳舞", "雞犬不寧"], answer: 1 },
+            { question: "55. 「亡羊補牢」這個成語告訴我們什麼道理？", options: ["羊不見了就不用管了", "犯錯後及時改正還來得及", "要買很多隻羊", "牢房要蓋得很堅固"], answer: 1 },
+            { question: "56. 形容「人很多，非常擁擠」的成語是？", options: ["人山人海", "空無一人", "門可羅雀", "寥寥無幾"], answer: 0 },
+            { question: "57. 形容「讀書非常勤奮努力」的成語是？", options: ["懸梁刺股", "三心二意", "一曝十寒", "半途而廢"], answer: 0 },
+            { question: "58. 「對牛彈琴」是用來比喻什麼？", options: ["牛很喜歡聽音樂", "對不懂道理的人講道理，白費力氣", "彈琴的技術很好", "動物也有感情"], answer: 1 },
+            { question: "59. 形容「天氣非常寒冷」的成語是？", options: ["冰天雪地", "春暖花開", "烈日當空", "秋高氣爽"], answer: 0 },
+            { question: "60. 「一舉兩得」的意思是什麼？", options: ["做一件事同時得到兩種好處", "舉起兩樣東西", "考了兩次一百分", "做兩件事只得到一個好處"], answer: 0 },
+            { question: "61. 比喻「自欺欺人」的成語是？", options: ["掩耳盜鈴", "自相矛盾", "刻舟求劍", "杯弓蛇影"], answer: 0 },
+            { question: "62. 「三人行，必有我師」這句話勉勵我們要？", options: ["謙虛向別人學習", "出門一定要三個人", "每個人都要當老師", "不要跟別人說話"], answer: 0 },
+            { question: "63. 形容「做事情沒有恆心，常常中斷」的成語是？", options: ["半途而廢", "持之以恆", "堅持不懈", "有始有終"], answer: 0 },
+            { question: "64. 形容「說話算話，非常守信用」的成語是？", options: ["一言九鼎", "信口開河", "胡說八道", "花言巧語"], answer: 0 },
+            { question: "65. 「杯弓蛇影」用來形容人怎麼樣？", options: ["疑神疑鬼，自己嚇自己", "很喜歡喝茶", "畫畫畫得很像", "非常勇敢不怕蛇"], answer: 0 },
+            { question: "66. 形容「兄弟姐妹之間感情非常好」的成語是？", options: ["手足情深", "水火不容", "形同陌路", "針鋒相對"], answer: 0 },
+            { question: "67. 「雪中送炭」的意思是？", options: ["在別人困難時給予及時的幫助", "冬天的時候送木炭去賣", "在雪地裡烤肉", "別人在吃飯時去打擾"], answer: 0 },
+            { question: "68. 形容「非常驚訝，說不出話來」的成語是？", options: ["目瞪口呆", "眉開眼笑", "心花怒放", "泰然自若"], answer: 0 },
+            { question: "69. 「水滴石穿」告訴我們什麼道理？", options: ["只要有恆心，再難的事也能成功", "水滴的力量比石頭大", "石頭很容易破掉", "下雨天不要出門"], answer: 0 },
+            { question: "70. 形容「環境非常安靜，連一點聲音都沒有」的成語是？", options: ["鴉雀無聲", "人聲鼎沸", "震耳欲聾", "鑼鼓喧天"], answer: 0 },
+            { question: "71. 「狐假虎威」這個故事中，真正被百獸害怕的是誰？", options: ["老虎", "狐狸", "獅子", "大象"], answer: 0 },
+            { question: "72. 形容「寫字非常漂亮」的成語是？", options: ["龍飛鳳舞", "鬼畫符", "塗鴉之作", "歪七扭八"], answer: 0 },
+            { question: "73. 「百發百中」通常用來稱讚一個人的什麼本領？", options: ["射箭或射擊非常準確", "跑得非常快", "游泳游得很好", "唱歌很好聽"], answer: 0 },
+            { question: "74. 形容「春天景色非常美麗」的成語是？", options: ["鳥語花香", "大雪紛飛", "落葉歸根", "寒風刺骨"], answer: 0 },
+            { question: "75. 「助人為快樂之本」的意思是？", options: ["幫助別人是快樂的源頭", "只要快樂就能幫助別人", "買書本會很快樂", "別人幫助我才會快樂"], answer: 0 },
+
+            // 四、修辭法、標點符號與句型 (76-90)
+            { question: "76. 「彎彎的月亮像一條小船。」這句話使用了哪一種修辭法？", options: ["譬喻法", "擬人法", "排比法", "誇飾法"], answer: 0 },
+            { question: "77. 「微風輕輕地撫摸著我的臉龐。」這句話使用了哪一種修辭法？", options: ["擬人法", "譬喻法", "設問法", "映襯法"], answer: 0 },
+            { question: "78. 「太陽公公露出了笑臉，向大地說早安。」這句話把太陽當作人來寫，叫做？", options: ["擬人法", "譬喻法", "頂真法", "對偶法"], answer: 0 },
+            { question: "79. 下列哪一個句子是「設問句」（有問有答或提出問題）？", options: ["今天的天氣真好啊！", "你知道為什麼天空是藍色的嗎？", "我們一起去公園玩吧！", "桌上有三本故事書。"], answer: 1 },
+            { question: "80. 書信或文章中，用來標示「書名或篇名」的標點符號是？", options: ["引號「」", "書名號《》", "驚嘆號！", "頓號、"], answer: 1 },
+            { question: "81. 句子中用來表示「並列詞語之間的停頓」（例如：蘋果、香蕉、橘子），要用什麼符號？", options: ["逗號，", "頓號、", "分號；", "句號。"], answer: 1 },
+            { question: "82. 「哇！這座城堡真是太壯觀了！」句尾應該使用哪個標點符號？", options: ["句號。", "問號？", "驚嘆號！", "頓號、"], answer: 2 },
+            { question: "83. 下列哪一個句子「沒有」語病，最通順？", options: ["我把功課寫完了已經。", "因為今天下雨，所以運動會延期。", "他穿著一件紅色的衣服和帽子。", "我非常喜歡吃蘋果和運動。"], answer: 1 },
+            { question: "84. 「花園裡有紅的花，有黃的花，還有紫的花。」這句話運用了哪種修辭？", options: ["排比法", "誇飾法", "轉化法", "倒反法"], answer: 0 },
+            { question: "85. 引述別人說的話時，前後應該加上什麼標點符號？", options: ["引號「」", "括號（）", "書名號《》", "破折號──"], answer: 0 },
+            { question: "86. 「他餓得可以吞下一頭大象。」這句話使用了哪一種修辭法？", options: ["誇飾法", "擬人法", "設問法", "引用法"], answer: 0 },
+            { question: "87. 「不但……而且……」是屬於哪一種關係的複句？", options: ["遞進關係", "轉折關係", "因果關係", "假設關係"], answer: 0 },
+            { question: "88. 下列哪一個詞語是「動詞」？", options: ["跑步", "快樂", "蘋果", "漂亮"], answer: 0 },
+            { question: "89. 下列哪一個詞語是「形容詞」？", options: ["溫柔", "跳舞", "書包", "學校"], answer: 0 },
+            { question: "90. 「只要有恆心，鐵杵也能磨成繡花針。」這句話屬於哪種複句？", options: ["條件關係", "轉折關係", "並列關係", "選擇關係"], answer: 0 },
+
+            // 五、國學常識與閱讀生活應用 (91-100)
+            { question: "91. 「床前明月光，疑是地上霜。」這首著名的唐詩〈靜夜思〉的作者是誰？", options: ["李白", "杜甫", "白居易", "王維"], answer: 0 },
+            { question: "92. 「春眠不覺曉，處處聞啼鳥。」這首詩〈春曉〉描寫的是哪一個季節？", options: ["春天", "夏天", "秋天", "冬天"], answer: 0 },
+            { question: "93. 「誰知盤中飧，粒粒皆辛苦。」這首〈憫農詩〉告訴我們要？", options: ["珍惜食物，不要浪費", "多吃一點白飯", "去田裡幫忙種田", "盤子要洗乾淨"], answer: 0 },
+            { question: "94. 農曆五月初五是「端午節」，下列哪一項不是端午節的習俗？", options: ["吃粽子", "划龍舟", "賞月吃月餅", "掛艾草、菖蒲"], answer: 2 },
+            { question: "95. 農曆八月十五日是什麼傳統節日？", options: ["中秋節", "元宵節", "重陽節", "清明節"], answer: 0 },
+            { question: "96. 寫信給長輩（例如爺爺、老師）時，信末的祝福語最適合用哪一個？", options: ["敬祝 身體健康", "祝你 學業進步", "祝你 快高長大", "祝你 考試一百分"], answer: 0 },
+            { question: "97. 查字典時，如果知道字的讀音，不知道部首，應該用哪一種查字法最快？", options: ["注音符號檢字法", "部首檢字法", "總筆畫檢字法", "難檢字表"], answer: 0 },
+            { question: "98. 「文房四寶」指的是哪四樣書寫工具？", options: ["筆、墨、紙、硯", "琴、棋、書、畫", "鉛筆、橡皮擦、尺、墊板", "書包、課本、作業、鉛筆盒"], answer: 0 },
+            { question: "99. 中國古代發明的「造紙術」是由哪一位歷史人物改進的？", options: ["蔡倫", "畢昇", "張衡", "祖沖之"], answer: 0 },
+            { question: "100. 閱讀文章時，如果遇到不懂的詞語，下列哪一種做法最正確？", options: ["查字典或從前後文推測意思", "直接跳過不看", "把書本合起來不讀了", "隨便亂猜一個意思"], answer: 0 }
+        ];
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        let quizDatabase = [];
+        let peer = null;
+        let hostConn = null;
+        let players = [];
+        let myPlayerId = null;
+        let gameMode = 'solo';
+        let currentQuestionIndex = 0;
+        let stage = 1;
+        let stage1Count = 5;
+        let stage2Count = 3;
+        let stage2AdvancingCount = 2;
+        let timerInterval = null;
+        let aiTimeouts = [];
+        let isTransitioning = false;
+        let timerStarted = false;
+        let timeLeft = 0;
+        let maxTime = 5;
+        let answerOrderCounter = 0;
+        let hasSubmittedCurrentAnswer = false;
+        let hasVotedStage2 = false;
+
+        let audioCtx = null;
+        let currentBgmType = null;
+        let bgmTimeoutId = null;
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hostId = urlParams.get('host');
+
+            if (hostId) {
+                document.getElementById('main-header').classList.add('hidden');
+                document.getElementById('main-footer').classList.add('hidden');
+                document.getElementById('view-lobby').style.display = 'none';
+                document.getElementById('view-player-mobile').classList.remove('hidden');
+                document.getElementById('view-player-mobile').classList.add('flex');
+                initMobileController(hostId);
+            } else {
+                initHostPeer();
+            }
         };
-        reader.readAsDataURL(file);
-    }
-}
 
-// 判定純文字庫別：白色 -> 005, 藍色 -> 0058, 其它 -> 0059
-function getWarehouseCode(color) {
-    if (color === "white") return "005";
-    if (color === "blue") return "0058";
-    return "0059";
-}
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
 
-// 日期統一格式化為 YYYYMMDD
-function formatYYYYMMDD(dateStr) {
-    return String(dateStr).replace(/\D/g, '');
-}
+        function playSingleNote(freq, duration, type = 'triangle', gainValue = 0.12) {
+            if (!audioCtx || freq <= 0) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(gainValue, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration * 0.95);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
 
-// 執行辨識並生成表格
-function startProcess() {
-    // 此處為模擬 Vision 解析與歸併邏輯（後端直接傳回相同結構即可）
-    processAndRenderData(SAMPLE_RECOGNITION);
-}
+        // 活潑輕快的校園猜謎背景音樂 (初賽)
+        function playStage1Bgm() {
+            initAudio();
+            stopBgm();
+            currentBgmType = 'stage1';
 
-function loadSampleData() {
-    document.getElementById('imagePreviewContainer').innerHTML = 
-        `<p style="color:#1a56b2; font-weight:bold;">已載入範例圖片檔 (物資圖.jpg)</p>`;
-    processAndRenderData(SAMPLE_RECOGNITION);
-}
+            const N = { 
+                C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880.00, G4: 392.00
+            };
+            const bpm = 150;
+            const beat = 60 / bpm;
 
-// 資料歸併與表格繪製核心
-function processAndRenderData(stickersData) {
-    let rawRecords = [];
+            const sequence = [
+                { f: N.C5, d: 0.5 }, { f: N.E5, d: 0.5 }, { f: N.G5, d: 0.5 }, { f: N.E5, d: 0.5 },
+                { f: N.A5, d: 0.5 }, { f: N.G5, d: 0.5 }, { f: N.E5, d: 0.5 }, { f: N.D5, d: 0.5 },
+                { f: N.C5, d: 0.5 }, { f: N.D5, d: 0.5 }, { f: N.E5, d: 0.5 }, { f: N.C5, d: 0.5 },
+                { f: N.G4, d: 1.0 }, { f: N.G5, d: 1.0 }
+            ];
 
-    stickersData.forEach(sticker => {
-        const warehouseCode = getWarehouseCode(sticker.color); // 純文字庫別 (005 / 0058 / 0059)
-        
-        sticker.items.forEach(item => {
-            const mapped = ITEM_MAPPING[item.raw] || {
-                sales_code: "AA039999",
-                name_spec: `未知名稱 (${item.raw})`,
-                unit: "個"
+            let step = 0;
+            function loop() {
+                if (currentBgmType !== 'stage1') return;
+                const item = sequence[step];
+                if (item.f > 0) playSingleNote(item.f, item.d * beat, 'triangle', 0.14);
+                step = (step + 1) % sequence.length;
+                bgmTimeoutId = setTimeout(loop, item.d * beat * 1000);
+            }
+            loop();
+        }
+
+        // 緊張刺激的總決賽背景音樂 (決賽)
+        function playStage2Bgm() {
+            initAudio();
+            stopBgm();
+            currentBgmType = 'stage2';
+            const beat = 60 / 135;
+            const sequence = [
+                { f: 293.66, d: 0.25 }, { f: 311.13, d: 0.25 }, { f: 329.63, d: 0.25 },
+                { f: 261.63, d: 0.25 }, { f: 277.18, d: 0.25 }, { f: 293.66, d: 0.25 }
+            ];
+
+            let step = 0;
+            function loop() {
+                if (currentBgmType !== 'stage2') return;
+                const item = sequence[step];
+                playSingleNote(item.f, item.d * beat, 'triangle', 0.16);
+                step = (step + 1) % sequence.length;
+                bgmTimeoutId = setTimeout(loop, item.d * beat * 1000);
+            }
+            loop();
+        }
+
+        // 頒獎典禮勝利號角音效
+        function playVictoryFanfare() {
+            initAudio();
+            stopBgm();
+            currentBgmType = 'victory';
+
+            const N = {
+                G3: 196.00, C4: 261.63, E4: 329.63, G4: 392.00,
+                C5: 523.25, E5: 659.25, G5: 783.99, A5b: 830.61, B5b: 932.33,
+                D5: 587.33, F5: 698.46, C6: 1046.50
             };
 
-            rawRecords.push({
-                sales_code: mapped.sales_code,      // 銷帳品號（純代碼，不含手寫簡稱）
-                name_spec: mapped.name_spec,
-                quantity: Number(item.qty),         // 數量
-                unit: mapped.unit,
-                warehouse: warehouseCode,           // 純文字庫別
-                expiry_date: formatYYYYMMDD(item.exp) // YYYYMMDD 格式效期
-            });
-        });
-    });
+            const fanfare = [
+                { f: N.G3, d: 0.18 }, { f: N.C4, d: 0.18 }, { f: N.E4, d: 0.18 },
+                { f: N.G4, d: 0.18 }, { f: N.C5, d: 0.18 }, { f: N.E5, d: 0.18 },
+                { f: N.G5, d: 0.5 }, { f: N.E5, d: 0.5 },
+                
+                { f: N.A5b, d: 0.2 }, { f: N.C5, d: 0.2 }, { f: N.E5, d: 0.2 }, { f: N.A5b, d: 0.5 },
+                { f: N.B5b, d: 0.2 }, { f: N.D5, d: 0.2 }, { f: N.F5, d: 0.2 }, { f: N.B5b, d: 0.5 },
+                
+                { f: N.C5, d: 0.2 }, { f: N.E5, d: 0.2 }, { f: N.G5, d: 0.2 }, { f: N.C6, d: 1.8 }
+            ];
 
-    // 相同銷帳品號 + 庫別 + 效期 -> 數量自動累加 (Group By)
-    const aggregatedMap = new Map();
-
-    rawRecords.forEach(rec => {
-        const key = `${rec.sales_code}_${rec.warehouse}_${rec.expiry_date}`;
-        if (aggregatedMap.has(key)) {
-            const existing = aggregatedMap.get(key);
-            existing.quantity += rec.quantity;
-        } else {
-            aggregatedMap.set(key, { ...rec });
+            let i = 0;
+            function playNext() {
+                if (i >= fanfare.length || currentBgmType !== 'victory') return;
+                const note = fanfare[i];
+                playSingleNote(note.f, note.d, 'triangle', 0.25);
+                i++;
+                bgmTimeoutId = setTimeout(playNext, note.d * 1000);
+            }
+            playNext();
         }
-    });
 
-    const finalData = Array.from(aggregatedMap.values());
+        function stopBgm() {
+            currentBgmType = null;
+            if (bgmTimeoutId) {
+                clearTimeout(bgmTimeoutId);
+                bgmTimeoutId = null;
+            }
+        }
 
-    // 渲染至 HTML 表格
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
+        function initHostPeer() {
+            peer = new Peer();
+            
+            peer.on('open', (id) => {
+                const joinUrl = `${window.location.href.split('?')[0]}?host=${id}`;
+                document.getElementById("qrcode").innerHTML = "";
+                
+                new QRCode(document.getElementById("qrcode"), {
+                    text: joinUrl,
+                    width: 440,
+                    height: 440
+                });
+            });
 
-    let totalQtyCount = 0;
+            peer.on('connection', (conn) => {
+                conn.on('open', () => {
+                    conn.on('data', (data) => {
+                        if (data.type === 'JOIN') {
+                            addPlayer(data.name, conn, data.playerId);
+                        } else if (data.type === 'SUBMIT_ANSWER') {
+                            handleAnswerSubmission(data.playerId, data.choice);
+                        } else if (data.type === 'VOTE_PLAYER') {
+                            const target = players.find(p => p.id === data.targetId);
+                            if (target) {
+                                target.votes = (target.votes || 0) + 1;
+                                renderQualifiedListUI();
+                            }
+                        }
+                    });
 
-    finalData.forEach((row, index) => {
-        totalQtyCount += row.quantity;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${row.sales_code}</td>
-            <td class="text-left">${row.name_spec}</td>
-            <td>${String(row.quantity)}</td>
-            <td>${row.unit}</td>
-            <td>${row.warehouse}</td>
-            <td>${row.expiry_date}</td>
-        `;
-        tbody.appendChild(tr);
-    });
+                    conn.on('close', () => {
+                        players = players.filter(p => p.conn !== conn);
+                        renderLobbyPlayers();
+                    });
+                });
+            });
+        }
 
-    // 更新統計數據
-    document.getElementById('totalItems').innerText = finalData.length;
-    document.getElementById('totalQty').innerText = totalQtyCount;
-    document.getElementById('resultSection').style.display = 'block';
-}
-</script>
+        function handleAnswerSubmission(playerId, choice) {
+            const target = players.find(p => p.id === playerId);
+            if (target && !target.answered && target.isQualified && !isTransitioning) {
+                target.answered = true;
+                target.choice = choice;
+                
+                answerOrderCounter++;
+                target.answerOrder = answerOrderCounter;
 
+                if (!timerStarted) {
+                    startCountdownTimer();
+                }
+
+                renderPlayersDashboard();
+                checkAllAnswered();
+            }
+        }
+
+        function initMobileController(hostId) {
+            peer = new Peer();
+            peer.on('open', (id) => {
+                myPlayerId = 'p_' + id;
+                hostConn = peer.connect(hostId);
+
+                hostConn.on('open', () => {
+                    document.getElementById('player-mobile-name').innerText = "已連線到大螢幕囉！";
+                });
+
+                hostConn.on('data', (data) => {
+                    if (data.type === 'GAME_START') {
+                        document.getElementById('mobile-status-text').innerText = '🎮 挑戰開始，請看大螢幕準備搶答！';
+                        if (data.team) {
+                            const badge = document.getElementById('mobile-team-badge');
+                            if (data.team === 'red') {
+                                badge.innerText = '🔴 紅隊小勇士';
+                                badge.className = 'text-xs font-black px-3 py-1 rounded-full w-max mx-auto border-2 bg-rose-100 text-rose-800 border-rose-400 mt-1';
+                            } else {
+                                badge.innerText = '⚪ 白隊小勇士';
+                                badge.className = 'text-xs font-black px-3 py-1 rounded-full w-max mx-auto border-2 bg-sky-100 text-sky-800 border-sky-400 mt-1';
+                            }
+                            badge.classList.remove('hidden');
+                        }
+                        resetMobileButtons();
+                    } else if (data.type === 'NEXT_QUESTION') {
+                        document.getElementById('mobile-vote-section').classList.add('hidden');
+                        const banner = document.getElementById('mobile-question-banner');
+                        banner.innerText = `第 ${data.questionNumber} 題`;
+                        banner.classList.remove('hidden');
+
+                        if (data.isQualified) {
+                            document.getElementById('mobile-answers-grid').classList.remove('hidden');
+                            document.getElementById('mobile-answers-grid').classList.add('grid');
+                            document.getElementById('mobile-status-text').innerText = '請選出正確答案 (A / B / C / D)';
+                            resetMobileButtons();
+                        } else {
+                            document.getElementById('mobile-answers-grid').classList.add('hidden');
+                            document.getElementById('mobile-status-text').innerText = '👀 你現在是啦啦隊，請看大螢幕幫同學加油！';
+                        }
+                    } else if (data.type === 'STAGE2_INTERMISSION') {
+                        document.getElementById('mobile-answers-grid').classList.add('hidden');
+                        document.getElementById('mobile-question-banner').classList.add('hidden');
+
+                        if (!data.isQualified) {
+                            showMobileVoteSection(data.qualifiedPlayers);
+                        } else {
+                            document.getElementById('mobile-status-text').innerText = '🏆 太厲害了！你晉級總決賽囉！';
+                        }
+                    } else if (data.type === 'FINAL_RESULT') {
+                        showMobileFinalResult(data);
+                    }
+                });
+            });
+        }
+
+        function showMobileVoteSection(qualifiedPlayers) {
+            const voteSec = document.getElementById('mobile-vote-section');
+            const voteList = document.getElementById('mobile-vote-list');
+            voteList.innerHTML = '';
+
+            voteSec.classList.remove('hidden');
+            voteSec.classList.add('flex');
+
+            qualifiedPlayers.forEach(qp => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full h-14 py-2 px-4 bg-amber-50 hover:bg-amber-100 active:bg-amber-200 border-2 border-amber-400 rounded-2xl text-stone-800 font-bold flex justify-between items-center transition shadow-sm flex-shrink-0';
+                btn.innerHTML = `
+                    <span class="text-lg font-black truncate max-w-[60%] text-left">${qp.name}</span>
+                    <span class="h-9 px-3 bg-orange-500 text-white font-black rounded-xl shadow flex items-center justify-center gap-1 flex-shrink-0 text-sm">
+                        <span class="text-base">👑</span> 加油
+                    </span>
+                `;
+                btn.onclick = () => {
+                    if (hasVotedStage2) return;
+                    hasVotedStage2 = true;
+                    if (hostConn && hostConn.open) {
+                        hostConn.send({ type: 'VOTE_PLAYER', targetId: qp.id });
+                    }
+                    document.getElementById('mobile-vote-status').classList.remove('hidden');
+                    const allBtns = voteList.querySelectorAll('button');
+                    allBtns.forEach(b => {
+                        b.disabled = true;
+                        b.classList.add('opacity-40', 'pointer-events-none');
+                    });
+                };
+                voteList.appendChild(btn);
+            });
+        }
+
+        function showMobileFinalResult(data) {
+            document.getElementById('mobile-top-bar').classList.add('hidden');
+            document.getElementById('mobile-answers-grid').classList.add('hidden');
+            document.getElementById('mobile-vote-section').classList.add('hidden');
+            document.getElementById('mobile-question-banner').classList.add('hidden');
+            document.getElementById('mobile-status-text').classList.add('hidden');
+
+            const resultBox = document.getElementById('mobile-final-result');
+            resultBox.classList.remove('hidden');
+            resultBox.classList.add('flex');
+
+            const iconEl = document.getElementById('mobile-result-icon');
+            const statusEl = document.getElementById('mobile-result-status');
+
+            if (data.mode === 'team') {
+                document.getElementById('mobile-solo-result').classList.add('hidden');
+                const teamResBox = document.getElementById('mobile-team-result');
+                teamResBox.classList.remove('hidden');
+                teamResBox.classList.add('flex');
+
+                const isMyTeamWinner = data.userTeam === data.winningTeam;
+                const winnerTextEl = document.getElementById('mobile-team-winner-text');
+
+                if (data.winningTeam === 'draw') {
+                    winnerTextEl.innerText = '🤝 紅白兩隊平手！';
+                    winnerTextEl.className = 'text-3xl font-black text-orange-600';
+                    iconEl.innerText = '🤝';
+                } else {
+                    const teamName = data.winningTeam === 'red' ? '🔴 紅隊' : '⚪ 白隊';
+                    winnerTextEl.innerText = `${teamName} 獲得勝利！`;
+                    winnerTextEl.className = data.winningTeam === 'red' ? 'text-3xl font-black text-rose-600' : 'text-3xl font-black text-sky-600';
+                    iconEl.innerText = isMyTeamWinner ? '🏆' : '👏';
+                }
+
+                document.getElementById('mobile-team-total-score').innerText = data.teamTotalScore;
+                document.getElementById('mobile-team-user-score').innerText = data.userScore;
+                document.getElementById('mobile-team-user-ratio').innerText = `${data.userRatio}%`;
+
+                statusEl.innerText = isMyTeamWinner ? '🎉 恭喜你們隊伍贏得冠軍！' : '謝謝你的努力，表現超級棒！';
+            } else {
+                document.getElementById('mobile-result-rank').innerText = `第 ${data.rank} 名`;
+                document.getElementById('mobile-result-total').innerText = `全班共 ${data.totalPlayers} 人`;
+                document.getElementById('mobile-result-score').innerText = data.score;
+
+                if (data.rank === 1) {
+                    iconEl.innerText = '🥇';
+                    statusEl.innerText = '🎉 太神啦！你是國文小狀元！';
+                } else if (data.rank === 2) {
+                    iconEl.innerText = '🥈';
+                    statusEl.innerText = '✨ 恭喜獲得第二名榜眼！';
+                } else if (data.rank === 3) {
+                    iconEl.innerText = '🥉';
+                    statusEl.innerText = '👏 恭喜獲得第三名探花！';
+                } else {
+                    iconEl.innerText = '🏅';
+                    statusEl.innerText = `繼續加油，你已經很棒了喔！`;
+                }
+            }
+        }
+
+        function resetMobileButtons() {
+            hasSubmittedCurrentAnswer = false;
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`mobile-btn-${i}`);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-25', 'grayscale');
+                }
+            }
+        }
+
+        document.getElementById('btn-mobile-join').addEventListener('click', () => {
+            const name = document.getElementById('mobile-name-input').value.trim();
+            if (!name) return alert('請輸入你的座號或名字喔！');
+
+            if (hostConn && hostConn.open) {
+                hostConn.send({ 
+                    type: 'JOIN', 
+                    name: name, 
+                    playerId: myPlayerId
+                });
+
+                document.getElementById('player-mobile-name').innerText = `參賽者：${name}`;
+                document.getElementById('mobile-join-form').classList.add('hidden');
+                document.getElementById('mobile-answers-grid').classList.remove('hidden');
+                document.getElementById('mobile-answers-grid').classList.add('grid');
+                document.getElementById('mobile-status-text').innerText = '報到成功！等待老師按開始...';
+            }
+        });
+
+        function mobileSubmitAnswer(choiceIdx) {
+            if (hasSubmittedCurrentAnswer) return;
+
+            if (hostConn && hostConn.open) {
+                hasSubmittedCurrentAnswer = true;
+                hostConn.send({ type: 'SUBMIT_ANSWER', playerId: myPlayerId, choice: choiceIdx });
+                document.getElementById('mobile-status-text').innerText = '✓ 答案已送出！看看大螢幕對不對';
+
+                for (let i = 0; i < 4; i++) {
+                    const btn = document.getElementById(`mobile-btn-${i}`);
+                    if (btn) {
+                        btn.disabled = true;
+                        if (i !== choiceIdx) {
+                            btn.classList.add('opacity-25', 'grayscale');
+                        }
+                    }
+                }
+            }
+        }
+
+        function addPlayer(name, conn, playerId) {
+            if (players.some(p => p.id === playerId)) return;
+
+            const p = {
+                id: playerId,
+                name: name,
+                displayName: name,
+                conn: conn,
+                team: null,
+                isAI: false,
+                aiType: null,
+                score: 0,
+                streak: 0,
+                answered: false,
+                choice: null,
+                answerOrder: 0,
+                isQualified: true,
+                votes: 0
+            };
+            players.push(p);
+            
+            renderLobbyPlayers();
+        }
+
+        function renderLobbyPlayers() {
+            const container = document.getElementById('player-list-lobby');
+            const rulesBox = document.getElementById('lobby-rules-box');
+            
+            container.innerHTML = '';
+            document.getElementById('player-count-badge').innerText = `${players.length} 人`;
+
+            if (players.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-amber-700/70 bg-amber-50/80 text-center py-8 font-bold border-2 border-dashed border-amber-300 rounded-2xl text-lg">
+                        還沒看到小朋友進來喔～快掃描左邊的條碼吧！
+                    </div>
+                `;
+                if (rulesBox) rulesBox.classList.remove('hidden');
+            } else {
+                if (rulesBox) rulesBox.classList.add('hidden');
+                players.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between items-center bg-amber-50 p-2.5 rounded-2xl border-2 border-amber-300 text-sm shadow-sm';
+
+                    item.innerHTML = `
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="text-xl">${p.isAI ? '🦉' : '🎒'}</span>
+                            <span class="font-black text-stone-800 truncate">${p.displayName || p.name}</span>
+                        </div>
+                        <div class="flex items-center flex-shrink-0">
+                            <span class="text-[11px] ${p.isAI ? 'bg-purple-100 text-purple-800 border border-purple-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'} px-2 py-0.5 rounded-full font-black">
+                                ${p.isAI ? '小夥伴' : '已報到'}
+                            </span>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+        }
+
+        document.getElementById('btn-start-game').addEventListener('click', () => {
+            initAudio();
+            playStage1Bgm();
+            finalizePlayersAndStart();
+        });
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function finalizePlayersAndStart() {
+            stage1Count = parseInt(document.getElementById('select-stage1-count').value, 10);
+            stage2Count = parseInt(document.getElementById('select-stage2-count').value, 10);
+            const aiToAddCount = parseInt(document.getElementById('select-ai-count').value, 10);
+            gameMode = document.getElementById('select-game-mode').value;
+
+            // 可愛動物學院 AI 小夥伴
+            const aiProfilesPool = shuffleArray([
+                { baseName: '博士貓頭鷹', icon: '🦉', min: 85, max: 95 },
+                { baseName: '慢活小烏龜', icon: '🐢', min: 35, max: 60 },
+                { baseName: '機靈小狐狸', icon: '🦊', min: 65, max: 85 },
+                { baseName: '跳跳小白兔', icon: '🐰', min: 55, max: 80 }
+            ]);
+
+            if (aiToAddCount > 0) {
+                for (let i = 0; i < aiToAddCount; i++) {
+                    const profile = aiProfilesPool.pop();
+                    const intensity = getRandomInt(profile.min, profile.max);
+                    const fullName = `${profile.icon} ${profile.baseName}(Lv.${intensity})`;
+
+                    players.push({
+                        id: 'ai_' + Date.now() + '_' + i,
+                        name: fullName,
+                        displayName: `${profile.icon} ${profile.baseName}`,
+                        conn: null,
+                        team: null,
+                        isAI: true,
+                        aiSpec: { 
+                            intensity: intensity,
+                            minAcc: intensity / 100, 
+                            maxAcc: intensity / 100 
+                        },
+                        score: 0,
+                        streak: 0,
+                        answered: false,
+                        choice: null,
+                        answerOrder: 0,
+                        isQualified: true,
+                        votes: 0
+                    });
+                }
+            }
+
+            // 團體賽隨機分隊 & 自動補整 AI 隊員
+            if (gameMode === 'team') {
+                let shuffled = shuffleArray(players);
+                let half = Math.floor(shuffled.length / 2);
+                
+                shuffled.forEach((p, idx) => {
+                    p.team = idx < half ? 'red' : 'white';
+                });
+
+                const redList = players.filter(p => p.team === 'red');
+                const whiteList = players.filter(p => p.team === 'white');
+
+                if (redList.length !== whiteList.length) {
+                    const targetTeam = redList.length < whiteList.length ? 'red' : 'white';
+                    const fallbackProfile = aiProfilesPool.length > 0 ? aiProfilesPool.pop() : { baseName: '熱心小熊', icon: '🐻', min: 60, max: 80 };
+                    const intensity = getRandomInt(fallbackProfile.min, fallbackProfile.max);
+
+                    players.push({
+                        id: 'ai_balance_' + Date.now(),
+                        name: `${fallbackProfile.icon} ${fallbackProfile.baseName}(Lv.${intensity})`,
+                        displayName: `${fallbackProfile.icon} ${fallbackProfile.baseName}`,
+                        conn: null,
+                        team: targetTeam,
+                        isAI: true,
+                        aiSpec: { 
+                            intensity: intensity,
+                            minAcc: intensity / 100, 
+                            maxAcc: intensity / 100 
+                        },
+                        score: 0,
+                        streak: 0,
+                        answered: false,
+                        choice: null,
+                        answerOrder: 0,
+                        isQualified: true,
+                        votes: 0
+                    });
+                }
+            }
+
+            setupRulesByPlayerCount(players.length);
+            startGame();
+        }
+
+        function setupRulesByPlayerCount(totalPlayers) {
+            if (totalPlayers <= 10) stage2AdvancingCount = 2;
+            else if (totalPlayers <= 20) stage2AdvancingCount = 5;
+            else stage2AdvancingCount = 7;
+
+            quizDatabase = shuffleArray(fullQuizDatabase).slice(0, stage1Count + stage2Count);
+        }
+
+        function startGame() {
+            document.getElementById('view-lobby').classList.add('hidden');
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('main-footer').classList.add('hidden');
+
+            document.getElementById('view-game').classList.remove('hidden');
+            document.getElementById('view-game').classList.add('grid');
+
+            if (gameMode === 'team') {
+                const scoreboard = document.getElementById('team-scoreboard');
+                scoreboard.classList.remove('hidden');
+                scoreboard.classList.add('grid');
+            }
+
+            players.forEach(p => { 
+                if (p.conn) p.conn.send({ type: 'GAME_START', team: p.team }); 
+            });
+
+            currentQuestionIndex = 0;
+            stage = 1;
+            startQuestionFlow(currentQuestionIndex);
+        }
+
+        function clearAllTimers() {
+            if (timerInterval) clearInterval(timerInterval);
+            aiTimeouts.forEach(t => clearTimeout(t));
+            aiTimeouts = [];
+        }
+
+        function startQuestionFlow(index) {
+            clearAllTimers();
+            isTransitioning = true;
+            timerStarted = false;
+
+            document.getElementById('splash-question-number').innerText = `第 ${index + 1} 題`;
+            document.getElementById('view-question-splash').classList.remove('hidden');
+
+            setTimeout(() => {
+                document.getElementById('view-question-splash').classList.add('hidden');
+                loadQuestion(index);
+            }, 1000);
+        }
+
+        function loadQuestion(index) {
+            isTransitioning = false;
+            timerStarted = false;
+            answerOrderCounter = 0;
+
+            const originalQData = quizDatabase[index];
+            const correctAnswerText = originalQData.options[originalQData.answer];
+            const shuffledOptions = shuffleArray(originalQData.options);
+            const newAnswerIndex = shuffledOptions.indexOf(correctAnswerText);
+
+            const qData = {
+                question: originalQData.question,
+                options: shuffledOptions,
+                answer: newAnswerIndex
+            };
+            quizDatabase[index] = qData;
+
+            if (index < stage1Count) {
+                stage = 1; maxTime = 5;
+                if (currentBgmType !== 'stage1') playStage1Bgm();
+            } else {
+                stage = 2; maxTime = 3;
+                if (currentBgmType !== 'stage2') playStage2Bgm();
+            }
+
+            players.forEach(p => {
+                p.choice = null;
+                p.answerOrder = 0;
+                p.answered = (stage === 2 && !p.isQualified);
+                if (p.conn) p.conn.send({ 
+                    type: 'NEXT_QUESTION', 
+                    questionNumber: index + 1,
+                    isQualified: p.isQualified
+                });
+            });
+
+            document.getElementById('question-number').innerText = `第 ${String(index + 1).padStart(2, '0')} / ${quizDatabase.length} 題`;
+            
+            const cleanQuestion = qData.question.replace(/^\d+\.\s*/, '');
+            document.getElementById('question-text').innerText = cleanQuestion;
+
+            document.getElementById('timer-text').innerText = `⏱️ 倒數 ${maxTime} 秒`;
+            document.getElementById('timer-bar').style.width = '100%';
+            document.getElementById('round-status-hint').innerText = '等待第一位同學搶答...';
+
+            renderOptions(qData.options);
+            renderPlayersDashboard();
+            triggerAIAnswers(qData);
+        }
+
+        function renderOptions(options) {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            const labels = ['A', 'B', 'C', 'D'];
+            const colorClasses = [
+                'bg-sky-50 border-sky-400 text-sky-950',
+                'bg-emerald-50 border-emerald-400 text-emerald-950',
+                'bg-amber-50 border-amber-400 text-amber-950',
+                'bg-rose-50 border-rose-400 text-rose-950'
+            ];
+            const badgeColors = [
+                'bg-sky-500 text-white border-2 border-sky-700',
+                'bg-emerald-500 text-white border-2 border-emerald-700',
+                'bg-amber-400 text-white border-2 border-amber-600',
+                'bg-rose-500 text-white border-2 border-rose-700'
+            ];
+
+            options.forEach((optText, i) => {
+                const btn = document.createElement('div');
+                btn.id = `option-item-${i}`;
+                btn.className = `option-btn w-full p-4 md:p-5 rounded-2xl border-4 ${colorClasses[i]} flex items-center gap-5 pointer-events-none transition-all duration-300 shadow-md`;
+                btn.innerHTML = `
+                    <span class="w-14 h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center justify-center rounded-2xl ${badgeColors[i]} font-black text-3xl md:text-4xl shadow-sm">${labels[i]}</span>
+                    <span class="text-stone-800 text-2xl md:text-3xl lg:text-4xl font-black leading-snug text-left flex-grow truncate">${optText}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function renderPlayersDashboard() {
+            const dashboard = document.getElementById('players-dashboard');
+            dashboard.innerHTML = '';
+
+            document.getElementById('game-total-players-badge').innerText = `${players.length} 人`;
+
+            if (gameMode === 'team') {
+                const redScore = players.filter(p => p.team === 'red').reduce((sum, p) => sum + p.score, 0);
+                const whiteScore = players.filter(p => p.team === 'white').reduce((sum, p) => sum + p.score, 0);
+                
+                document.getElementById('team-red-score-display').innerText = redScore;
+                document.getElementById('team-white-score-display').innerText = whiteScore;
+            }
+
+            const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+            
+            sortedPlayers.forEach((p, rank) => {
+                const card = document.createElement('div');
+                let borderClass = 'border-amber-200 bg-amber-50/60';
+                let statusBadge = '<span class="text-xs md:text-sm text-stone-400 font-bold">思考中</span>';
+
+                if (!p.isQualified && stage === 2) {
+                    borderClass = 'border-stone-200 bg-stone-100 opacity-50';
+                    statusBadge = '<span class="text-xs md:text-sm text-stone-500 font-black">啦啦隊</span>';
+                } else if (p.answered) {
+                    borderClass = 'border-emerald-400 bg-emerald-50 shadow-sm';
+                    statusBadge = '<span class="text-xs md:text-sm text-emerald-700 font-black">✓ 已送出</span>';
+                }
+
+                const streakBonus = p.streak >= 1 ? ` 🔥${p.streak}連勝(+${p.streak}分)` : '';
+                const displayName = p.name;
+
+                let teamFlag = '';
+                if (gameMode === 'team') {
+                    teamFlag = p.team === 'red' ? '<span class="mr-1">🔴</span>' : '<span class="mr-1">⚪</span>';
+                }
+
+                card.className = `p-2.5 md:p-3 rounded-2xl border-2 ${borderClass} flex items-center justify-between transition-all duration-200 flex-shrink-0`;
+                card.innerHTML = `
+                    <div class="flex items-center gap-2.5 truncate max-w-[65%]">
+                        <span class="font-black text-orange-600 text-lg md:text-xl min-w-[30px] text-center">#${rank + 1}</span>
+                        <div class="flex flex-col truncate">
+                            <span class="font-black text-stone-800 text-lg md:text-xl truncate tracking-wide leading-tight flex items-center">
+                                ${teamFlag}${displayName}
+                            </span>
+                            <span class="text-xs font-black text-rose-500 leading-tight">${streakBonus ? streakBonus : '&nbsp;'}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                        <span class="text-emerald-700 font-black text-xl md:text-2xl">${p.score}</span>
+                        ${statusBadge}
+                    </div>
+                `;
+                dashboard.appendChild(card);
+            });
+        }
+
+        function triggerAIAnswers(qData) {
+            players.filter(p => p.isAI && p.isQualified).forEach(ai => {
+                const intensity = (ai.aiSpec && ai.aiSpec.intensity) ? ai.aiSpec.intensity : 70;
+                const isCorrect = (Math.random() * 100) < intensity;
+
+                const minDelay = 800 + (100 - intensity) * 20;
+                const maxDelay = 2000 + (100 - intensity) * 30;
+                let delay = getRandomInt(minDelay, maxDelay);
+
+                const timerId = setTimeout(() => {
+                    if (isTransitioning || ai.answered) return;
+                    
+                    if (isCorrect) {
+                        ai.choice = qData.answer;
+                    } else {
+                        const wrongChoices = [0, 1, 2, 3].filter(c => c !== qData.answer);
+                        ai.choice = wrongChoices[Math.floor(Math.random() * wrongChoices.length)];
+                    }
+
+                    handleAnswerSubmission(ai.id, ai.choice);
+                }, delay);
+
+                aiTimeouts.push(timerId);
+            });
+        }
+
+        function startCountdownTimer() {
+            timerStarted = true;
+            document.getElementById('round-status-hint').innerText = '倒數計時開始，快作答！';
+
+            const startTime = Date.now();
+            const duration = maxTime * 1000;
+
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const remainingMs = Math.max(0, duration - elapsed);
+                timeLeft = Math.ceil(remainingMs / 1000);
+
+                document.getElementById('timer-text').innerText = `⏱️ 倒數 ${timeLeft} 秒`;
+                document.getElementById('timer-bar').style.width = `${(remainingMs / duration) * 100}%`;
+
+                if (remainingMs <= 0) {
+                    clearAllTimers();
+                    evaluateQuestionAndProceed();
+                }
+            }, 100);
+        }
+
+        function checkAllAnswered() {
+            if (players.every(p => p.answered) && !isTransitioning) {
+                clearAllTimers();
+                evaluateQuestionAndProceed();
+            }
+        }
+
+        function evaluateQuestionAndProceed() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
+            const qData = quizDatabase[currentQuestionIndex];
+            const correctAns = qData.answer;
+
+            for (let idx = 0; idx < 4; idx++) {
+                const btn = document.getElementById(`option-item-${idx}`);
+                if (btn) {
+                    if (idx === correctAns) {
+                        btn.classList.remove('bg-sky-50', 'bg-emerald-50', 'bg-amber-50', 'bg-rose-50');
+                        btn.classList.add('bg-emerald-200', 'border-emerald-600', 'scale-[1.02]', 'shadow-xl', 'z-10');
+                    } else {
+                        btn.classList.add('opacity-30', 'grayscale', 'scale-95');
+                    }
+                }
+            }
+
+            players.forEach(p => {
+                if (p.isQualified) {
+                    if (p.choice === correctAns) {
+                        let point = 20;
+
+                        if (p.answerOrder >= 1 && p.answerOrder <= 10) {
+                            point += (11 - p.answerOrder);
+                        }
+
+                        p.streak = (p.streak || 0) + 1;
+                        point += p.streak;
+
+                        p.score += point;
+                    } else {
+                        p.streak = 0;
+                    }
+                }
+            });
+
+            renderPlayersDashboard();
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex === stage1Count) {
+                    showIntermission();
+                } else if (currentQuestionIndex >= quizDatabase.length) {
+                    showFinalResult();
+                } else {
+                    startQuestionFlow(currentQuestionIndex);
+                }
+            }, 1800);
+        }
+
+        function showIntermission() {
+            const sorted = [...players].sort((a, b) => b.score - a.score);
+            
+            let cutoffScore = 0;
+            if (sorted.length > 0) {
+                const cutoffIndex = Math.min(stage2AdvancingCount, sorted.length) - 1;
+                cutoffScore = sorted[cutoffIndex].score;
+            }
+
+            const qualifiedIds = sorted.filter(p => p.score >= cutoffScore).map(p => p.id);
+            players.forEach(p => p.isQualified = qualifiedIds.includes(p.id));
+
+            const qualifiedList = players.filter(p => p.isQualified).map(p => ({ id: p.id, name: p.name }));
+
+            players.forEach(p => {
+                if (p.conn) {
+                    p.conn.send({
+                        type: 'STAGE2_INTERMISSION',
+                        isQualified: p.isQualified,
+                        qualifiedPlayers: qualifiedList
+                    });
+                }
+            });
+
+            const halfIndex = Math.ceil(sorted.length / 2);
+            const leftPlayers = sorted.slice(0, halfIndex);
+            const rightPlayers = sorted.slice(halfIndex);
+
+            document.getElementById('intermission-left-count').innerText = `${leftPlayers.length} 人`;
+            document.getElementById('intermission-right-count').innerText = `${rightPlayers.length} 人`;
+
+            renderParticipantList('intermission-left-list', leftPlayers, 1);
+            renderParticipantList('intermission-right-list', rightPlayers, halfIndex + 1);
+
+            renderQualifiedListUI();
+
+            document.getElementById('view-intermission').classList.remove('hidden');
+        }
+
+        function renderQualifiedListUI() {
+            const qualifiedList = document.getElementById('qualified-players-list');
+            qualifiedList.innerHTML = '';
+            players.filter(p => p.isQualified).forEach(p => {
+                const crownCount = p.votes || 0;
+
+                qualifiedList.innerHTML += `
+                    <div class="w-full bg-white border-4 border-amber-400 px-5 py-3.5 rounded-2xl flex items-center justify-between shadow-md transform hover:scale-[1.01] transition">
+                        <div class="flex items-center gap-3.5 truncate">
+                            <span class="text-3xl flex-shrink-0">${p.isAI ? '🦉' : '🎓'}</span>
+                            <span class="font-black text-stone-800 text-xl md:text-2xl truncate">${p.name}</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                            <div class="text-emerald-700 font-black text-xl md:text-2xl">${p.score} 分</div>
+                            <div class="py-1 px-3.5 bg-amber-100 border-2 border-amber-400 rounded-full text-amber-800 font-black text-lg md:text-xl flex items-center gap-1.5 shadow-sm">
+                                <span>👑</span>
+                                <span>X ${crownCount}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderParticipantList(elementId, playerGroup, startIndex = 1) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            playerGroup.forEach((p, idx) => {
+                const rankNum = startIndex + idx;
+                const item = document.createElement('div');
+                item.className = 'flex flex-col p-2.5 bg-white rounded-xl border-2 border-amber-200 text-sm gap-1 shadow-sm';
+                
+                let teamFlag = '';
+                if (gameMode === 'team') {
+                    teamFlag = p.team === 'red' ? '🔴 ' : '⚪ ';
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-2 truncate w-full">
+                        <span class="font-black text-orange-600 text-xs w-6 flex-shrink-0">#${rankNum}</span>
+                        <span class="font-black ${p.isQualified ? 'text-emerald-700' : 'text-stone-700'} truncate">${teamFlag}${p.name}</span>
+                    </div>
+                    <div class="text-right w-full pl-8">
+                        <span class="font-black text-stone-600">${p.score} 分</span>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        document.getElementById('btn-start-stage2').addEventListener('click', () => {
+            document.getElementById('view-intermission').classList.add('hidden');
+            startQuestionFlow(currentQuestionIndex);
+        });
+
+        function showFinalResult() {
+            document.getElementById('view-game').classList.add('hidden');
+            document.getElementById('view-result').classList.remove('hidden');
+
+            playVictoryFanfare();
+
+            const allSortedPlayers = [...players].sort((a, b) => b.score - a.score);
+
+            const redTeamPlayers = players.filter(p => p.team === 'red');
+            const whiteTeamPlayers = players.filter(p => p.team === 'white');
+
+            const redTotalScore = redTeamPlayers.reduce((sum, p) => sum + p.score, 0);
+            const whiteTotalScore = whiteTeamPlayers.reduce((sum, p) => sum + p.score, 0);
+            const totalScoreAll = redTotalScore + whiteTotalScore || 1;
+
+            let winningTeam = 'draw';
+            if (redTotalScore > whiteTotalScore) winningTeam = 'red';
+            else if (whiteTotalScore > redTotalScore) winningTeam = 'white';
+
+            players.forEach(p => {
+                if (p.conn) {
+                    const rank = allSortedPlayers.findIndex(s => s.id === p.id) + 1;
+                    const myTeamTotal = p.team === 'red' ? redTotalScore : whiteTotalScore;
+                    const ratio = myTeamTotal > 0 ? ((p.score / myTeamTotal) * 100).toFixed(1) : '0';
+
+                    p.conn.send({
+                        type: 'FINAL_RESULT',
+                        mode: gameMode,
+                        rank: rank,
+                        score: p.score,
+                        totalPlayers: allSortedPlayers.length,
+                        winningTeam: winningTeam,
+                        userTeam: p.team,
+                        teamTotalScore: myTeamTotal,
+                        userScore: p.score,
+                        userRatio: ratio
+                    });
+                }
+            });
+
+            const halfIndex = Math.ceil(allSortedPlayers.length / 2);
+            const leftPlayers = allSortedPlayers.slice(0, halfIndex);
+            const rightPlayers = allSortedPlayers.slice(halfIndex);
+
+            document.getElementById('result-left-count').innerText = `${leftPlayers.length} 人`;
+            document.getElementById('result-right-count').innerText = `${rightPlayers.length} 人`;
+
+            renderParticipantList('result-left-list', leftPlayers, 1);
+            renderParticipantList('result-right-list', rightPlayers, halfIndex + 1);
+
+            const centerContainer = document.getElementById('result-center-container');
+            
+            if (gameMode === 'team') {
+                const redRatio = ((redTotalScore / totalScoreAll) * 100).toFixed(1);
+                const whiteRatio = ((whiteTotalScore / totalScoreAll) * 100).toFixed(1);
+
+                let winnerBadge = '🤝 紅白兩隊實力相當 平手！';
+                let winnerColor = 'text-orange-600';
+                if (winningTeam === 'red') {
+                    winnerBadge = '🏆 🔴 紅隊 榮獲團體總冠軍！';
+                    winnerColor = 'text-rose-600';
+                } else if (winningTeam === 'white') {
+                    winnerBadge = '🏆 ⚪ 白隊 榮獲團體總冠軍！';
+                    winnerColor = 'text-sky-600';
+                }
+
+                centerContainer.innerHTML = `
+                    <span class="text-amber-700 font-black tracking-widest text-sm mb-2 bg-white px-3 py-1 rounded-full border border-amber-300">TEAM CHAMPIONSHIP</span>
+                    <h3 class="text-3xl md:text-4xl font-black ${winnerColor} mb-6 tracking-wide">${winnerBadge}</h3>
+
+                    <div class="w-full grid grid-cols-2 gap-4 my-auto">
+                        <div class="bg-rose-100 border-4 border-rose-400 rounded-3xl p-5 flex flex-col items-center justify-center shadow-md">
+                            <span class="text-xl font-black text-rose-800">🔴 紅隊總分</span>
+                            <span class="text-4xl md:text-5xl font-black text-rose-950 my-2">${redTotalScore}</span>
+                            <span class="text-lg font-black text-rose-700 bg-white px-3 py-1 rounded-full border border-rose-300">佔比 ${redRatio}%</span>
+                        </div>
+
+                        <div class="bg-sky-100 border-4 border-sky-400 rounded-3xl p-5 flex flex-col items-center justify-center shadow-md">
+                            <span class="text-xl font-black text-sky-800">⚪ 白隊總分</span>
+                            <span class="text-4xl md:text-5xl font-black text-sky-950 my-2">${whiteTotalScore}</span>
+                            <span class="text-lg font-black text-sky-700 bg-white px-3 py-1 rounded-full border border-sky-300">佔比 ${whiteRatio}%</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                centerContainer.innerHTML = `
+                    <span class="text-amber-800 font-black tracking-widest text-sm mb-3 bg-white px-4 py-1 rounded-full border border-amber-300">TOP 3 WINNERS</span>
+                    <div id="top3-container" class="w-full flex flex-col items-center space-y-4 my-auto"></div>
+                `;
+
+                const top3Container = document.getElementById('top3-container');
+                const top3 = allSortedPlayers.slice(0, 3);
+                const medals = ['🥇 第一名 國文小狀元', '🥈 第二名 榜眼', '🥉 第三名 探花'];
+                const colors = ['border-amber-400 bg-white shadow-xl', 'border-slate-300 bg-white shadow-md', 'border-orange-300 bg-white shadow-md'];
+
+                top3.forEach((p, idx) => {
+                    const card = document.createElement('div');
+                    const crownCount = p.votes || 0;
+                    
+                    if (idx === 0) {
+                        card.className = `w-full max-w-md p-5 rounded-3xl border-4 ${colors[idx]} flex flex-col items-center justify-center my-1`;
+                        card.innerHTML = `
+                            <span class="text-sm font-black text-amber-900 bg-amber-200 px-4 py-1 rounded-full border border-amber-400 mb-1">👑 國文小狀元王座 👑</span>
+                            <div class="text-5xl my-1">🥇</div>
+                            <div class="text-3xl font-black text-stone-800 tracking-wide text-center">${p.name}</div>
+                            
+                            <div class="my-2 py-1 px-4 bg-amber-100 border-2 border-amber-400 rounded-full text-amber-800 font-black text-xl flex items-center gap-1.5">
+                                <span>👑</span>
+                                <span>X ${crownCount} 加油應援</span>
+                            </div>
+
+                            <div class="text-2xl font-black text-emerald-700 mt-1">${p.score} 分</div>
+                        `;
+                    } else {
+                        card.className = `w-full max-w-md p-4 rounded-2xl border-4 ${colors[idx]} flex justify-between items-center px-6`;
+                        card.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <span class="text-3xl">${idx === 1 ? '🥈' : '🥉'}</span>
+                                <div class="text-left">
+                                    <span class="text-xs font-black text-stone-500">${medals[idx]}</span>
+                                    <div class="text-2xl font-black text-stone-800">${p.name}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-amber-700 font-black text-base flex items-center gap-1 justify-end">
+                                    <span>👑</span>
+                                    <span>X ${crownCount}</span>
+                                </div>
+                                <div class="text-xl font-black text-emerald-700 mt-1">${p.score} 分</div>
+                            </div>
+                        `;
+                    }
+                    top3Container.appendChild(card);
+                });
+            }
+
+            const duration = 8 * 1000;
+            const animationEnd = Date.now() + duration;
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                confetti({
+                    particleCount: Math.floor(randomInRange(20, 40)),
+                    spread: randomInRange(50, 100),
+                    startVelocity: randomInRange(25, 45),
+                    origin: { x: randomInRange(0.1, 0.4), y: randomInRange(0.2, 0.5) },
+                    ticks: 200,
+                    gravity: 0.8,
+                    colors: ['#2ECC71', '#FF8C42', '#FFD166', '#3A86FF', '#FF5D8F']
+                });
+
+                confetti({
+                    particleCount: Math.floor(randomInRange(20, 40)),
+                    spread: randomInRange(50, 100),
+                    startVelocity: randomInRange(25, 45),
+                    origin: { x: randomInRange(0.6, 0.9), y: randomInRange(0.2, 0.5) },
+                    ticks: 200,
+                    gravity: 0.8,
+                    colors: ['#2ECC71', '#FF8C42', '#FFD166', '#3A86FF', '#FF5D8F']
+                });
+            }, 300);
+        }
+    </script>
 </body>
 </html>
