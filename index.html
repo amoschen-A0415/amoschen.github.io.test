@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>寶貝的幸福小庭園</title>
+  <title>寶貝的幸福小庭園 - 自由散步版</title>
   <style>
     * {
       box-sizing: border-box;
@@ -13,7 +13,7 @@
     }
 
     body {
-      background: linear-gradient(135deg, #1e1b2e 0%, #2d2638 100%);
+      background: linear-gradient(135deg, #1b1829 0%, #2c2438 100%);
       color: #fff;
       font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
       display: flex;
@@ -21,24 +21,23 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      overflow-x: hidden;
       padding: 16px;
     }
 
     header {
       text-align: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     header h1 {
-      font-size: 1.6rem;
+      font-size: 1.55rem;
       letter-spacing: 2px;
       color: #ffd88a;
       text-shadow: 0 2px 10px rgba(255, 190, 90, 0.4);
     }
 
     header p {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: #d6cde0;
       margin-top: 4px;
     }
@@ -51,32 +50,32 @@
       aspect-ratio: 1 / 1;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(255, 216, 138, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 0 3px rgba(255, 216, 138, 0.3);
       background: #111;
+      cursor: pointer;
     }
 
-    /* 背景底圖 */
-    .scene-bg {
+    /* 背景畫布 */
+    #bgCanvas {
       width: 100%;
       height: 100%;
-      object-fit: cover;
       display: block;
-      transition: filter 0.8s ease, transform 0.4s ease;
+      transition: filter 0.8s ease;
     }
 
-    /* 夜晚模式濾鏡 */
-    .stage-wrapper.night-mode .scene-bg {
+    .stage-wrapper.night-mode #bgCanvas {
       filter: brightness(0.72) contrast(1.12) saturate(1.15);
     }
 
-    /* 庭園暖光呼吸層 */
+    /* 暖光呼吸層 */
     .warm-glow-overlay {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(circle at 38% 48%, rgba(255, 190, 80, 0.22), transparent 55%),
-                  radial-gradient(circle at 75% 30%, rgba(255, 210, 110, 0.18), transparent 45%);
+      background: radial-gradient(circle at 38% 48%, rgba(255, 190, 80, 0.2), transparent 55%),
+                  radial-gradient(circle at 75% 30%, rgba(255, 210, 110, 0.16), transparent 45%);
       animation: lanternBreathe 3.5s ease-in-out infinite alternate;
+      z-index: 2;
     }
 
     @keyframes lanternBreathe {
@@ -84,163 +83,178 @@
       100% { opacity: 1; }
     }
 
-    /* 互動熱區：寶貝本尊 */
-    .hotspot-dog {
+    /* 可自由移動的「寶貝」角色容器 */
+    .dog-actor {
       position: absolute;
-      left: 42%;
-      top: 54%;
       width: 17%;
-      height: 20%;
-      cursor: pointer;
-      border-radius: 50%;
+      aspect-ratio: 1 / 1.15;
+      transform: translate(-50%, -85%);
       z-index: 10;
-      /* 輕微呼吸動態提示 */
-      animation: subtlePulse 2.5s infinite ease-in-out;
-    }
-
-    /* 互動熱區：胸前福袋 */
-    .hotspot-pouch {
-      position: absolute;
-      left: 48%;
-      top: 65%;
-      width: 6%;
-      height: 7%;
       cursor: pointer;
-      border-radius: 50%;
-      z-index: 12;
+      transition: filter 0.3s ease;
+      will-change: left, top, transform;
     }
 
-    /* 互動熱區：狗屋招牌（切換日夜） */
-    .hotspot-house {
+    /* 腳底自然陰影 */
+    .dog-shadow {
       position: absolute;
-      left: 31%;
-      top: 30%;
-      width: 16%;
-      height: 10%;
-      cursor: pointer;
-      z-index: 10;
-      border-radius: 12px;
-    }
-
-    /* 互動熱區：陽傘休憩區 */
-    .hotspot-patio {
-      position: absolute;
-      left: 62%;
-      top: 38%;
-      width: 24%;
-      height: 14%;
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    /* 狗狗開心跳動特效（疊加視覺回饋） */
-    .dog-bounce-ring {
-      position: absolute;
-      left: 42%;
-      top: 54%;
-      width: 17%;
-      height: 20%;
-      border: 3px solid rgba(255, 223, 128, 0.85);
+      bottom: 4%;
+      left: 50%;
+      width: 72%;
+      height: 18%;
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 75%);
+      transform: translateX(-50%);
       border-radius: 50%;
       pointer-events: none;
+      transition: all 0.4s ease;
+    }
+
+    /* 狗狗本體圖層 */
+    .dog-sprite {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform-origin: bottom center;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+      transition: transform 0.35s ease;
+    }
+
+    /* 狀態動畫：站立呼吸 */
+    .dog-actor.state-idle .dog-sprite {
+      animation: dogBreathe 2.4s ease-in-out infinite;
+    }
+
+    @keyframes dogBreathe {
+      0%, 100% { transform: scaleY(1) scaleX(1); }
+      50% { transform: scaleY(1.03) scaleX(0.985); }
+    }
+
+    /* 狀態動畫：走路搖擺 */
+    .dog-actor.state-walk .dog-sprite {
+      animation: dogWalk 0.36s ease-in-out infinite alternate;
+    }
+
+    @keyframes dogWalk {
+      0% { transform: translateY(0px) rotate(-3deg) scaleY(1.01); }
+      100% { transform: translateY(-6px) rotate(3deg) scaleY(0.98); }
+    }
+
+    /* 狀態動畫：趴下休息 */
+    .dog-actor.state-rest .dog-sprite {
+      animation: dogRest 3.2s ease-in-out infinite;
+    }
+
+    .dog-actor.state-rest .dog-shadow {
+      width: 88%;
+      height: 22%;
+      bottom: 2%;
+    }
+
+    @keyframes dogRest {
+      0%, 100% { transform: scaleY(0.76) scaleX(1.12) translateY(14%); }
+      50% { transform: scaleY(0.79) scaleX(1.10) translateY(14%); }
+    }
+
+    /* 狀態動畫：開心跳躍 */
+    .dog-actor.state-jump .dog-sprite {
+      animation: dogJump 0.45s cubic-bezier(0.28, 0.84, 0.42, 1) 2;
+    }
+
+    @keyframes dogJump {
+      0%, 100% { transform: translateY(0) scaleY(1); }
+      40% { transform: translateY(-22px) scaleY(1.06); }
+      80% { transform: translateY(0) scaleY(0.92); }
+    }
+
+    /* 睡眠 Zzz 特效 */
+    .zzz-badge {
+      position: absolute;
+      top: -12px;
+      right: 5%;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #ffeaa7;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
       opacity: 0;
-      transform: scale(0.8);
-      z-index: 9;
+      pointer-events: none;
     }
 
-    .dog-bounce-ring.active {
-      animation: ringPop 0.7s ease-out forwards;
+    .dog-actor.state-rest .zzz-badge {
+      animation: zzzFloat 2.4s ease-in-out infinite;
     }
 
-    @keyframes ringPop {
-      0% { opacity: 1; transform: scale(0.85); }
-      100% { opacity: 0; transform: scale(1.65); }
+    @keyframes zzzFloat {
+      0% { opacity: 0; transform: translate(0, 5px) scale(0.7); }
+      50% { opacity: 1; transform: translate(8px, -8px) scale(1.05); }
+      100% { opacity: 0; transform: translate(15px, -20px) scale(0.8); }
     }
 
-    /* 對話氣泡 */
+    /* 對話氣泡（跟著狗狗移動） */
     .speech-bubble {
       position: absolute;
-      left: 49%;
-      top: 44%;
-      transform: translate(-50%, -10px) scale(0.8);
-      background: rgba(255, 255, 255, 0.95);
+      bottom: 102%;
+      left: 50%;
+      transform: translateX(-50%) scale(0.85);
+      background: rgba(255, 255, 255, 0.96);
       color: #4a2c18;
-      padding: 8px 16px;
-      border-radius: 20px;
+      padding: 6px 14px;
+      border-radius: 18px;
       font-weight: bold;
-      font-size: 0.95rem;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      font-size: 0.88rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
       pointer-events: none;
       opacity: 0;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 20;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       white-space: nowrap;
+      z-index: 30;
     }
 
     .speech-bubble::after {
       content: "";
       position: absolute;
-      bottom: -8px;
+      bottom: -7px;
       left: 50%;
       transform: translateX(-50%);
-      border-width: 8px 8px 0;
+      border-width: 7px 7px 0;
       border-style: solid;
-      border-color: rgba(255, 255, 255, 0.95) transparent transparent;
+      border-color: rgba(255, 255, 255, 0.96) transparent transparent;
     }
 
     .speech-bubble.show {
       opacity: 1;
-      transform: translate(-50%, 0) scale(1);
+      transform: translateX(-50%) scale(1);
     }
 
-    /* 飄浮粒子（愛心、福氣、音符、螢火蟲） */
+    /* 飄浮粒子 */
     .particle {
       position: absolute;
       pointer-events: none;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       z-index: 25;
-      animation: floatUp 1.6s ease-out forwards;
+      animation: floatUp 1.5s ease-out forwards;
     }
 
     @keyframes floatUp {
-      0% {
-        opacity: 1;
-        transform: translateY(0) scale(0.7) rotate(0deg);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-95px) scale(1.3) rotate(18deg);
-      }
+      0% { opacity: 1; transform: translateY(0) scale(0.7); }
+      100% { opacity: 0; transform: translateY(-85px) scale(1.25); }
     }
 
-    /* 螢火蟲光點 */
-    .firefly {
+    /* 點擊地面目的地標記 */
+    .click-target {
       position: absolute;
-      width: 6px;
-      height: 6px;
-      background: #ffe97d;
+      width: 24px;
+      height: 14px;
+      border: 2px solid rgba(255, 226, 130, 0.9);
       border-radius: 50%;
-      box-shadow: 0 0 10px 3px rgba(255, 233, 125, 0.8);
+      transform: translate(-50%, -50%) scale(0.5);
       pointer-events: none;
-      opacity: 0;
-      z-index: 8;
-      animation: fireflyFloat 5s infinite ease-in-out;
+      z-index: 5;
+      animation: targetPing 0.7s ease-out forwards;
     }
 
-    @keyframes fireflyFloat {
-      0%, 100% { opacity: 0; transform: translate(0, 0); }
-      50% { opacity: 0.95; transform: translate(18px, -22px); }
-    }
-
-    /* 搖晃整個畫面的輕微反饋 */
-    .stage-wrapper.happy-shake .scene-bg {
-      animation: happyWiggle 0.45s ease;
-    }
-
-    @keyframes happyWiggle {
-      0%, 100% { transform: scale(1) rotate(0deg); }
-      25% { transform: scale(1.015) rotate(-0.6deg); }
-      75% { transform: scale(1.015) rotate(0.6deg); }
+    @keyframes targetPing {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.4); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
     }
 
     /* 控制列 */
@@ -249,7 +263,7 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
-      margin-top: 16px;
+      margin-top: 14px;
       max-width: 680px;
     }
 
@@ -257,216 +271,370 @@
       background: linear-gradient(180deg, #ffdf9e 0%, #f5b95b 100%);
       color: #4a280a;
       border: none;
-      padding: 10px 18px;
+      padding: 9px 16px;
       border-radius: 999px;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s ease;
     }
 
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(245, 185, 91, 0.45);
-    }
-
-    button:active {
-      transform: scale(0.95);
-    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: scale(0.95); }
 
     button.btn-red {
       background: linear-gradient(180deg, #ff6b6b 0%, #d63031 100%);
       color: #fff3cd;
     }
 
-    /* 狀態列 */
     .status-bar {
-      margin-top: 12px;
+      margin-top: 10px;
       font-size: 0.85rem;
       color: #cbbfe0;
       display: flex;
-      gap: 18px;
+      gap: 16px;
     }
 
-    .status-bar span b {
-      color: #ffd88a;
-    }
+    .status-bar b { color: #ffd88a; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>🐾 寶貝的幸福小庭園 🧧</h1>
-    <p>試著點擊「寶貝」、「胸前福袋」或「寶貝♡狗屋招牌」互動吧！</p>
+    <p>寶貝會自己散步與趴下休息，你也可以點擊草地叫牠過去喔！</p>
   </header>
 
   <div class="stage-wrapper" id="stage">
-    <!-- 請確保圖片檔名與此處一致 -->
-    <img src="baby_dog.jpg" alt="寶貝與庭園" class="scene-bg" id="sceneImg" />
-
-    <!-- 燈光氛圍層 -->
+    <canvas id="bgCanvas" width="1024" height="1024"></canvas>
     <div class="warm-glow-overlay"></div>
 
-    <!-- 對話框 -->
-    <div class="speech-bubble" id="speechBubble">汪汪！歡迎回家～ ❤️</div>
-
-    <!-- 互動熱區 -->
-    <div class="dog-bounce-ring" id="bounceRing"></div>
-    <div class="hotspot-dog" id="dogArea" title="摸摸寶貝"></div>
-    <div class="hotspot-pouch" id="pouchArea" title="點點小福袋"></div>
-    <div class="hotspot-house" id="houseArea" title="切換黃昏 / 夜晚燈光"></div>
-    <div class="hotspot-patio" id="patioArea" title="陽傘下午茶區"></div>
+    <!-- 自由活動的寶貝 -->
+    <div class="dog-actor state-idle" id="dogActor" style="left: 50%; top: 72%;">
+      <div class="speech-bubble" id="speechBubble">汪汪！出來散步囉～</div>
+      <div class="zzz-badge">Zzz...</div>
+      <div class="dog-shadow"></div>
+      <img id="dogSprite" class="dog-sprite" alt="寶貝" />
+    </div>
   </div>
 
-  <!-- 底部互動按鈕 -->
   <div class="controls">
-    <button onclick="petDog()">🖐️ 摸摸寶貝</button>
-    <button onclick="feedTreat()">🦴 餵吃肉乾</button>
+    <button onclick="commandWalkRandom()">🐾 自由散步</button>
+    <button onclick="commandRest()">💤 趴下休息</button>
+    <button onclick="commandGoBed()">🏠 回狗屋睡覺</button>
     <button class="btn-red" onclick="openFortune()">🧧 摸福袋求好運</button>
-    <button onclick="toggleNight()">🌙 切換日夜氣氛</button>
+    <button onclick="toggleNight()">🌙 切換日夜</button>
   </div>
 
   <div class="status-bar">
-    <span>開心指數：<b id="happinessScore">100</b>%</span>
+    <span>目前狀態：<b id="stateLabel">悠閒散步中</b></span>
     <span>福氣值：<b id="luckScore">88</b></span>
   </div>
 
   <script>
     const stage = document.getElementById("stage");
+    const bgCanvas = document.getElementById("bgCanvas");
+    const ctx = bgCanvas.getContext("2d");
+    const dogActor = document.getElementById("dogActor");
+    const dogSprite = document.getElementById("dogSprite");
     const speechBubble = document.getElementById("speechBubble");
-    const bounceRing = document.getElementById("bounceRing");
-    const happinessEl = document.getElementById("happinessScore");
+    const stateLabel = document.getElementById("stateLabel");
     const luckEl = document.getElementById("luckScore");
 
-    let happiness = 100;
-    let luck = 88;
+    // 庭園可行走區域座標（百分比 x, y 為腳底位置）
+    const walkableSpots = [
+      { x: 50, y: 72, name: "庭院中央" },
+      { x: 68, y: 66, name: "踏腳石步道" },
+      { x: 78, y: 58, name: "草地右側" },
+      { x: 64, y: 52, name: "陽傘花圃旁" },
+      { x: 35, y: 74, name: "碎石小徑" },
+      { x: 38, y: 61, name: "狗屋門口" } // 狗屋睡覺點
+    ];
+
+    // 狀態管理
+    let pos = { x: 50, y: 72 };
+    let target = { x: 50, y: 72 };
+    let facing = 1; // 1: 朝右, -1: 朝左
+    let currentState = "idle"; // idle | walk | rest | jump
+    let aiTimer = null;
     let bubbleTimer = null;
+    let luck = 88;
+    let rawDogDataUrl = "";
 
-    // 說話語錄庫
-    const dogQuotes = [
-      "汪汪！最喜歡你了～ ❤️",
-      "今天天氣真好，一起散步吧！🐾",
-      "摸摸頭好舒服呀～ 🥰",
-      "我有乖乖看家喔！✨",
-      "要不要去陽傘下休息一下？☕"
-    ];
+    // 1. 初始化圖片（優先載入去背檔，若無則從 baby_dog.jpg 自動分離背景與狗狗）
+    function initScene() {
+      const customBg = new Image();
+      customBg.onload = () => {
+        ctx.drawImage(customBg, 0, 0, 1024, 1024);
+        const customDog = new Image();
+        customDog.onload = () => {
+          rawDogDataUrl = customDog.src;
+          dogSprite.src = rawDogDataUrl;
+          startAutonomousAI();
+        };
+        customDog.onerror = () => extractFromCombinedImage();
+        customDog.src = "dog_cutout.png";
+      };
+      customBg.onerror = () => extractFromCombinedImage();
+      customBg.src = "garden_bg.jpg";
+    }
 
-    const fortunes = [
-      "🧧 大吉：好運旺旺來，財源滾滾進！",
-      "🧧 上上籤：平安順心，每天都像今天一樣幸福！",
-      "🧧 招財福：貴人相助，心想事成！",
-      "🧧 健康福：活力滿滿，天天開心笑哈哈！"
-    ];
+    // 從單張合成圖自動分離「背景」與「白毛紅福袋小狗」
+    function extractFromCombinedImage() {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        // 繪製原始背景
+        ctx.drawImage(img, 0, 0, 1024, 1024);
 
-    // 顯示對話氣泡
+        // 裁切中間狗狗區域 (約 x:425~585, y:555~745)
+        const sx = 425, sy = 555, sw = 165, sh = 195;
+        const cutCanvas = document.createElement("canvas");
+        cutCanvas.width = sw;
+        cutCanvas.height = sh;
+        const cCtx = cutCanvas.getContext("2d");
+        cCtx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+
+        const imgData = cCtx.getImageData(0, 0, sw, sh);
+        const d = imgData.data;
+
+        // 智慧色度去背：保留白色毛髮、黑色眼鼻、紅色福袋與金色福字，濾除背景綠草/花朵/深灰石子
+        for (let y = 0; y < sh; y++) {
+          for (let x = 0; x < sw; x++) {
+            const idx = (y * sw + x) * 4;
+            const r = d[idx], g = d[idx + 1], b = d[idx + 2];
+
+            // 計算邊緣距離羽化
+            const nx = (x - sw * 0.5) / (sw * 0.48);
+            const ny = (y - sh * 0.52) / (sh * 0.48);
+            const dist = Math.sqrt(nx * nx + ny * ny);
+
+            // 判斷是否為狗狗特徵色（亮白灰毛、深黑五官、高飽和紅/金福袋）
+            const isWhiteFur = (r > 135 && g > 135 && b > 135 && Math.abs(r - g) < 35 && Math.abs(g - b) < 35);
+            const isBrightHighlight = (r > 175 && g > 170 && b > 165);
+            const isRedPouch = (r > 130 && r > g * 1.45 && r > b * 1.45);
+            const isGoldText = (r > 160 && g > 120 && b < 90);
+            const isEyeNose = (r < 65 && g < 65 && b < 65 && dist < 0.65);
+
+            // 背景綠草與紫粉花朵剔除
+            const isGreenGrass = (g > r * 1.08 && g > b * 1.08);
+            const isPinkFlower = (r > 150 && b > 130 && g < r * 0.78);
+
+            if (dist > 1.02 || isGreenGrass || isPinkFlower || (!isWhiteFur && !isBrightHighlight && !isRedPouch && !isGoldText && !isEyeNose)) {
+              d[idx + 3] = 0;
+            } else if (dist > 0.88) {
+              d[idx + 3] = Math.round(255 * (1 - (dist - 0.88) / 0.14));
+            }
+          }
+        }
+        cCtx.putImageData(imgData, 0, 0);
+        rawDogDataUrl = cutCanvas.toDataURL("image/png");
+        dogSprite.src = rawDogDataUrl;
+
+        // 修補背景中原本狗狗站立的位置（取左側碎石與右側草地自然融合）
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(505, 655, 72, 85, 0, 0, Math.PI * 2);
+        ctx.clip();
+        // 用周邊碎石紋理覆蓋
+        ctx.drawImage(img, 325, 625, 95, 110, 430, 570, 95, 175);
+        ctx.drawImage(img, 585, 635, 90, 110, 505, 570, 90, 175);
+        ctx.restore();
+
+        startAutonomousAI();
+      };
+      img.src = "baby_dog.jpg";
+    }
+
+    // 對話提示
     function say(text, duration = 2600) {
       speechBubble.textContent = text;
       speechBubble.classList.add("show");
       clearTimeout(bubbleTimer);
-      bubbleTimer = setTimeout(() => {
-        speechBubble.classList.remove("show");
-      }, duration);
+      bubbleTimer = setTimeout(() => speechBubble.classList.remove("show"), duration);
     }
 
-    // 產生飄浮粒子
-    function spawnParticles(emojis, centerXPercent = 50, centerYPercent = 58, count = 6) {
-      for (let i = 0; i < count; i++) {
-        const el = document.createElement("div");
-        el.className = "particle";
-        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    // 切換狗狗動作狀態
+    function setDogState(newState, labelText) {
+      currentState = newState;
+      dogActor.classList.remove("state-idle", "state-walk", "state-rest", "state-jump");
+      dogActor.classList.add(`state-${newState}`);
+      if (labelText) stateLabel.textContent = labelText;
+    }
 
-        const offsetX = (Math.random() - 0.5) * 18;
-        const offsetY = (Math.random() - 0.5) * 10;
-        el.style.left = `${centerXPercent + offsetX}%`;
-        el.style.top = `${centerYPercent + offsetY}%`;
-        el.style.animationDelay = `${i * 0.08}s`;
+    // 移動狗狗到指定座標
+    function moveDogTo(tx, ty, onArrive) {
+      target.x = Math.max(24, Math.min(82, tx));
+      target.y = Math.max(50, Math.min(78, ty));
 
-        stage.appendChild(el);
-        setTimeout(() => el.remove(), 1800);
+      if (Math.abs(target.x - pos.x) > 0.5) {
+        facing = target.x > pos.x ? 1 : -1;
+        dogSprite.style.transform = `scaleX(${facing})`;
       }
+
+      setDogState("walk", "開心地散步中 🐾");
+      dogActor.dataset.onArrive = onArrive || "";
     }
 
-    // 觸發狗狗開心震動與光圈
-    function triggerHappyEffect() {
-      stage.classList.remove("happy-shake");
-      void stage.offsetWidth;
-      stage.classList.add("happy-shake");
+    // 主動畫迴圈（流暢更新位置與透視大小）
+    function animateLoop() {
+      if (currentState === "walk") {
+        const dx = target.x - pos.x;
+        const dy = target.y - pos.y;
+        const dist = Math.hypot(dx, dy);
 
-      bounceRing.classList.remove("active");
-      void bounceRing.offsetWidth;
-      bounceRing.classList.add("active");
+        if (dist < 0.6) {
+          pos.x = target.x;
+          pos.y = target.y;
+          const arriveAction = dogActor.dataset.onArrive;
+          if (arriveAction === "rest") {
+            setDogState("rest", "趴著休息打盹中 💤");
+            say("走累了，趴下來休息一下～ 💤");
+          } else {
+            setDogState("idle", "東張西望看風景 ✨");
+          }
+        } else {
+          const speed = 0.22; // 散步速度
+          pos.x += (dx / dist) * speed;
+          pos.y += (dy / dist) * speed;
+        }
+      }
+
+      // 根據 Y 軸高度產生遠近景深縮放（越靠近畫面下方越大）
+      const depthScale = 0.78 + ((pos.y - 48) / 32) * 0.34;
+      dogActor.style.left = `${pos.x}%`;
+      dogActor.style.top = `${pos.y}%`;
+      dogActor.style.width = `${17 * depthScale}%`;
+
+      requestAnimationFrame(animateLoop);
     }
 
-    // 1. 摸摸寶貝
-    function petDog() {
-      const quote = dogQuotes[Math.floor(Math.random() * dogQuotes.length)];
-      say(quote);
-      triggerHappyEffect();
-      spawnParticles(["❤️", "🐾", "✨", "🥰"], 50, 56, 7);
+    // 自主行為 AI：定期決定「四處走動」、「原地發呆」或「趴下休息」
+    function startAutonomousAI() {
+      animateLoop();
+      say("汪！我在庭院自由活動囉～ ❤️");
 
-      happiness = Math.min(999, happiness + 5);
-      happinessEl.textContent = happiness;
+      function scheduleNextAction() {
+        const delay = 4500 + Math.random() * 4500;
+        aiTimer = setTimeout(() => {
+          if (currentState === "jump") {
+            scheduleNextAction();
+            return;
+          }
+
+          const roll = Math.random();
+          if (roll < 0.52) {
+            // 隨機選一個庭園地點散步過去
+            const spot = walkableSpots[Math.floor(Math.random() * walkableSpots.length)];
+            const jitterX = (Math.random() - 0.5) * 6;
+            const jitterY = (Math.random() - 0.5) * 4;
+            moveDogTo(spot.x + jitterX, spot.y + jitterY, Math.random() < 0.35 ? "rest" : "idle");
+            if (Math.random() < 0.45) {
+              say(`去${spot.name}逛逛～ 🐾`);
+            }
+          } else if (roll < 0.82) {
+            // 就地趴下休息
+            setDogState("rest", "趴在草地上休息 💤");
+            if (Math.random() < 0.5) say("微風吹得好舒服呀… Zzz");
+          } else {
+            // 站起來伸懶腰張望
+            setDogState("idle", "搖尾巴看風景 🌼");
+          }
+
+          scheduleNextAction();
+        }, delay);
+      }
+
+      scheduleNextAction();
     }
 
-    // 2. 餵吃肉乾
-    function feedTreat() {
-      say("嗷嗚～好好吃！謝謝主人！🦴✨");
-      triggerHappyEffect();
-      spawnParticles(["🦴", "🍖", "❤️", "⭐"], 50, 58, 8);
+    // 點擊庭院任意草地：叫寶貝走過去
+    stage.addEventListener("click", (e) => {
+      if (e.target.closest("#dogActor")) return;
 
-      happiness = Math.min(999, happiness + 10);
-      happinessEl.textContent = happiness;
+      const rect = stage.getBoundingClientRect();
+      const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+      const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+
+      // 限制在地面可行走範圍
+      const clampedY = Math.max(50, Math.min(78, clickY));
+      const clampedX = Math.max(22, Math.min(84, clickX));
+
+      // 顯示地面點擊光圈
+      const ping = document.createElement("div");
+      ping.className = "click-target";
+      ping.style.left = `${clampedX}%`;
+      ping.style.top = `${clampedY}%`;
+      stage.appendChild(ping);
+      setTimeout(() => ping.remove(), 750);
+
+      say("汪汪！我馬上過去～ 🐾");
+      moveDogTo(clampedX, clampedY, "idle");
+    });
+
+    // 點擊寶貝本身：開心跳起來撒愛心
+    dogActor.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setDogState("jump", "開心跳躍撒嬌中 ❤️");
+      say("最喜歡主人摸摸我了！汪！🥰");
+      spawnParticles(["❤️", "🐾", "✨", "🥰"], pos.x, pos.y - 10, 7);
+
+      setTimeout(() => {
+        setDogState("idle", "搖尾巴看風景 🌼");
+      }, 1000);
+    });
+
+    // 按鈕指令
+    function commandWalkRandom() {
+      const spot = walkableSpots[Math.floor(Math.random() * walkableSpots.length)];
+      say(`出發去${spot.name}！🐾`);
+      moveDogTo(spot.x, spot.y, "idle");
     }
 
-    // 3. 摸福袋求好運
+    function commandRest() {
+      setDogState("rest", "乖乖趴下休息中 💤");
+      say("好喔，我趴下來休息一下～ 💤");
+    }
+
+    function commandGoBed() {
+      say("回我的小木屋睡覺囉～ 🏠💤");
+      moveDogTo(38, 61, "rest");
+    }
+
     function openFortune() {
-      const f = fortunes[Math.floor(Math.random() * fortunes.length)];
-      say(f, 3500);
-      triggerHappyEffect();
-      spawnParticles(["🧧", "💰", "✨", "福"], 51, 65, 9);
-
+      const fortunes = [
+        "🧧 大吉：好運旺旺來，財源滾滾進！",
+        "🧧 上上籤：平安順心，每天都幸福滿滿！",
+        "🧧 招財福：貴人相助，心想事成！",
+        "🧧 健康福：活力滿滿，天天開心笑哈哈！"
+      ];
+      say(fortunes[Math.floor(Math.random() * fortunes.length)], 3400);
+      spawnParticles(["🧧", "💰", "✨", "福"], pos.x, pos.y - 12, 9);
       luck += 8;
       luckEl.textContent = luck;
     }
 
-    // 4. 切換日夜氣氛
     function toggleNight() {
       stage.classList.toggle("night-mode");
       const isNight = stage.classList.contains("night-mode");
-      if (isNight) {
-        say("晚安模式開啟，庭院地燈好浪漫～ 🌙✨");
-      } else {
-        say("黃昏暖陽模式，花朵都亮起來囉！🌸☀️");
+      say(isNight ? "晚安模式，庭院地燈亮起來囉～ 🌙" : "黃昏暖陽模式，花朵好漂亮！☀️");
+    }
+
+    function spawnParticles(emojis, cx, cy, count) {
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement("div");
+        el.className = "particle";
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = `${cx + (Math.random() - 0.5) * 16}%`;
+        el.style.top = `${cy + (Math.random() - 0.5) * 8}%`;
+        el.style.animationDelay = `${i * 0.07}s`;
+        stage.appendChild(el);
+        setTimeout(() => el.remove(), 1600);
       }
     }
 
-    // 綁定熱區點擊事件
-    document.getElementById("dogArea").addEventListener("click", petDog);
-    document.getElementById("pouchArea").addEventListener("click", (e) => {
-      e.stopPropagation();
-      openFortune();
-    });
-    document.getElementById("houseArea").addEventListener("click", toggleNight);
-    document.getElementById("patioArea").addEventListener("click", () => {
-      say("來陽傘下喝杯茶、賞繡球花吧～ ☕🌸");
-      spawnParticles(["🌸", "🦋", "✨"], 73, 42, 6);
-    });
-
-    // 自動生成庭院螢火蟲微光
-    function createFireflies() {
-      for (let i = 0; i < 12; i++) {
-        const fly = document.createElement("div");
-        fly.className = "firefly";
-        fly.style.left = `${10 + Math.random() * 80}%`;
-        fly.style.top = `${35 + Math.random() * 50}%`;
-        fly.style.animationDelay = `${Math.random() * 5}s`;
-        fly.style.animationDuration = `${4 + Math.random() * 4}s`;
-        stage.appendChild(fly);
-      }
-    }
-
-    createFireflies();
+    initScene();
   </script>
 </body>
 </html>
