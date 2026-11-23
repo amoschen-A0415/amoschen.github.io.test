@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>寶貝的 3D 幸福小庭園</title>
+  <title>寶貝的 3D 動畫幸福庭園</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body {
-      background: linear-gradient(135deg, #1a1626 0%, #2b2238 100%);
+      background: #1a1626;
       color: #fff;
       font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
       display: flex;
@@ -17,13 +17,8 @@
       min-height: 100vh;
       padding: 16px;
     }
-    header { text-align: center; margin-bottom: 12px; }
-    header h1 {
-      font-size: 1.55rem;
-      color: #ffd88a;
-      text-shadow: 0 2px 10px rgba(255, 190, 90, 0.4);
-    }
-    header p { font-size: 0.88rem; color: #d6cde0; margin-top: 4px; }
+    h1 { font-size: 1.5rem; color: #ffd88a; margin-bottom: 6px; }
+    p { font-size: 0.88rem; color: #d6cde0; margin-bottom: 12px; }
 
     .stage-wrapper {
       position: relative;
@@ -32,8 +27,7 @@
       aspect-ratio: 1 / 1;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 0 3px rgba(255, 216, 138, 0.3);
-      background: #111;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 3px rgba(255, 216, 138, 0.3);
     }
 
     #bgImg {
@@ -54,27 +48,8 @@
       cursor: pointer;
     }
 
-    .speech-bubble {
-      position: absolute;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.94);
-      color: #4a2c18;
-      padding: 8px 18px;
-      border-radius: 20px;
-      font-weight: bold;
-      font-size: 0.95rem;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-      z-index: 10;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
     .controls {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
       gap: 10px;
       margin-top: 14px;
     }
@@ -85,325 +60,181 @@
       border: none;
       padding: 9px 18px;
       border-radius: 999px;
-      font-size: 0.92rem;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transition: transform 0.15s ease;
     }
-    button:hover { transform: translateY(-2px); }
-    button:active { transform: scale(0.95); }
   </style>
-  <!-- 引入 Three.js 3D 引擎 -->
+
+  <!-- 引入 Three.js 與 GLTFLoader（載入真實 3D 動畫模型） -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
 
-  <header>
-    <h1>🐾 寶貝的 3D 互動庭園 🧧</h1>
-    <p>點擊草地任意位置，3D 寶貝就會邁開四肢跑過去！</p>
-  </header>
+  <h1>🐾 寶貝的 3D 動畫幸福庭園 🧧</h1>
+  <p>點擊草地任意處，寶貝就會跑過去；網頁開著也會自動散步與休息</p>
 
   <div class="stage-wrapper" id="stage">
-    <!-- 建議放入乾淨的庭院背景圖，若無則載入 baby_dog.jpg -->
-    <img id="bgImg" src="baby_dog.jpg" alt="庭園背景" />
-    <div class="speech-bubble" id="bubble">汪汪！我是立體的寶貝喔～ 🐾</div>
+    <!-- 步驟一產生的乾淨背景圖 -->
+    <img id="bgImg" src="garden_bg.jpg" alt="庭園背景" />
     <canvas id="threeCanvas"></canvas>
   </div>
 
   <div class="controls">
-    <button onclick="setBehavior('wander')">🐾 自由四處跑</button>
-    <button onclick="setBehavior('rest')">💤 趴下休息</button>
-    <button onclick="setBehavior('happy')">❤️ 開心轉圈搖尾巴</button>
+    <button onclick="switchAction('walk')">🐾 自由散步</button>
+    <button onclick="switchAction('rest')">💤 趴下休息</button>
   </div>
 
   <script>
-    const stage = document.getElementById("stage");
     const canvas = document.getElementById("threeCanvas");
-    const bubble = document.getElementById("bubble");
-
-    function say(text) {
-      bubble.textContent = text;
-    }
-
-    // 1. 初始化 Three.js 場景與透視相機（對齊庭園照片的俯視角度）
     const scene = new THREE.Scene();
+
+    // 對齊庭園照片的透視視角
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-    camera.position.set(0, 8.5, 11.5);
-    camera.lookAt(0, 0.5, 0);
+    camera.position.set(0, 8.2, 11.2);
+    camera.lookAt(0, 0.4, 0);
 
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setSize(680, 680);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.shadowMap.enabled = true;
 
-    // 2. 燈光（模擬黃昏庭園暖光）
-    const ambientLight = new THREE.AmbientLight(0xfff5e4, 0.85);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffdfb0, 0.9);
+    // 黃昏暖光照明
+    scene.add(new THREE.AmbientLight(0xfff4e0, 1.1));
+    const dirLight = new THREE.DirectionalLight(0xffdfb0, 1.1);
     dirLight.position.set(-4, 10, 6);
     dirLight.castShadow = true;
     scene.add(dirLight);
 
-    // 透明接收陰影的庭園地板
-    const groundGeo = new THREE.PlaneGeometry(20, 20);
-    const groundMat = new THREE.ShadowMaterial({ opacity: 0.35 });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
+    // 接收腳底陰影的透明地板
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(20, 20),
+      new THREE.ShadowMaterial({ opacity: 0.38 })
+    );
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // 3. 打造 3D 白色長毛小狗 + 紅底金字「福」字福袋
-    const dogGroup = new THREE.Group();
-    scene.add(dogGroup);
+    let dogModel = null;
+    let mixer = null;
+    let actions = {};
+    let activeAction = null;
+    let mode = "walk";
+    let targetPos = new THREE.Vector3(0.5, 0, 1.2);
 
-    const furMat = new THREE.MeshStandardMaterial({ color: 0xfaf8f5, roughness: 0.75 });
-    const earFurMat = new THREE.MeshStandardMaterial({ color: 0xede7df, roughness: 0.8 });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x1a1512, roughness: 0.2 });
-    const redMat = new THREE.MeshStandardMaterial({ color: 0xd92626, roughness: 0.4 });
-    const goldMat = new THREE.MeshStandardMaterial({ color: 0xffd15c, metalness: 0.5, roughness: 0.3 });
-
-    // 身體軀幹
-    const bodyGroup = new THREE.Group();
-    bodyGroup.position.y = 0.75;
-    dogGroup.add(bodyGroup);
-
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.68, 1.15), furMat);
-    torso.castShadow = true;
-    // 用圓角球體柔化身體線條
-    const torsoFront = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 16), furMat);
-    torsoFront.position.z = 0.42;
-    torsoFront.castShadow = true;
-    const torsoBack = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), furMat);
-    torsoBack.position.z = -0.42;
-    torsoBack.castShadow = true;
-    bodyGroup.add(torso, torsoFront, torsoBack);
-
-    // 紅繩項圈與「福」字小福袋
-    const collar = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.035, 10, 24), redMat);
-    collar.position.set(0, 0.18, 0.52);
-    collar.rotation.x = Math.PI / 3;
-    bodyGroup.add(collar);
-
-    // 繪製「福」字貼圖給福袋使用
-    const pouchCanvas = document.createElement("canvas");
-    pouchCanvas.width = 128;
-    pouchCanvas.height = 128;
-    const pCtx = pouchCanvas.getContext("2d");
-    pCtx.fillStyle = "#d92626";
-    pCtx.fillRect(0, 0, 128, 128);
-    pCtx.strokeStyle = "#ffd15c";
-    pCtx.lineWidth = 8;
-    pCtx.strokeRect(8, 8, 112, 112);
-    pCtx.fillStyle = "#ffd15c";
-    pCtx.font = "bold 76px 'Microsoft JhengHei', serif";
-    pCtx.textAlign = "center";
-    pCtx.textBaseline = "middle";
-    pCtx.fillText("福", 64, 68);
-    const pouchTex = new THREE.CanvasTexture(pouchCanvas);
-
-    const pouchMat = new THREE.MeshStandardMaterial({ map: pouchTex, roughness: 0.45 });
-    const pouch = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 16), pouchMat);
-    pouch.scale.set(1, 1.15, 0.65);
-    pouch.position.set(0, -0.05, 0.85);
-    pouch.rotation.y = Math.PI / 2;
-    bodyGroup.add(pouch);
-
-    // 頭部群組
-    const headGroup = new THREE.Group();
-    headGroup.position.set(0, 0.45, 0.68);
-    bodyGroup.add(headGroup);
-
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.44, 20, 20), furMat);
-    head.castShadow = true;
-    headGroup.add(head);
-
-    // 蓬鬆嘴毛
-    const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), furMat);
-    muzzle.position.set(0, -0.08, 0.34);
-    headGroup.add(muzzle);
-
-    // 黑鼻子與圓眼睛
-    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 12), darkMat);
-    nose.position.set(0, -0.02, 0.53);
-    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), darkMat);
-    eyeL.position.set(-0.16, 0.08, 0.39);
-    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), darkMat);
-    eyeR.position.set(0.16, 0.08, 0.39);
-    headGroup.add(nose, eyeL, eyeR);
-
-    // 垂耳（左右）
-    const earGeo = new THREE.SphereGeometry(0.18, 14, 14);
-    earGeo.scale(0.65, 1.6, 0.9);
-    const earL = new THREE.Mesh(earGeo, earFurMat);
-    earL.position.set(-0.42, -0.05, 0.02);
-    earL.rotation.z = 0.22;
-    const earR = new THREE.Mesh(earGeo, earFurMat);
-    earR.position.set(0.42, -0.05, 0.02);
-    earR.rotation.z = -0.22;
-    headGroup.add(earL, earR);
-
-    // 尾巴
-    const tail = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 12), furMat);
-    tail.scale.set(0.8, 1.5, 0.8);
-    tail.position.set(0, 0.25, -0.75);
-    tail.rotation.x = -0.5;
-    bodyGroup.add(tail);
-
-    // 四肢關節（左前、右前、左後、右後）
-    function createLeg(x, z) {
-      const pivot = new THREE.Group();
-      pivot.position.set(x, 0.55, z);
-      const legMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.11, 0.55, 12), furMat);
-      legMesh.position.y = -0.27;
-      legMesh.castShadow = true;
-      pivot.add(legMesh);
-      dogGroup.add(pivot);
-      return pivot;
-    }
-
-    const legFL = createLeg(-0.24, 0.42);
-    const legFR = createLeg(0.24, 0.42);
-    const legBL = createLeg(-0.24, -0.42);
-    const legBR = createLeg(0.24, -0.42);
-
-    // 4. 行為狀態與移動控制
-    let mode = "wander"; // wander | rest | happy
-    let targetPos = new THREE.Vector3(1.5, 0, 1.2);
-    let walkTime = 0;
-
-    // 庭園安全行走範圍（3D 座標）
     const spots = [
       new THREE.Vector3(0.2, 0, 1.6),
-      new THREE.Vector3(2.4, 0, 0.8),
-      new THREE.Vector3(3.1, 0, -0.6),
-      new THREE.Vector3(1.2, 0, -1.4),
-      new THREE.Vector3(-1.5, 0, 1.8),
-      new THREE.Vector3(-1.2, 0, 0.2)
+      new THREE.Vector3(2.3, 0, 0.7),
+      new THREE.Vector3(3.0, 0, -0.5),
+      new THREE.Vector3(1.1, 0, -1.3),
+      new THREE.Vector3(-1.3, 0, 1.6)
     ];
 
-    function setBehavior(newMode) {
+    // 載入 Tripo3D / Meshy 生成的 baby_dog.glb 模型
+    const loader = new THREE.GLTFLoader();
+    loader.load("baby_dog.glb", (gltf) => {
+      dogModel = gltf.scene;
+
+      // 自動正規化模型大小與腳底貼地
+      const box = new THREE.Box3().setFromObject(dogModel);
+      const size = box.getSize(new THREE.Vector3());
+      const scale = 1.45 / Math.max(size.x, size.y, size.z);
+      dogModel.scale.setScalar(scale);
+
+      const center = box.getCenter(new THREE.Vector3());
+      dogModel.position.set(0, -box.min.y * scale, 0);
+
+      dogModel.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+
+      scene.add(dogModel);
+
+      // 綁定模型內建動畫（奔跑 / 待機休息）
+      if (gltf.animations && gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(dogModel);
+        gltf.animations.forEach((clip) => {
+          const name = clip.name.toLowerCase();
+          if (name.includes("run") || name.includes("walk")) {
+            actions.walk = mixer.clipAction(clip);
+          } else {
+            actions.rest = mixer.clipAction(clip);
+          }
+        });
+        if (!actions.walk) actions.walk = mixer.clipAction(gltf.animations[0]);
+        if (!actions.rest) actions.rest = mixer.clipAction(gltf.animations[gltf.animations.length - 1]);
+        playClip(actions.walk);
+      }
+    });
+
+    function playClip(nextClip) {
+      if (!nextClip || activeAction === nextClip) return;
+      if (activeAction) activeAction.fadeOut(0.3);
+      nextClip.reset().fadeIn(0.3).play();
+      activeAction = nextClip;
+    }
+
+    function switchAction(newMode) {
       mode = newMode;
-      if (newMode === "wander") {
-        pickNewDestination();
-        say("汪汪！邁開四肢去草地跑跑囉～ 🐾");
-      } else if (newMode === "rest") {
-        say("玩累了，趴在草地上吹風休息… Zzz 💤");
-      } else if (newMode === "happy") {
-        say("最喜歡主人了！轉圈圈搖尾巴～ ❤️");
-        setTimeout(() => { if (mode === "happy") setBehavior("wander"); }, 3500);
+      if (newMode === "walk") {
+        targetPos.copy(spots[Math.floor(Math.random() * spots.length)]);
+        playClip(actions.walk);
+      } else {
+        playClip(actions.rest);
       }
     }
 
-    function pickNewDestination() {
-      const next = spots[Math.floor(Math.random() * spots.length)];
-      targetPos.copy(next);
-    }
-
-    // 點擊畫面任意草地，讓 3D 狗狗跑過去
+    // 點擊草地讓寶貝跑過去
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-
     canvas.addEventListener("click", (e) => {
       const rect = canvas.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
       raycaster.setFromCamera(mouse, camera);
       const hits = raycaster.intersectObject(ground);
       if (hits.length > 0) {
-        const pt = hits[0].point;
-        // 限制在庭院圍欄內
-        targetPos.x = Math.max(-2.6, Math.min(3.5, pt.x));
-        targetPos.z = Math.max(-1.8, Math.min(2.4, pt.z));
-        mode = "wander";
-        say("汪！我馬上跑過去～ 🐾");
+        targetPos.x = Math.max(-2.4, Math.min(3.3, hits[0].point.x));
+        targetPos.z = Math.max(-1.6, Math.min(2.2, hits[0].point.z));
+        mode = "walk";
+        playClip(actions.walk);
       }
     });
 
-    // 自動 AI 切換散步與休息
+    // 自動循環：散步與休息切換
     setInterval(() => {
-      if (mode === "happy") return;
-      const r = Math.random();
-      if (r < 0.65) {
-        mode = "wander";
-        pickNewDestination();
+      if (Math.random() < 0.65) {
+        switchAction("walk");
       } else {
-        mode = "rest";
-        say("跑累了，趴下來休息一下～ 💤");
+        switchAction("rest");
       }
-    }, 6000);
+    }, 6500);
 
-    // 5. 3D 動畫更新迴圈
     const clock = new THREE.Clock();
-
     function animate() {
       requestAnimationFrame(animate);
       const dt = clock.getDelta();
-      walkTime += dt;
+      if (mixer) mixer.update(dt);
 
-      if (mode === "wander") {
-        const dir = new THREE.Vector3().subVectors(targetPos, dogGroup.position);
+      if (dogModel && mode === "walk") {
+        const dir = new THREE.Vector3().subVectors(targetPos, dogModel.position);
         dir.y = 0;
-        const dist = dir.length();
-
-        if (dist > 0.15) {
-          // 平滑轉向面對前進方向
-          const targetAngle = Math.atan2(dir.x, dir.z);
-          let diff = targetAngle - dogGroup.rotation.y;
-          while (diff > Math.PI) diff -= Math.PI * 2;
-          while (diff < -Math.PI) diff += Math.PI * 2;
-          dogGroup.rotation.y += diff * 0.12;
-
-          // 前進
+        if (dir.length() > 0.15) {
+          const angle = Math.atan2(dir.x, dir.z);
+          dogModel.rotation.y += (angle - dogModel.rotation.y) * 0.12;
           dir.normalize();
-          dogGroup.position.addScaledVector(dir, dt * 1.8);
-
-          // 四肢奔跑擺動
-          const swing = Math.sin(walkTime * 14) * 0.65;
-          legFL.rotation.x = swing;
-          legBR.rotation.x = swing;
-          legFR.rotation.x = -swing;
-          legBL.rotation.x = -swing;
-
-          // 身體上下彈跳與耳尾晃動
-          bodyGroup.position.y = THREE.MathUtils.lerp(bodyGroup.position.y, 0.75 + Math.abs(Math.sin(walkTime * 14)) * 0.08, 0.2);
-          tail.rotation.z = Math.sin(walkTime * 18) * 0.4;
-          earL.rotation.z = 0.22 + Math.abs(Math.sin(walkTime * 14)) * 0.15;
-          earR.rotation.z = -0.22 - Math.abs(Math.sin(walkTime * 14)) * 0.15;
+          dogModel.position.addScaledVector(dir, dt * 1.6);
+          playClip(actions.walk);
         } else {
-          // 抵達目的地，自然站立呼吸
-          legFL.rotation.x = THREE.MathUtils.lerp(legFL.rotation.x, 0, 0.15);
-          legFR.rotation.x = THREE.MathUtils.lerp(legFR.rotation.x, 0, 0.15);
-          legBL.rotation.x = THREE.MathUtils.lerp(legBL.rotation.x, 0, 0.15);
-          legBR.rotation.x = THREE.MathUtils.lerp(legBR.rotation.x, 0, 0.15);
-          bodyGroup.position.y = THREE.MathUtils.lerp(bodyGroup.position.y, 0.75 + Math.sin(walkTime * 3) * 0.02, 0.15);
-          tail.rotation.z = Math.sin(walkTime * 8) * 0.35;
+          playClip(actions.rest);
         }
-      } else if (mode === "rest") {
-        // 趴下休息姿勢：身體貼近草地，四肢往前伸平
-        bodyGroup.position.y = THREE.MathUtils.lerp(bodyGroup.position.y, 0.42 + Math.sin(walkTime * 2) * 0.015, 0.08);
-        legFL.rotation.x = THREE.MathUtils.lerp(legFL.rotation.x, -1.25, 0.08);
-        legFR.rotation.x = THREE.MathUtils.lerp(legFR.rotation.x, -1.25, 0.08);
-        legBL.rotation.x = THREE.MathUtils.lerp(legBL.rotation.x, 1.25, 0.08);
-        legBR.rotation.x = THREE.MathUtils.lerp(legBR.rotation.x, 1.25, 0.08);
-        headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, 0.18, 0.08);
-        tail.rotation.z = Math.sin(walkTime * 2) * 0.1;
-      } else if (mode === "happy") {
-        // 開心原地轉圈跳躍
-        dogGroup.rotation.y += dt * 4.5;
-        bodyGroup.position.y = 0.75 + Math.abs(Math.sin(walkTime * 12)) * 0.25;
-        tail.rotation.z = Math.sin(walkTime * 25) * 0.6;
       }
-
-      if (mode !== "rest") {
-        headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, 0, 0.1);
-      }
-
       renderer.render(scene, camera);
     }
-
     animate();
   </script>
 </body>
