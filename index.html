@@ -1,1 +1,1441 @@
-我很帥
+<!DOCTYPE html>
+<html lang="zh-Hant" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>電腦效能診斷與工作流優化助手</title>
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 載入 Inter 字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    // 配置 Tailwind 深色模式與字體家族
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans TC"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+            },
+          },
+          boxShadow: {
+            glow: '0 0 25px -5px rgba(14, 165, 233, 0.35)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* 自定義細緻滾動條與平滑過渡 */
+    body {
+      font-family: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+    }
+
+    .progress-bar-fill {
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .animate-pulse-soft {
+      animation: pulseSoft 1.8s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-sky-500/20 selection:text-sky-400">
+  <!-- 頂部導覽列 -->
+  <header class="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/25 shrink-0">
+          <!-- 儀表板 SVG 圖示 -->
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div class="truncate">
+          <h1 class="text-base sm:text-lg font-bold tracking-tight truncate">
+            電腦效能診斷與工作流優化助手
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block truncate">
+            瀏覽器安全沙箱基準測試 × 個人化工作專注與精簡建議
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <!-- 深色 / 淺色主題切換按鈕 -->
+        <button
+          id="themeToggleBtn"
+          type="button"
+          class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors"
+          aria-label="切換深色或淺色模式"
+          title="切換深色/淺色模式"
+        >
+          <!-- 太陽圖示（深色模式下顯示以切換至淺色） -->
+          <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <!-- 月亮圖示（淺色模式下顯示以切換至深色） -->
+          <svg id="moonIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+
+        <!-- 一鍵執行效能檢測主按鈕 -->
+        <button
+          id="runDiagnosticBtn"
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 active:scale-[0.99] text-white text-sm font-semibold shadow-md shadow-sky-500/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <svg id="runBtnIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="runBtnText">一鍵執行效能檢測</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    <!-- 瀏覽器資安沙箱說明橫幅 -->
+    <section
+      aria-label="瀏覽器資安沙箱說明"
+      class="rounded-2xl border border-sky-200/80 dark:border-sky-800/60 bg-sky-50/90 dark:bg-sky-950/35 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+    >
+      <div class="flex items-start gap-3.5">
+        <div class="w-9 h-9 rounded-xl bg-sky-500/15 dark:bg-sky-400/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 mt-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <div class="space-y-1 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          <p class="font-semibold text-slate-900 dark:text-white">
+            安全沙箱偵測聲明（純前端本機運算，不上傳任何資料）
+          </p>
+          <p>
+            基於瀏覽器資安沙箱機制，網頁<strong>無法直接讀取作業系統底層的即時 CPU 佔用率</strong>或<strong>完整背景處理程序（Process）清單</strong>。本工具透過標準 Web APIs 讀取可用的硬體線索，並在本機執行 CPU 算力與 Canvas 渲染幀率基準測試，提供實用的工作流精簡與效率建議。
+          </p>
+        </div>
+      </div>
+
+      <!-- 檢測進度狀態徽章 -->
+      <div id="statusBadge" class="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 shrink-0 flex items-center gap-2">
+        <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+        <span id="statusText">就緒・尚未執行基準測試</span>
+      </div>
+    </section>
+
+    <!-- 即時檢測進度條卡片（執行測試時顯示） -->
+    <section
+      id="progressCard"
+      class="hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm"
+    >
+      <div class="flex items-center justify-between text-xs sm:text-sm mb-2">
+        <span id="progressLabel" class="font-semibold text-sky-600 dark:text-sky-400">準備開始檢測...</span>
+        <span id="progressPercent" class="font-mono font-bold text-slate-700 dark:text-slate-200">0%</span>
+      </div>
+      <div class="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+        <div id="progressBar" class="progress-bar-fill h-full w-0 rounded-full bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-500"></div>
+      </div>
+    </section>
+
+    <!-- 第一區塊：綜合效能評級與基準測試結果 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- 綜合效能評級卡片（佔 4 欄） -->
+      <section class="lg:col-span-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-5 rounded-full bg-sky-500"></span>
+              綜合效能評級
+            </h2>
+            <span id="lastTestedLabel" class="text-xs text-slate-400">尚未跑分</span>
+          </div>
+
+          <!-- 等級徽章與分數 -->
+          <div class="flex items-center gap-4 my-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/70">
+            <div
+              id="gradeBadge"
+              class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-400 to-slate-600 text-white font-extrabold text-3xl flex items-center justify-center shadow-inner shrink-0"
+            >
+              --
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-slate-500 dark:text-slate-400">綜合基準指數</div>
+              <div class="flex items-baseline gap-1.5">
+                <span id="overallScore" class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">0</span>
+                <span class="text-xs font-medium text-slate-400">/ 100 分</span>
+              </div>
+              <p id="gradeTitle" class="text-xs font-semibold text-sky-600 dark:text-sky-400 mt-0.5 truncate">
+                點擊上方按鈕開始診斷
+              </p>
+            </div>
+          </div>
+
+          <p id="gradeSummary" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            執行基準測試後，系統將依邏輯核心數、記憶體估計、CPU 運算速度與圖形渲染流暢度計算綜合等級（S / A / B / C），並為你搭配合適的工作流策略。
+          </p>
+        </div>
+
+        <!-- 細項分數條 -->
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-500 dark:text-slate-400">CPU 算力權重分數</span>
+              <span id="cpuSubScoreText" class="font-semibold text-slate-700 dark:text-slate-200">--</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div id="cpuSubBar" class="progress-bar-fill h-full w-0 rounded-full bg-sky-500"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-500 dark:text-slate-400">圖形渲染流暢度分數</span>
+              <span id="fpsSubScoreText" class="font-semibold text-slate-700 dark:text-slate-200">--</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div id="fpsSubBar" class="progress-bar-fill h-full w-0 rounded-full bg-indigo-500"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 即時效能基準測試（CPU + Canvas FPS）（佔 8 欄） -->
+      <section class="lg:col-span-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-5 rounded-full bg-indigo-500"></span>
+              即時效能基準測試（Benchmark）
+            </h2>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-medium">
+              本機算力 × 動畫幀率
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- CPU 算力測試卡片 -->
+            <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                    CPU 數學與質數算力
+                  </span>
+                  <span id="cpuElapsedText" class="text-xs font-mono text-slate-500 dark:text-slate-400">耗時: -- ms</span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                  <span id="cpuOpsText" class="text-2xl font-extrabold text-slate-900 dark:text-white">--</span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">次有效運算 / 毫秒指標</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                  透過密集質數篩選與浮點矩陣運算評估單執行緒反應速度與排程穩定度。
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between text-xs">
+                <span class="text-slate-500 dark:text-slate-400">算力評估</span>
+                <span id="cpuVerdictText" class="font-semibold text-slate-700 dark:text-slate-200">等待測試</span>
+              </div>
+            </div>
+
+            <!-- 圖形渲染 FPS 測試卡片 -->
+            <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                    Canvas 圖形渲染 FPS
+                  </span>
+                  <span id="fpsSampleText" class="text-xs font-mono text-slate-500 dark:text-slate-400">取樣: ~1.5s</span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                  <span id="fpsValueText" class="text-2xl font-extrabold text-slate-900 dark:text-white">--</span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">平均 FPS（最高 <span id="fpsMaxText">--</span>）</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                  使用 <code class="px-1 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700 text-[11px]">requestAnimationFrame</code> 繪製動態粒子與幾何波形，偵測畫面掉幀與合成器負載。
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between text-xs">
+                <span class="text-slate-500 dark:text-slate-400">畫面流暢度</span>
+                <span id="fpsVerdictText" class="font-semibold text-slate-700 dark:text-slate-200">等待測試</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 即時 Canvas 渲染預覽區 -->
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
+            <span>即時圖形渲染測試畫布（測試期間顯示動態粒子流暢度）</span>
+            <span id="liveFrameCounter" class="font-mono">即時 FPS: --</span>
+          </div>
+          <div class="relative w-full h-28 sm:h-32 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950">
+            <canvas id="benchmarkCanvas" class="w-full h-full block"></canvas>
+            <div
+              id="canvasIdleOverlay"
+              class="absolute inset-0 flex items-center justify-center bg-slate-950/60 backdrop-blur-[1px] text-xs sm:text-sm text-slate-300 px-4 text-center"
+            >
+              按下「一鍵執行效能檢測」即可啟動即時 Canvas 動畫幀率測試
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 第二區塊：硬體與瀏覽器環境資訊 -->
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span class="w-2 h-5 rounded-full bg-emerald-500"></span>
+            硬體與瀏覽器環境資訊
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            部分 API 因隱私保護可能回傳上限值或未揭露；若記憶體未揭露，你可手動選擇或依系統推估以獲得更精準的建議。
+          </p>
+        </div>
+
+        <!-- 手動記憶體覆寫選擇器（當 navigator.deviceMemory 未揭露或使用者想自行指定時） -->
+        <div class="flex items-center gap-2 text-xs">
+          <label for="manualMemorySelect" class="text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap">
+            記憶體參考值：
+          </label>
+          <select
+            id="manualMemorySelect"
+            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+          >
+            <option value="auto">自動偵測（未揭露時估計 8 GB）</option>
+            <option value="4">4 GB（入門/輕量機）</option>
+            <option value="8">8 GB（主流文書/一般多工）</option>
+            <option value="16">16 GB（進階多工/開發/剪輯）</option>
+            <option value="32">32 GB 以上（高階工作站）</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 6 張硬體資訊卡片 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- 邏輯核心數 -->
+        <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 p-4">
+          <div class="text-xs text-slate-500 dark:text-slate-400">邏輯處理器核心數</div>
+          <div id="hwCores" class="text-xl font-bold text-slate-900 dark:text-white mt-1">-- 核心</div>
+          <div id="hwCoresHint" class="text-xs text-slate-500 dark:text-slate-400 mt-1">navigator.hardwareConcurrency</div>
+        </div>
+
+        <!-- 記憶體估計 -->
+        <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 p-4">
+          <div class="text-xs text-slate-500 dark:text-slate-400">系統記憶體（RAM 估計）</div>
+          <div id="hwMemory" class="text-xl font-bold text-slate-900 dark:text-white mt-1">偵測中...</div>
+          <div id="hwMemoryHint" class="text-xs text-slate-500 dark:text-slate-400 mt-1">navigator.deviceMemory</div>
+        </div>
+
+        <!-- 螢幕解析度與像素比 -->
+        <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 p-4">
+          <div class="text-xs text-slate-500 dark:text-slate-400">螢幕解析度與像素比（DPR）</div>
+          <div id="hwDisplay" class="text-xl font-bold text-slate-900 dark:text-white mt-1">-- × --</div>
+          <div id="hwDisplayHint" class="text-xs text-slate-500 dark:text-slate-400 mt-1">DPR: -- · 色彩深度: -- bit</div>
+        </div>
+
+        <!-- 網路連線狀態 -->
+        <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 p-4">
+          <div class="text-xs text-slate-500 dark:text-slate-400">網路連線狀態</div>
+          <div id="hwNetwork" class="text-xl font-bold text-slate-900 dark:text-white mt-1">--</div>
+          <div id="hwNetworkHint" class="text-xs text-slate-500 dark:text-slate-400 mt-1">navigator.connection</div>
+        </div>
+
+        <!-- 作業系統資訊 -->
+        <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 p-4">
+          <div class="text-xs text-slate-500 dark:text-slate-400">作業系統與平台</div>
+          <div id="hwOS" class="text-xl font-bold text-slate-900 dark:text-white mt-1">--</div>
+          <div id="hwOSHint" class="text-xs text-slate-500 dark:text-slate-400 mt-1">語系: --</div>
+        </div>
+
+        <!-- 瀏覽器資訊 -->
+        <div class="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 p-4">
+          <div class="text-xs text-slate-500 dark:text-slate-400">瀏覽器核心與引擎</div>
+          <div id="hwBrowser" class="text-xl font-bold text-slate-900 dark:text-white mt-1">--</div>
+          <div id="hwBrowserHint" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Cookie / 線上狀態: --</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第三區塊：工作情境選擇與個人化優化清單 -->
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-sm space-y-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span class="w-2 h-5 rounded-full bg-amber-500"></span>
+            目前工作情境與個人化優化建議
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            勾選你目前正在進行的工作型態（可複選），系統將結合硬體效能與基準測試結果，產生「建議關閉/精簡」與「工作效能提升」行動清單。
+          </p>
+        </div>
+
+        <!-- 優化完成度與預估釋放提示 -->
+        <div class="rounded-2xl bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-emerald-500/10 border border-sky-500/20 px-4 py-3 min-w-[260px]">
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-semibold text-slate-700 dark:text-slate-200">優化行動完成度</span>
+            <span id="checklistProgressText" class="font-mono font-bold text-emerald-600 dark:text-emerald-400">0 / 0 項</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-slate-200/80 dark:bg-slate-800 overflow-hidden mb-2">
+            <div id="checklistProgressBar" class="progress-bar-fill h-full w-0 rounded-full bg-emerald-500"></div>
+          </div>
+          <p id="estimatedGainText" class="text-[11px] text-slate-600 dark:text-slate-300 leading-snug">
+            勾選完成項目後，將顯示預估釋放的注意力與系統流暢度提升提示。
+          </p>
+        </div>
+      </div>
+
+      <!-- 工作情境多選按鈕列 -->
+      <div>
+        <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+          選擇目前工作情境（可多選）
+        </div>
+        <div id="scenarioButtons" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <!-- 由 JS 渲染情境卡片按鈕 -->
+        </div>
+      </div>
+
+      <!-- 雙欄建議清單：建議關閉/精簡 vs 工作效能提升 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 建議關閉 / 暫停 / 精簡項目 -->
+        <div class="rounded-2xl border border-rose-200/80 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/15 p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm sm:text-base font-bold text-rose-700 dark:text-rose-300 flex items-center gap-2">
+              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+              建議關閉 / 暫停 / 精簡項目
+            </h3>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 font-semibold">
+              減負與防干擾
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mb-4">
+            減少背景記憶體爭奪、CPU 突波與通知干擾，把算力留給當下最重要的任務。
+          </p>
+          <div id="reduceListContainer" class="space-y-2.5">
+            <!-- 由 JS 動態產生 -->
+          </div>
+        </div>
+
+        <!-- 工作效能提升建議 -->
+        <div class="rounded-2xl border border-emerald-200/80 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-950/15 p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              工作效能提升建議
+            </h3>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold">
+              專注與流程加速
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mb-4">
+            搭配硬體特性與工作節奏調整操作方式，縮短切換成本並提升產出品質。
+          </p>
+          <div id="boostListContainer" class="space-y-2.5">
+            <!-- 由 JS 動態產生 -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 頁尾說明 -->
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+    電腦效能診斷與工作流優化助手 ・ 所有運算均於您的瀏覽器本機完成，不會收集或外傳任何個人資料。
+  </footer>
+
+  <script>
+    /**
+     * 應用程式全域狀態管理
+     * 存放硬體偵測結果、基準測試數據、使用者勾選的工作情境與已完成建議項目。
+     */
+    const appState = {
+      isRunning: false,
+      lastTestedAt: null,
+      hardware: {
+        cores: navigator.hardwareConcurrency || null,
+        reportedMemory: navigator.deviceMemory || null,
+        effectiveMemoryGB: 8,
+        memorySource: '估計值',
+        screenWidth: window.screen ? window.screen.width : 0,
+        screenHeight: window.screen ? window.screen.height : 0,
+        dpr: window.devicePixelRatio || 1,
+        colorDepth: window.screen ? window.screen.colorDepth : 24,
+        connectionType: '未知',
+        downlink: null,
+        rtt: null,
+        saveData: false,
+        osName: '未知作業系統',
+        language: navigator.language || 'zh-TW',
+        browserName: '未知瀏覽器',
+        onLine: navigator.onLine,
+        cookieEnabled: navigator.cookieEnabled,
+      },
+      benchmark: {
+        cpuDurationMs: null,
+        cpuScore: 0, // 0 - 100
+        cpuIndexLabel: '--',
+        avgFps: null,
+        maxFps: null,
+        fpsScore: 0, // 0 - 100
+        overallScore: 0, // 0 - 100
+        grade: '--',
+      },
+      selectedScenarios: ['general'], // 預設勾選「一般文書/多開分頁」
+      completedIds: new Set(),
+      currentRecommendations: {
+        reduce: [],
+        boost: [],
+      },
+    };
+
+    // 工作情境定義
+    const WORK_SCENARIOS = [
+      {
+        id: 'meeting',
+        title: '視訊會議 / 直播',
+        desc: 'Zoom / Teams / Meet /  OBS 串流',
+        tag: '即時音視訊與編碼',
+      },
+      {
+        id: 'dev',
+        title: '大型資料 / 程式開發',
+        desc: 'IDE / Docker / 容器 / 腳本或資料處理',
+        tag: '多工與 CPU/記憶體密集',
+      },
+      {
+        id: 'creative',
+        title: '設計 / 剪輯',
+        desc: 'Figma / Photoshop / 影片剪輯與合成',
+        tag: '圖形渲染與高解析畫布',
+      },
+      {
+        id: 'general',
+        title: '一般文書 / 多開分頁',
+        desc: '瀏覽器多分頁 / 試算表 / 文件協作',
+        tag: '分頁管理與專注節奏',
+      },
+    ];
+
+    // DOM 元素快取
+    const dom = {
+      html: document.documentElement,
+      themeToggleBtn: document.getElementById('themeToggleBtn'),
+      sunIcon: document.getElementById('sunIcon'),
+      moonIcon: document.getElementById('moonIcon'),
+      runDiagnosticBtn: document.getElementById('runDiagnosticBtn'),
+      runBtnText: document.getElementById('runBtnText'),
+      statusDot: document.getElementById('statusDot'),
+      statusText: document.getElementById('statusText'),
+      progressCard: document.getElementById('progressCard'),
+      progressLabel: document.getElementById('progressLabel'),
+      progressPercent: document.getElementById('progressPercent'),
+      progressBar: document.getElementById('progressBar'),
+
+      // 綜合評級
+      lastTestedLabel: document.getElementById('lastTestedLabel'),
+      gradeBadge: document.getElementById('gradeBadge'),
+      overallScore: document.getElementById('overallScore'),
+      gradeTitle: document.getElementById('gradeTitle'),
+      gradeSummary: document.getElementById('gradeSummary'),
+      cpuSubScoreText: document.getElementById('cpuSubScoreText'),
+      cpuSubBar: document.getElementById('cpuSubBar'),
+      fpsSubScoreText: document.getElementById('fpsSubScoreText'),
+      fpsSubBar: document.getElementById('fpsSubBar'),
+
+      // 基準測試
+      cpuElapsedText: document.getElementById('cpuElapsedText'),
+      cpuOpsText: document.getElementById('cpuOpsText'),
+      cpuVerdictText: document.getElementById('cpuVerdictText'),
+      fpsSampleText: document.getElementById('fpsSampleText'),
+      fpsValueText: document.getElementById('fpsValueText'),
+      fpsMaxText: document.getElementById('fpsMaxText'),
+      fpsVerdictText: document.getElementById('fpsVerdictText'),
+      liveFrameCounter: document.getElementById('liveFrameCounter'),
+      benchmarkCanvas: document.getElementById('benchmarkCanvas'),
+      canvasIdleOverlay: document.getElementById('canvasIdleOverlay'),
+
+      // 硬體資訊
+      manualMemorySelect: document.getElementById('manualMemorySelect'),
+      hwCores: document.getElementById('hwCores'),
+      hwCoresHint: document.getElementById('hwCoresHint'),
+      hwMemory: document.getElementById('hwMemory'),
+      hwMemoryHint: document.getElementById('hwMemoryHint'),
+      hwDisplay: document.getElementById('hwDisplay'),
+      hwDisplayHint: document.getElementById('hwDisplayHint'),
+      hwNetwork: document.getElementById('hwNetwork'),
+      hwNetworkHint: document.getElementById('hwNetworkHint'),
+      hwOS: document.getElementById('hwOS'),
+      hwOSHint: document.getElementById('hwOSHint'),
+      hwBrowser: document.getElementById('hwBrowser'),
+      hwBrowserHint: document.getElementById('hwBrowserHint'),
+
+      // 工作情境與建議清單
+      scenarioButtons: document.getElementById('scenarioButtons'),
+      reduceListContainer: document.getElementById('reduceListContainer'),
+      boostListContainer: document.getElementById('boostListContainer'),
+      checklistProgressText: document.getElementById('checklistProgressText'),
+      checklistProgressBar: document.getElementById('checklistProgressBar'),
+      estimatedGainText: document.getElementById('estimatedGainText'),
+    };
+
+    /**
+     * 主題切換初始化與事件綁定
+     */
+    function initTheme() {
+      try {
+        const savedTheme = localStorage.getItem('perf_助手_theme');
+        if (savedTheme === 'light') {
+          dom.html.classList.remove('dark');
+        } else {
+          dom.html.classList.add('dark');
+        }
+      } catch (e) {
+        dom.html.classList.add('dark');
+      }
+      syncThemeIcons();
+
+      dom.themeToggleBtn.addEventListener('click', () => {
+        const isDark = dom.html.classList.toggle('dark');
+        try {
+          localStorage.setItem('perf_助手_theme', isDark ? 'dark' : 'light');
+        } catch (e) {
+          // 忽略儲存限制錯誤
+        }
+        syncThemeIcons();
+      });
+    }
+
+    function syncThemeIcons() {
+      const isDark = dom.html.classList.contains('dark');
+      dom.sunIcon.classList.toggle('hidden', !isDark);
+      dom.moonIcon.classList.toggle('hidden', isDark);
+    }
+
+    /**
+     * 偵測作業系統與瀏覽器資訊（基於 User-Agent 與標準 Navigator 屬性）
+     */
+    function detectPlatformAndBrowser() {
+      const ua = navigator.userAgent || '';
+      const platform = navigator.platform || '';
+
+      // 判斷作業系統
+      let osName = '桌面 / 未知系統';
+      if (/Windows NT 10\.0|Windows NT 11\.0/i.test(ua) || /Win/i.test(platform)) {
+        osName = 'Windows（10 / 11）';
+      } else if (/Mac OS X|Macintosh/i.test(ua) || /Mac/i.test(platform)) {
+        osName = 'macOS';
+      } else if (/Android/i.test(ua)) {
+        osName = 'Android';
+      } else if (/iPhone|iPad|iPod/i.test(ua)) {
+        osName = 'iOS / iPadOS';
+      } else if (/Linux/i.test(ua) || /Linux/i.test(platform)) {
+        osName = 'Linux';
+      }
+
+      // 判斷瀏覽器
+      let browserName = '現代瀏覽器';
+      if (/Edg\//i.test(ua)) {
+        const match = ua.match(/Edg\/([\d.]+)/);
+        browserName = `Microsoft Edge ${match ? match[1].split('.')[0] : ''}`.trim();
+      } else if (/OPR\/|Opera/i.test(ua)) {
+        browserName = 'Opera';
+      } else if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua)) {
+        const match = ua.match(/Chrome\/([\d.]+)/);
+        browserName = `Google Chrome ${match ? match[1].split('.')[0] : ''}`.trim();
+      } else if (/Firefox\//i.test(ua)) {
+        const match = ua.match(/Firefox\/([\d.]+)/);
+        browserName = `Mozilla Firefox ${match ? match[1].split('.')[0] : ''}`.trim();
+      } else if (/Safari\//i.test(ua) && !/Chrome\//i.test(ua)) {
+        browserName = 'Apple Safari';
+      }
+
+      appState.hardware.osName = osName;
+      appState.hardware.browserName = browserName;
+    }
+
+    /**
+     * 收集硬體與網路環境資訊
+     */
+    function collectHardwareInfo() {
+      try {
+        detectPlatformAndBrowser();
+
+        const hw = appState.hardware;
+        hw.cores = typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : null;
+        hw.reportedMemory = typeof navigator.deviceMemory === 'number' ? navigator.deviceMemory : null;
+
+        // 計算有效記憶體參考值（支援手動覆寫）
+        const manualVal = dom.manualMemorySelect.value;
+        if (manualVal !== 'auto') {
+          hw.effectiveMemoryGB = Number(manualVal);
+          hw.memorySource = '使用者手動指定';
+        } else if (hw.reportedMemory !== null) {
+          hw.effectiveMemoryGB = hw.reportedMemory;
+          hw.memorySource = '瀏覽器揭露（可能設為上限如 8GB）';
+        } else {
+          // 依核心數做保守推估
+          if (hw.cores && hw.cores >= 12) {
+            hw.effectiveMemoryGB = 16;
+          } else if (hw.cores && hw.cores <= 4) {
+            hw.effectiveMemoryGB = 4;
+          } else {
+            hw.effectiveMemoryGB = 8;
+          }
+          hw.memorySource = '瀏覽器未揭露・依核心數推估';
+        }
+
+        // 螢幕與像素比
+        hw.screenWidth = window.screen ? window.screen.width : window.innerWidth;
+        hw.screenHeight = window.screen ? window.screen.height : window.innerHeight;
+        hw.dpr = window.devicePixelRatio || 1;
+        hw.colorDepth = window.screen ? window.screen.colorDepth : 24;
+
+        // 網路連線狀態（Network Information API）
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (conn) {
+          hw.connectionType = conn.effectiveType ? conn.effectiveType.toUpperCase() : (conn.type || '已連線');
+          hw.downlink = typeof conn.downlink === 'number' ? conn.downlink : null;
+          hw.rtt = typeof conn.rtt === 'number' ? conn.rtt : null;
+          hw.saveData = Boolean(conn.saveData);
+        } else {
+          hw.connectionType = navigator.onLine ? '已連線（詳細頻寬未揭露）' : '離線';
+          hw.downlink = null;
+          hw.rtt = null;
+          hw.saveData = false;
+        }
+
+        hw.onLine = navigator.onLine;
+        hw.cookieEnabled = navigator.cookieEnabled;
+
+        renderHardwareCards();
+      } catch (err) {
+        console.error('硬體資訊收集發生錯誤：', err);
+      }
+    }
+
+    /**
+     * 更新硬體資訊卡片畫面
+     */
+    function renderHardwareCards() {
+      const hw = appState.hardware;
+
+      // 1. 邏輯核心數
+      if (hw.cores) {
+        dom.hwCores.textContent = `${hw.cores} 邏輯核心`;
+        dom.hwCoresHint.textContent =
+          hw.cores >= 12 ? '多執行緒能力充沛，適合平行任務' :
+          hw.cores >= 6 ? '中高核心數，日常多工與開發表現穩健' :
+          '核心數較精簡，建議減少背景重載程序';
+      } else {
+        dom.hwCores.textContent = '瀏覽器未揭露';
+        dom.hwCoresHint.textContent = '部分隱私模式會隱藏邏輯核心數';
+      }
+
+      // 2. 記憶體估計
+      if (dom.manualMemorySelect.value !== 'auto') {
+        dom.hwMemory.textContent = `${hw.effectiveMemoryGB} GB（手動）`;
+      } else if (hw.reportedMemory !== null) {
+        dom.hwMemory.textContent = `約 ${hw.reportedMemory} GB`;
+      } else {
+        dom.hwMemory.textContent = `估計 ${hw.effectiveMemoryGB} GB`;
+      }
+      dom.hwMemoryHint.textContent = hw.memorySource;
+
+      // 3. 螢幕解析度與像素比
+      dom.hwDisplay.textContent = `${hw.screenWidth} × ${hw.screenHeight}`;
+      dom.hwDisplayHint.textContent = `像素比 DPR: ${hw.dpr}x · 色深: ${hw.colorDepth}-bit`;
+
+      // 4. 網路連線
+      dom.hwNetwork.textContent = hw.connectionType;
+      const netDetails = [];
+      if (hw.downlink !== null) netDetails.push(`預估下行 ${hw.downlink} Mbps`);
+      if (hw.rtt !== null) netDetails.push(`延遲 RTT ${hw.rtt} ms`);
+      if (hw.saveData) netDetails.push('已啟用省流量模式');
+      dom.hwNetworkHint.textContent = netDetails.length > 0 ? netDetails.join(' · ') : '未揭露即時頻寬數值';
+
+      // 5. 作業系統
+      dom.hwOS.textContent = hw.osName;
+      dom.hwOSHint.textContent = `系統語系: ${hw.language}`;
+
+      // 6. 瀏覽器
+      dom.hwBrowser.textContent = hw.browserName;
+      dom.hwBrowserHint.textContent = `網路狀態: ${hw.onLine ? '線上' : '離線'} · Cookie: ${hw.cookieEnabled ? '啟用' : '停用'}`;
+    }
+
+    /**
+     * 更新整體進度條
+     */
+    function setProgress(percent, label) {
+      const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+      dom.progressBar.style.width = `${clamped}%`;
+      dom.progressPercent.textContent = `${clamped}%`;
+      if (label) {
+        dom.progressLabel.textContent = label;
+      }
+    }
+
+    /**
+     * 執行 CPU 算力基準測試（質數篩選 + 浮點三角/矩陣運算）
+     * 使用 setTimeout 讓 UI 有機會更新進度條，避免瞬間卡死畫面
+     */
+    function runCpuBenchmark() {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const start = performance.now();
+
+          // 階段 A：質數計算（上限 180,000）
+          let primeCount = 0;
+          const limit = 180000;
+          for (let n = 2; n <= limit; n++) {
+            let isPrime = true;
+            const root = Math.floor(Math.sqrt(n));
+            for (let d = 2; d <= root; d++) {
+              if (n % d === 0) {
+                isPrime = false;
+                break;
+              }
+            }
+            if (isPrime) primeCount++;
+          }
+
+          // 階段 B：浮點數學與向量累加運算
+          let acc = 0;
+          for (let i = 1; i <= 1800000; i++) {
+            acc += Math.sin(i * 0.001) * Math.cos(i * 0.0005) + (i % 7) * 0.125;
+          }
+
+          const end = performance.now();
+          const durationMs = Math.max(1, end - start);
+
+          // 計算效能指數與 0-100 分數（耗時越短分數越高）
+          // 基準參考：約 40ms 以下為極快，約 350ms 以上為較慢
+          const rawRatio = 45 / durationMs;
+          const cpuScore = Math.round(Math.max(15, Math.min(100, rawRatio * 88)));
+          const opsIndex = Math.round(((primeCount * 12 + 1800000) / durationMs) / 10);
+
+          resolve({
+            durationMs: Number(durationMs.toFixed(1)),
+            cpuScore,
+            opsIndex,
+            checksum: acc,
+          });
+        }, 40);
+      });
+    }
+
+    /**
+     * 調整 Canvas 實際解析度以符合容器大小與 DPR，確保高畫質與無變形
+     */
+    function resizeBenchmarkCanvas() {
+      const canvas = dom.benchmarkCanvas;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const targetWidth = Math.round(rect.width * dpr);
+      const targetHeight = Math.round(rect.height * dpr);
+
+      if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+      }
+    }
+
+    /**
+     * 執行 Canvas 圖形渲染 FPS 基準測試（約 1.5 秒取樣）
+     */
+    function runFpsBenchmark(durationTargetMs = 1500) {
+      return new Promise((resolve) => {
+        resizeBenchmarkCanvas();
+        dom.canvasIdleOverlay.classList.add('hidden');
+
+        const canvas = dom.benchmarkCanvas;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // 建立動態粒子陣列
+        const particleCount = 120;
+        const particles = Array.from({ length: particleCount }, (_, idx) => ({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 4.5 * (width / 600 || 1),
+          vy: (Math.random() - 0.5) * 4.5 * (height / 150 || 1),
+          r: 2 + (idx % 4) * 1.4,
+          hue: 195 + ((idx * 17) % 90),
+        }));
+
+        const startTime = performance.now();
+        let lastFrameTime = startTime;
+        let frameCount = 0;
+        let maxFps = 0;
+        const fpsSamples = [];
+
+        function renderFrame(now) {
+          const elapsed = now - startTime;
+          const dt = Math.max(0.001, (now - lastFrameTime) / 1000);
+          lastFrameTime = now;
+
+          const instantFps = 1 / dt;
+          if (instantFps > maxFps && instantFps < 360) {
+            maxFps = instantFps;
+          }
+          fpsSamples.push(instantFps);
+          frameCount++;
+
+          // 清空背景並繪製動態光波與粒子
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.28)';
+          ctx.fillRect(0, 0, width, height);
+
+          // 繪製正弦波線條
+          ctx.beginPath();
+          for (let x = 0; x <= width; x += 12) {
+            const y =
+              height * 0.5 +
+              Math.sin(x * 0.015 + now * 0.006) * (height * 0.22) +
+              Math.cos(x * 0.03 - now * 0.004) * (height * 0.08);
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // 更新與繪製粒子
+          for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${p.hue}, 90%, 62%, 0.85)`;
+            ctx.fill();
+          }
+
+          // 更新即時 FPS 顯示與進度
+          const rollingAvg =
+            fpsSamples.reduce((sum, v) => sum + Math.min(v, 240), 0) / fpsSamples.length;
+          dom.liveFrameCounter.textContent = `即時 FPS: ${Math.round(Math.min(instantFps, 240))}`;
+
+          const fpsPhaseProgress = Math.min(1, elapsed / durationTargetMs);
+          setProgress(45 + fpsPhaseProgress * 50, `正在進行 Canvas 圖形渲染 FPS 測試（${Math.round(rollingAvg)} FPS）...`);
+
+          if (elapsed < durationTargetMs) {
+            requestAnimationFrame(renderFrame);
+          } else {
+            const totalSec = Math.max(0.1, elapsed / 1000);
+            const avgFps = Number((frameCount / totalSec).toFixed(1));
+            const roundedMaxFps = Math.round(Math.min(maxFps || avgFps, 240));
+
+            // 60 FPS 以上視為高流暢度（滿分 100），30 FPS 約 55 分
+            const fpsScore = Math.round(Math.max(20, Math.min(100, (avgFps / 60) * 95)));
+
+            resolve({
+              avgFps,
+              maxFps: roundedMaxFps,
+              fpsScore,
+            });
+          }
+        }
+
+        requestAnimationFrame(renderFrame);
+      });
+    }
+
+    /**
+     * 計算綜合效能分數與 S / A / B / C 等級
+     */
+    function calculateOverallRating() {
+      const hw = appState.hardware;
+      const bm = appState.benchmark;
+
+      // 硬體規格得分（核心數 + 記憶體）
+      const cores = hw.cores || 4;
+      const coreScore = Math.min(100, (cores / 12) * 100);
+      const memGB = hw.effectiveMemoryGB || 8;
+      const memScore = memGB >= 32 ? 100 : memGB >= 16 ? 88 : memGB >= 8 ? 68 : 42;
+      const hwScore = coreScore * 0.55 + memScore * 0.45;
+
+      // 綜合分數：CPU 算力 35% + 圖形 FPS 30% + 硬體規格 35%
+      const overall = Math.round(bm.cpuScore * 0.35 + bm.fpsScore * 0.30 + hwScore * 0.35);
+      const clampedScore = Math.max(15, Math.min(100, overall));
+
+      let grade = 'C';
+      let title = '精簡輕量級・建議減負專注';
+      let summary = '目前硬體或即時基準表現較為精簡。建議關閉非必要背景分頁與特效，將有限資源集中在單一核心工作上。';
+      let badgeClasses = 'from-amber-500 to-orange-600';
+
+      if (clampedScore >= 85) {
+        grade = 'S';
+        title = '旗艦高效能・適合重度多工與創作';
+        summary = '算力與畫面流暢度皆屬高水準，可順暢應對大型專案、高畫質視訊與多開視窗。建議重點放在「避免注意力分散」與「建立深度工作節奏」。';
+        badgeClasses = 'from-emerald-500 to-teal-600';
+      } else if (clampedScore >= 68) {
+        grade = 'A';
+        title = '穩健主力機・日常與進階工作皆流暢';
+        summary = '整體效能表現良好，能勝任多數辦公、開發或設計任務。若遇到大型資料或視訊會議同時進行，適度精簡分頁即可維持高順暢度。';
+        badgeClasses = 'from-sky-500 to-indigo-600';
+      } else if (clampedScore >= 48) {
+        grade = 'B';
+        title = '平衡實用級・建議適度精簡背景負載';
+        summary = '足以應付日常文書與一般網頁操作，但在多開分頁、視訊或大型檔案處理時可能出現延遲。建議關閉耗資源擴充功能與背景同步。';
+        badgeClasses = 'from-indigo-500 to-purple-600';
+      }
+
+      bm.overallScore = clampedScore;
+      bm.grade = grade;
+
+      // 更新 UI
+      dom.gradeBadge.textContent = grade;
+      dom.gradeBadge.className = `w-16 h-16 rounded-2xl bg-gradient-to-br ${badgeClasses} text-white font-extrabold text-3xl flex items-center justify-center shadow-inner shrink-0`;
+      dom.overallScore.textContent = String(clampedScore);
+      dom.gradeTitle.textContent = title;
+      dom.gradeSummary.textContent = summary;
+
+      dom.cpuSubScoreText.textContent = `${bm.cpuScore} / 100`;
+      dom.cpuSubBar.style.width = `${bm.cpuScore}%`;
+
+      dom.fpsSubScoreText.textContent = `${bm.fpsScore} / 100`;
+      dom.fpsSubBar.style.width = `${bm.fpsScore}%`;
+
+      dom.cpuElapsedText.textContent = `耗時: ${bm.cpuDurationMs} ms`;
+      dom.cpuOpsText.textContent = bm.cpuIndexLabel.toLocaleString();
+      dom.cpuVerdictText.textContent =
+        bm.cpuScore >= 80 ? '算力充沛' : bm.cpuScore >= 55 ? '表現穩健' : '建議減少背景運算';
+
+      dom.fpsValueText.textContent = `${bm.avgFps} FPS`;
+      dom.fpsMaxText.textContent = `${bm.maxFps} FPS`;
+      dom.fpsVerdictText.textContent =
+        bm.avgFps >= 55 ? '高流暢度（接近/達 60Hz 基準）' : bm.avgFps >= 35 ? '流暢可用' : '偵測到幀率偏低，建議減輕畫面負載';
+    }
+
+    /**
+     * 根據硬體條件、效能評級與已選工作情境，動態產生建議清單
+     */
+    function generateRecommendations() {
+      const hw = appState.hardware;
+      const bm = appState.benchmark;
+      const scenarios = new Set(appState.selectedScenarios);
+      const hasTested = appState.lastTestedAt !== null;
+
+      const isLowSpec =
+        (hasTested && bm.overallScore < 55) ||
+        hw.effectiveMemoryGB <= 8 ||
+        (hw.cores !== null && hw.cores <= 4);
+
+      const reduceItems = [];
+      const boostItems = [];
+
+      // --- 通用「建議關閉 / 精簡」項目 ---
+      reduceItems.push({
+        id: 'close-excess-tabs',
+        title: '關閉或休眠超過 10 個暫時不用的瀏覽器分頁',
+        detail: isLowSpec
+          ? '目前記憶體或效能偏精簡，背景分頁的腳本與廣告會持續吃掉可用記憶體，建議只保留當下任務相關分頁。'
+          : '減少分頁數量不僅能釋放記憶體，也能降低找分頁時的視覺與認知切換成本。',
+        tag: isLowSpec ? '高優先・省記憶體' : '減少干擾',
+        gainScore: 18,
+      });
+
+      reduceItems.push({
+        id: 'pause-nonessential-extensions',
+        title: '暫停非必要瀏覽器擴充功能（特別是常駐背景監聽類）',
+        detail: '部分語法檢查、價格比價或畫面特效擴充功能會在每個網頁注入腳本，建議在執行重度工作或會議時暫時停用。',
+        tag: '釋放腳本開銷',
+        gainScore: 14,
+      });
+
+      reduceItems.push({
+        id: 'mute-notifications',
+        title: '開啟系統與通訊軟體「勿擾模式 / 專注模式」',
+        detail: '中斷一次專注後重新進入心流通常需要 15～25 分鐘，暫停即時訊息彈窗能大幅提升連續產出品質。',
+        tag: '提升專注力',
+        gainScore: 22,
+      });
+
+      reduceItems.push({
+        id: 'pause-cloud-sync',
+        title: '暫停大型雲端硬碟同步或背景備份',
+        detail: '當正在上傳/下載大量檔案或進行即時任務時，暫停背景同步可避免磁碟讀寫與網路頻寬爭奪。',
+        tag: '釋放 I/O 與頻寬',
+        gainScore: 15,
+      });
+
+      // --- 情境專屬「建議關閉 / 精簡」項目 ---
+      if (scenarios.has('meeting')) {
+        reduceItems.push({
+          id: 'meeting-bg-blur',
+          title: '視訊會議時關閉複雜虛擬背景或高耗能美顏特效',
+          detail: '即時去背與人像特效會持續佔用 CPU/GPU 算力，改用簡潔背景或關閉非必要特效可讓語音與畫面更穩。',
+          tag: '視訊會議必備',
+          gainScore: 20,
+        });
+      }
+
+      if (scenarios.has('dev')) {
+        reduceItems.push({
+          id: 'dev-idle-containers',
+          title: '關閉閒置的 Docker 容器、本機伺服器或未使用的模擬器',
+          detail: '背景運行的資料庫、監控服務與檔案索引會長期佔用記憶體與 CPU，收合不用的環境能讓編譯與查詢更快。',
+          tag: '開發環境減負',
+          gainScore: 20,
+        });
+      }
+
+      if (scenarios.has('creative')) {
+        reduceItems.push({
+          id: 'creative-heavy-apps',
+          title: '設計/剪輯時關閉其他高耗顯存的軟體與 4K 影片預覽分頁',
+          detail: '畫布合成與時間軸播放需要穩定的圖形記憶體與渲染管線，關閉多餘視窗可降低掉幀與卡頓機率。',
+          tag: '圖形資源保護',
+          gainScore: 20,
+        });
+      }
+
+      if (scenarios.has('general') || reduceItems.length < 5) {
+        reduceItems.push({
+          id: 'general-auto-play',
+          title: '避免在背景分頁播放高畫質影音或自動輪播網頁',
+          detail: '背景播放影片會觸發持續的解碼與重繪，關閉後可讓系統更安靜、省電且反應更即時。',
+          tag: '日常精簡',
+          gainScore: 12,
+        });
+      }
+
+      // --- 通用「工作效能提升」建議 ---
+      boostItems.push({
+        id: 'boost-timebox',
+        title: '採用「45/10 或 50/10 專注衝刺時段」',
+        detail: '設定明確的單一目標完成條件，專注時段內不切換任務，休息時間起身離開螢幕讓眼睛與大腦恢復。',
+        tag: '節奏管理',
+        gainScore: 20,
+      });
+
+      boostItems.push({
+        id: 'boost-window-split',
+        title: '善用視窗並排（Split View）與鍵盤快捷鍵',
+        detail: '使用作業系統快捷鍵（如 Win+方向鍵、Ctrl/Cmd+Tab、Ctrl/Cmd+L）取代頻繁滑鼠拖曳，減少操作摩擦。',
+        tag: '操作效率',
+        gainScore: 15,
+      });
+
+      boostItems.push({
+        id: 'boost-power-mode',
+        title: '插電進行重度工作時，確認電源模式為「最佳效能 / 平衡」',
+        detail: '若在接電狀態下仍處於省電模式，處理器時脈可能受限；拔除電源外出時則可視需求切回省電延長續航。',
+        tag: '電源策略',
+        gainScore: 16,
+      });
+
+      // --- 情境專屬「工作效能提升」建議 ---
+      if (scenarios.has('meeting')) {
+        boostItems.push({
+          id: 'meeting-checklist',
+          title: '會前 3 分鐘測試麥克風/鏡頭並備妥重點筆記區',
+          detail: '提前確認音訊輸入與分享視窗範圍，會議中直接記錄決策與待辦事項，會後省去重聽錄影的時間。',
+          tag: '會議效率',
+          gainScore: 16,
+        });
+      }
+
+      if (scenarios.has('dev')) {
+        boostItems.push({
+          id: 'dev-batch-heavy-tasks',
+          title: '將大型建置、測試或資料批次處理集中排程執行',
+          detail: '避免邊跑大型批次任務邊進行需要低延遲互動的操作，分批處理能減少等待與上下文切換。',
+          tag: '開發工作流',
+          gainScore: 18,
+        });
+      }
+
+      if (scenarios.has('creative')) {
+        boostItems.push({
+          id: 'creative-proxy-draft',
+          title: '草稿與剪輯階段先用較低預覽解析度，定稿再高畫質輸出',
+          detail: '先確認構圖、節奏與轉場再進行高耗時渲染，可大幅縮短等待時間並避免重複算圖。',
+          tag: '創作加速',
+          gainScore: 18,
+        });
+      }
+
+      if (scenarios.has('general')) {
+        boostItems.push({
+          id: 'general-bookmark-batch',
+          title: '建立「待讀/待處理」書籤資料夾，批次閱讀取代隨手開分頁',
+          detail: '看到延伸資料先收藏至待讀清單，完成目前文件後再一次處理，讓工作區保持清爽。',
+          tag: '分頁整理法',
+          gainScore: 14,
+        });
+      }
+
+      // 去重（以 id 為準）
+      const uniqueReduce = Array.from(new Map(reduceItems.map((i) => [i.id, i])).values());
+      const uniqueBoost = Array.from(new Map(boostItems.map((i) => [i.id, i])).values());
+
+      appState.currentRecommendations = {
+        reduce: uniqueReduce,
+        boost: uniqueBoost,
+      };
+
+      renderRecommendations();
+    }
+
+    /**
+     * 渲染工作情境按鈕與建議清單
+     */
+    function renderScenarioButtons() {
+      dom.scenarioButtons.innerHTML = '';
+
+      WORK_SCENARIOS.forEach((sc) => {
+        const active = appState.selectedScenarios.includes(sc.id);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('aria-pressed', String(active));
+        btn.className = `text-left rounded-2xl border p-3.5 transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+          active
+            ? 'border-sky-500 bg-sky-500/10 dark:bg-sky-500/15 ring-2 ring-sky-500/30'
+            : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
+        }`;
+
+        btn.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-sm font-bold ${
+              active ? 'text-sky-700 dark:text-sky-300' : 'text-slate-800 dark:text-slate-100'
+            }">${sc.title}</span>
+            <span class="w-5 h-5 rounded-lg flex items-center justify-center text-xs font-bold ${
+              active
+                ? 'bg-sky-500 text-white'
+                : 'border border-slate-300 dark:border-slate-600 text-transparent'
+            }">✓</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-snug">${sc.desc}</p>
+          <span class="inline-block self-start text-[11px] px-2 py-0.5 rounded-md bg-white/80 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700/70">
+            ${sc.tag}
+          </span>
+        `;
+
+        btn.addEventListener('click', () => {
+          if (appState.selectedScenarios.includes(sc.id)) {
+            // 至少保留一個情境，避免清單空白
+            if (appState.selectedScenarios.length > 1) {
+              appState.selectedScenarios = appState.selectedScenarios.filter((item) => item !== sc.id);
+            }
+          } else {
+            appState.selectedScenarios.push(sc.id);
+          }
+          renderScenarioButtons();
+          generateRecommendations();
+        });
+
+        dom.scenarioButtons.appendChild(btn);
+      });
+    }
+
+    function createRecommendationCard(item, accentType) {
+      const checked = appState.completedIds.has(item.id);
+      const card = document.createElement('label');
+      card.className = `flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
+        checked
+          ? 'bg-white/60 dark:bg-slate-900/50 border-slate-200/70 dark:border-slate-800 opacity-75'
+          : 'bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 hover:border-sky-400/60 shadow-2xs'
+      }`;
+
+      const badgeColor =
+        accentType === 'reduce'
+          ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300'
+          : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300';
+
+      card.innerHTML = `
+        <input
+          type="checkbox"
+          class="mt-1 w-4 h-4 rounded accent-sky-500 cursor-pointer shrink-0"
+          ${checked ? 'checked' : ''}
+        />
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs sm:text-sm font-semibold ${
+              checked ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'
+            }">${item.title}</span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full font-medium ${badgeColor}">${item.tag}</span>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">${item.detail}</p>
+        </div>
+      `;
+
+      const checkbox = card.querySelector('input[type="checkbox"]');
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+          appState.completedIds.add(item.id);
+        } else {
+          appState.completedIds.delete(item.id);
+        }
+        renderRecommendations();
+      });
+
+      return card;
+    }
+
+    function renderRecommendations() {
+      const { reduce, boost } = appState.currentRecommendations;
+
+      dom.reduceListContainer.innerHTML = '';
+      dom.boostListContainer.innerHTML = '';
+
+      reduce.forEach((item) => {
+        dom.reduceListContainer.appendChild(createRecommendationCard(item, 'reduce'));
+      });
+
+      boost.forEach((item) => {
+        dom.boostListContainer.appendChild(createRecommendationCard(item, 'boost'));
+      });
+
+      updateChecklistProgress();
+    }
+
+    /**
+     * 更新優化清單進度與預估釋放提示
+     */
+    function updateChecklistProgress() {
+      const allItems = [
+        ...appState.currentRecommendations.reduce,
+        ...appState.currentRecommendations.boost,
+      ];
+      const total = allItems.length;
+      const completedItems = allItems.filter((item) => appState.completedIds.has(item.id));
+      const completedCount = completedItems.length;
+
+      const percent = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+      dom.checklistProgressText.textContent = `${completedCount} / ${total} 項（${percent}%）`;
+      dom.checklistProgressBar.style.width = `${percent}%`;
+
+      if (completedCount === 0) {
+        dom.estimatedGainText.textContent =
+          '勾選完成項目後，將顯示預估釋放的注意力與系統流暢度提升提示。';
+        return;
+      }
+
+      const totalGainPoints = completedItems.reduce((sum, item) => sum + (item.gainScore || 12), 0);
+      const smoothnessBoost = Math.min(35, Math.round(totalGainPoints * 0.25));
+      const focusBoost = Math.min(45, Math.round(totalGainPoints * 0.35));
+
+      dom.estimatedGainText.textContent =
+        `已完成 ${completedCount} 項優化：預估提升約 +${smoothnessBoost}% 系統可用餘裕與 +${focusBoost}% 專注連續度，工作環境更精簡順暢！`;
+    }
+
+    /**
+     * 執行完整一鍵效能檢測流程
+     */
+    async function runFullDiagnostic() {
+      if (appState.isRunning) return;
+      appState.isRunning = true;
+
+      dom.runDiagnosticBtn.disabled = true;
+      dom.runBtnText.textContent = '檢測進行中...';
+      dom.statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse-soft';
+      dom.statusText.textContent = '正在執行基準測試...';
+      dom.progressCard.classList.remove('hidden');
+
+      try {
+        // 步驟 1：收集硬體與環境資訊
+        setProgress(12, '正在讀取瀏覽器沙箱內可用的硬體與環境資訊...');
+        collectHardwareInfo();
+
+        // 步驟 2：執行 CPU 算力基準測試
+        setProgress(28, '正在執行 CPU 質數與浮點數學運算基準測試...');
+        const cpuResult = await runCpuBenchmark();
+        appState.benchmark.cpuDurationMs = cpuResult.durationMs;
+        appState.benchmark.cpuScore = cpuResult.cpuScore;
+        appState.benchmark.cpuIndexLabel = cpuResult.opsIndex;
+
+        // 步驟 3：執行 Canvas 圖形渲染 FPS 測試
+        setProgress(45, '正在啟動 Canvas 圖形渲染 FPS 測試...');
+        const fpsResult = await runFpsBenchmark(1500);
+        appState.benchmark.avgFps = fpsResult.avgFps;
+        appState.benchmark.maxFps = fpsResult.maxFps;
+        appState.benchmark.fpsScore = fpsResult.fpsScore;
+
+        // 步驟 4：計算綜合評級與更新建議
+        setProgress(98, '正在彙整綜合效能評級與個人化工作流建議...');
+        appState.lastTestedAt = new Date();
+        calculateOverallRating();
+        generateRecommendations();
+
+        const timeStr = appState.lastTestedAt.toLocaleTimeString('zh-Hant', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
+        dom.lastTestedLabel.textContent = `更新於 ${timeStr}`;
+
+        setProgress(100, '效能檢測完成！');
+        dom.statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+        dom.statusText.textContent = `檢測完成・評級 ${appState.benchmark.grade}（${appState.benchmark.overallScore} 分）`;
+      } catch (err) {
+        console.error('效能檢測發生錯誤：', err);
+        dom.statusDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
+        dom.statusText.textContent = '檢測過程發生異常，請重試';
+      } finally {
+        appState.isRunning = false;
+        dom.runDiagnosticBtn.disabled = false;
+        dom.runBtnText.textContent = '重新執行效能檢測';
+      }
+    }
+
+    /**
+     * 頁面初始化
+     */
+    function initApp() {
+      initTheme();
+      collectHardwareInfo();
+      renderScenarioButtons();
+      generateRecommendations();
+      resizeBenchmarkCanvas();
+
+      // 事件監聽
+      dom.runDiagnosticBtn.addEventListener('click', runFullDiagnostic);
+
+      dom.manualMemorySelect.addEventListener('change', () => {
+        collectHardwareInfo();
+        if (appState.lastTestedAt !== null) {
+          calculateOverallRating();
+        }
+        generateRecommendations();
+      });
+
+      window.addEventListener('resize', () => {
+        resizeBenchmarkCanvas();
+      });
+
+      window.addEventListener('online', collectHardwareInfo);
+      window.addEventListener('offline', collectHardwareInfo);
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
